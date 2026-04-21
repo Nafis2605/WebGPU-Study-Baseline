@@ -1,0 +1,19 @@
+# Native TensorFlow + CUDA requirements
+#
+# Install:
+#   pip install -r requirements.txt
+#
+# CUDA / cuDNN must be installed on your system first.
+#
+# Linux (TF 2.13+):
+#   pip install "tensorflow[and-cuda]>=2.13.0"
+#
+# Windows (TF 2.10 — last native Windows GPU release):
+#   Install CUDA 11.2 + cuDNN 8.1, then:
+#   pip install "tensorflow>=2.10.0,<2.11.0"
+#
+# Verify GPU is visible before running any script:
+#   python -c "import tensorflow as tf; print(tf.config.list_physical_devices('GPU'))"
+
+tensorflow>=2.10.0
+numpy>=1.24.0
