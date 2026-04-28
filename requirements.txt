@@ -1,18 +1,37 @@
-# Native TensorFlow + CUDA requirements
+# GPU Benchmark Requirements
+# -----------------------------------------------------------------------
+# Two benchmark backends are provided:
+#   - benchmark_numba_cuda.py  (TensorFlow + Numba, original baseline)
+#   - benchmark_pytorch_cuda.py (PyTorch, maximum raw GPU speed)
 #
-# Install:
-#   Windows: pip install -r requirements_gpu.txt
-#   Linux:   pip install "tensorflow[and-cuda]>=2.13.0"
+# -----------------------------------------------------------------------
+# PyTorch CUDA (recommended for max speed) — install ONE of:
 #
-# Windows CUDA GPU Setup:
-# 1. Install CUDA 11.2 and cuDNN 8.1 (see CUDA installation docs)
-# 2. Add to PATH:
-#    - C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.2\bin
-#    - C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.2\libnvvp
-#    - C:\cudnn\bin (where cuDNN is extracted)
-# 3. Then: pip install tensorflow-gpu==2.10.0
-# 4. Verify: python -c "import tensorflow as tf; print(tf.config.list_physical_devices('GPU'))"
+#   CUDA 12.1  (RTX 30/40 series, recommended):
+#     pip install torch torchvision --index-url https://download.pytorch.org/whl/cu121
+#
+#   CUDA 11.8  (older GPUs):
+#     pip install torch torchvision --index-url https://download.pytorch.org/whl/cu118
+#
+#   Verify: python -c "import torch; print(torch.cuda.is_available(), torch.version.cuda)"
+#
+# -----------------------------------------------------------------------
+# TensorFlow CUDA (original baseline):
+#   conda create -n tf-gpu python=3.10 -y
+#   conda activate tf-gpu
+#   pip install tensorflow==2.13.1 numba numpy pandas
+#
+#   Verify: python -c "import tensorflow as tf; print(tf.config.list_physical_devices('GPU'))"
+# -----------------------------------------------------------------------
 
-# Windows GPU version (TensorFlow 2.10 — last native Windows GPU release)
-tensorflow-gpu==2.10.0
+# Common
 numpy>=1.24.0
+pandas>=1.5.0
+
+# PyTorch (install via URL above — not pip install torch directly)
+# torch>=2.1.0
+# torchvision>=0.16.0
+
+# TensorFlow (original baseline)
+# tensorflow==2.13.1
+# numba>=0.57.0
