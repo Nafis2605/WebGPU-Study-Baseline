@@ -1,0 +1,40 @@
+version: '3.9'
+
+services:
+  benchmark-gpu:
+    build: .
+    container_name: benchmark-gpu-native
+    
+    # Enable GPU support
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    
+    # Mount volumes for code and results
+    volumes:
+      # Mount benchmark code (read-only)
+      - ./benchmark_native.py:/benchmark/benchmark_native.py:ro
+      - ./DNN:/benchmark/DNN:ro
+      - ./RNN:/benchmark/RNN:ro
+      - ./CNN:/benchmark/CNN:ro
+      - ./data:/benchmark/data:ro
+      
+      # Mount results directory (write access)
+      - ./results:/benchmark/results
+    
+    # Environment variables for GPU
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - CUDA_VISIBLE_DEVICES=0
+      - TF_CPP_MIN_LOG_LEVEL=2
+    
+    # Keep container running for interactive use
+    stdin_open: true
+    tty: true
+    
+    # Override default CMD to bash
+    command: /bin/bash
