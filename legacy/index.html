@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TensorFlow.js - Different Backends</title>
+  <link rel="icon" href="favicon.ico" type="image/x-icon"> 
+
+    <!-- Import TensorFlow.js -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"></script>
+
+    <!-- Import tfjs-vis -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-vis@1.0.2/dist/tfjs-vis.umd.min.js"></script>
+
+    <!-- Adds the CPU backend to the global backend registry -->
+    <!--
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-cpu"></script>
+    -->
+
+    <!-- Adds the WebGL backend to the global backend registry -->
+    <!--
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-webgl"></script>
+    -->
+ 
+
+    <!-- Adds the WASM backend to the global backend registry -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-wasm/dist/tf-backend-wasm.js"></script>
+
+    <!-- Import the WebGPU backend --> 
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-webgpu@latest/dist/tf-backend-webgpu.js"></script>
+
+    <!-- Import the data file -->
+    <script src="./data_cifar10.js" type="module"></script>
+
+    <!-- Import the main script file -->
+    <script src="./RNN/R4.js" type="module"></script>
+
+</head>
+<body>
+    <h1>CIFAR-10 with DNN</h1>
+</body>
+  
+</html>
+
+<!-- http://127.0.0.1:5500/Tensorflow_JS/index.html -->   

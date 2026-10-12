@@ -1,16 +1,24 @@
 {
-  "dependencies": {
-    "express": "^4.19.2",
-    "http-proxy-middleware": "^3.0.2"
-  },
-  "name": "webgpu-study-www2026",
+  "name": "tfjs-training-study",
   "version": "1.0.0",
-  "main": "data_cifar10.js",
+  "private": true,
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "build": "vite build && vite build --mode diag",
+    "prepare-wasm": "node scripts/copy-tfjs-wasm.js",
+    "postinstall": "npm run prepare-wasm",
+    "bench:serve": "vite build && vite preview",
+    "diag:serve": "vite build --mode diag && vite preview --mode diag"
   },
-  "author": "",
-  "license": "ISC",
-  "description": ""
+  "dependencies": {
+    "@tensorflow/tfjs-backend-cpu": "4.22.0",
+    "@tensorflow/tfjs-backend-wasm": "4.22.0",
+    "@tensorflow/tfjs-backend-webgl": "4.22.0",
+    "@tensorflow/tfjs-backend-webgpu": "4.22.0",
+    "@tensorflow/tfjs-core": "4.22.0",
+    "@tensorflow/tfjs-layers": "4.22.0"
+  },
+  "devDependencies": {
+    "vite": "6.4.3"
+  }
 }

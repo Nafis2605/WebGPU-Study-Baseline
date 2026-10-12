@@ -1,0 +1,6846 @@
+{
+ "schema": 1,
+ "dataset": "cifar10",
+ "input_shape": [
+  32,
+  32,
+  3
+ ],
+ "num_classes": 10,
+ "optimizer": {
+  "type": "adam",
+  "learning_rate": 0.001,
+  "beta1": 0.9,
+  "beta2": 0.999,
+  "epsilon": 1e-07
+ },
+ "loss": "categorical_crossentropy_tfjs",
+ "loss_epsilon": 1e-07,
+ "models": [
+  {
+   "name": "D1",
+   "family": "mlp",
+   "size": 1,
+   "batch": 64,
+   "input_shape": [
+    32,
+    32,
+    3
+   ],
+   "num_classes": 10,
+   "params": 197322,
+   "layers": [
+    {
+     "type": "flatten",
+     "name": "flatten",
+     "output_shape": [
+      3072
+     ]
+    },
+    {
+     "type": "dense",
+     "name": "dense_0",
+     "units": 64,
+     "activation": "relu",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        3072,
+        64
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        64
+       ]
+      }
+     ],
+     "output_shape": [
+      64
+     ]
+    },
+    {
+     "type": "dense",
+     "name": "logits",
+     "units": 10,
+     "activation": "softmax",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        64,
+        10
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        10
+       ]
+      }
+     ],
+     "output_shape": [
+      10
+     ]
+    }
+   ]
+  },
+  {
+   "name": "D2",
+   "family": "mlp",
+   "size": 2,
+   "batch": 64,
+   "input_shape": [
+    32,
+    32,
+    3
+   ],
+   "num_classes": 10,
+   "params": 411146,
+   "layers": [
+    {
+     "type": "flatten",
+     "name": "flatten",
+     "output_shape": [
+      3072
+     ]
+    },
+    {
+     "type": "dense",
+     "name": "dense_0",
+     "units": 128,
+     "activation": "relu",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        3072,
+        128
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        128
+       ]
+      }
+     ],
+     "output_shape": [
+      128
+     ]
+    },
+    {
+     "type": "dense",
+     "name": "dense_1",
+     "units": 128,
+     "activation": "relu",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        128,
+        128
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        128
+       ]
+      }
+     ],
+     "output_shape": [
+      128
+     ]
+    },
+    {
+     "type": "dense",
+     "name": "logits",
+     "units": 10,
+     "activation": "softmax",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        128,
+        10
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        10
+       ]
+      }
+     ],
+     "output_shape": [
+      10
+     ]
+    }
+   ]
+  },
+  {
+   "name": "D3",
+   "family": "mlp",
+   "size": 3,
+   "batch": 64,
+   "input_shape": [
+    32,
+    32,
+    3
+   ],
+   "num_classes": 10,
+   "params": 920842,
+   "layers": [
+    {
+     "type": "flatten",
+     "name": "flatten",
+     "output_shape": [
+      3072
+     ]
+    },
+    {
+     "type": "dense",
+     "name": "dense_0",
+     "units": 256,
+     "activation": "relu",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        3072,
+        256
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        256
+       ]
+      }
+     ],
+     "output_shape": [
+      256
+     ]
+    },
+    {
+     "type": "dense",
+     "name": "dense_1",
+     "units": 256,
+     "activation": "relu",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        256,
+        256
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        256
+       ]
+      }
+     ],
+     "output_shape": [
+      256
+     ]
+    },
+    {
+     "type": "dense",
+     "name": "dense_2",
+     "units": 256,
+     "activation": "relu",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        256,
+        256
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        256
+       ]
+      }
+     ],
+     "output_shape": [
+      256
+     ]
+    },
+    {
+     "type": "dense",
+     "name": "logits",
+     "units": 10,
+     "activation": "softmax",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        256,
+        10
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        10
+       ]
+      }
+     ],
+     "output_shape": [
+      10
+     ]
+    }
+   ]
+  },
+  {
+   "name": "D4",
+   "family": "mlp",
+   "size": 4,
+   "batch": 64,
+   "input_shape": [
+    32,
+    32,
+    3
+   ],
+   "num_classes": 10,
+   "params": 2366474,
+   "layers": [
+    {
+     "type": "flatten",
+     "name": "flatten",
+     "output_shape": [
+      3072
+     ]
+    },
+    {
+     "type": "dense",
+     "name": "dense_0",
+     "units": 512,
+     "activation": "relu",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        3072,
+        512
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        512
+       ]
+      }
+     ],
+     "output_shape": [
+      512
+     ]
+    },
+    {
+     "type": "dense",
+     "name": "dense_1",
+     "units": 512,
+     "activation": "relu",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        512,
+        512
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        512
+       ]
+      }
+     ],
+     "output_shape": [
+      512
+     ]
+    },
+    {
+     "type": "dense",
+     "name": "dense_2",
+     "units": 512,
+     "activation": "relu",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        512,
+        512
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        512
+       ]
+      }
+     ],
+     "output_shape": [
+      512
+     ]
+    },
+    {
+     "type": "dense",
+     "name": "dense_3",
+     "units": 512,
+     "activation": "relu",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        512,
+        512
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        512
+       ]
+      }
+     ],
+     "output_shape": [
+      512
+     ]
+    },
+    {
+     "type": "dense",
+     "name": "logits",
+     "units": 10,
+     "activation": "softmax",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        512,
+        10
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        10
+       ]
+      }
+     ],
+     "output_shape": [
+      10
+     ]
+    }
+   ]
+  },
+  {
+   "name": "D5",
+   "family": "mlp",
+   "size": 5,
+   "batch": 64,
+   "input_shape": [
+    32,
+    32,
+    3
+   ],
+   "num_classes": 10,
+   "params": 7355402,
+   "layers": [
+    {
+     "type": "flatten",
+     "name": "flatten",
+     "output_shape": [
+      3072
+     ]
+    },
+    {
+     "type": "dense",
+     "name": "dense_0",
+     "units": 1024,
+     "activation": "relu",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        3072,
+        1024
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        1024
+       ]
+      }
+     ],
+     "output_shape": [
+      1024
+     ]
+    },
+    {
+     "type": "dense",
+     "name": "dense_1",
+     "units": 1024,
+     "activation": "relu",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        1024,
+        1024
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        1024
+       ]
+      }
+     ],
+     "output_shape": [
+      1024
+     ]
+    },
+    {
+     "type": "dense",
+     "name": "dense_2",
+     "units": 1024,
+     "activation": "relu",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        1024,
+        1024
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        1024
+       ]
+      }
+     ],
+     "output_shape": [
+      1024
+     ]
+    },
+    {
+     "type": "dense",
+     "name": "dense_3",
+     "units": 1024,
+     "activation": "relu",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        1024,
+        1024
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        1024
+       ]
+      }
+     ],
+     "output_shape": [
+      1024
+     ]
+    },
+    {
+     "type": "dense",
+     "name": "dense_4",
+     "units": 1024,
+     "activation": "relu",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        1024,
+        1024
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        1024
+       ]
+      }
+     ],
+     "output_shape": [
+      1024
+     ]
+    },
+    {
+     "type": "dense",
+     "name": "logits",
+     "units": 10,
+     "activation": "softmax",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        1024,
+        10
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        10
+       ]
+      }
+     ],
+     "output_shape": [
+      10
+     ]
+    }
+   ]
+  },
+  {
+   "name": "C1",
+   "family": "cnn",
+   "size": 1,
+   "batch": 64,
+   "input_shape": [
+    32,
+    32,
+    3
+   ],
+   "num_classes": 10,
+   "params": 600650,
+   "layers": [
+    {
+     "type": "conv2d",
+     "name": "conv_0",
+     "filters": 64,
+     "kernel_size": [
+      3,
+      3
+     ],
+     "padding": "same",
+     "activation": "relu",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_normal",
+       "shape": [
+        3,
+        3,
+        3,
+        64
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        64
+       ]
+      }
+     ],
+     "output_shape": [
+      32,
+      32,
+      64
+     ]
+    },
+    {
+     "type": "maxpool2d",
+     "name": "pool_0",
+     "pool_size": [
+      2,
+      2
+     ],
+     "output_shape": [
+      16,
+      16,
+      64
+     ]
+    },
+    {
+     "type": "conv2d",
+     "name": "conv_1",
+     "filters": 128,
+     "kernel_size": [
+      3,
+      3
+     ],
+     "padding": "same",
+     "activation": "relu",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_normal",
+       "shape": [
+        3,
+        3,
+        64,
+        128
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        128
+       ]
+      }
+     ],
+     "output_shape": [
+      16,
+      16,
+      128
+     ]
+    },
+    {
+     "type": "maxpool2d",
+     "name": "pool_1",
+     "pool_size": [
+      2,
+      2
+     ],
+     "output_shape": [
+      8,
+      8,
+      128
+     ]
+    },
+    {
+     "type": "flatten",
+     "name": "flatten",
+     "output_shape": [
+      8192
+     ]
+    },
+    {
+     "type": "dense",
+     "name": "dense_0",
+     "units": 64,
+     "activation": "relu",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_normal",
+       "shape": [
+        8192,
+        64
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        64
+       ]
+      }
+     ],
+     "output_shape": [
+      64
+     ]
+    },
+    {
+     "type": "dense",
+     "name": "logits",
+     "units": 10,
+     "activation": "softmax",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_normal",
+       "shape": [
+        64,
+        10
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        10
+       ]
+      }
+     ],
+     "output_shape": [
+      10
+     ]
+    }
+   ]
+  },
+  {
+   "name": "C2",
+   "family": "cnn",
+   "size": 2,
+   "batch": 64,
+   "input_shape": [
+    32,
+    32,
+    3
+   ],
+   "num_classes": 10,
+   "params": 1142154,
+   "layers": [
+    {
+     "type": "conv2d",
+     "name": "conv_0",
+     "filters": 64,
+     "kernel_size": [
+      3,
+      3
+     ],
+     "padding": "same",
+     "activation": "relu",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_normal",
+       "shape": [
+        3,
+        3,
+        3,
+        64
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        64
+       ]
+      }
+     ],
+     "output_shape": [
+      32,
+      32,
+      64
+     ]
+    },
+    {
+     "type": "maxpool2d",
+     "name": "pool_0",
+     "pool_size": [
+      2,
+      2
+     ],
+     "output_shape": [
+      16,
+      16,
+      64
+     ]
+    },
+    {
+     "type": "conv2d",
+     "name": "conv_1",
+     "filters": 128,
+     "kernel_size": [
+      3,
+      3
+     ],
+     "padding": "same",
+     "activation": "relu",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_normal",
+       "shape": [
+        3,
+        3,
+        64,
+        128
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        128
+       ]
+      }
+     ],
+     "output_shape": [
+      16,
+      16,
+      128
+     ]
+    },
+    {
+     "type": "maxpool2d",
+     "name": "pool_1",
+     "pool_size": [
+      2,
+      2
+     ],
+     "output_shape": [
+      8,
+      8,
+      128
+     ]
+    },
+    {
+     "type": "flatten",
+     "name": "flatten",
+     "output_shape": [
+      8192
+     ]
+    },
+    {
+     "type": "dense",
+     "name": "dense_0",
+     "units": 128,
+     "activation": "relu",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_normal",
+       "shape": [
+        8192,
+        128
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        128
+       ]
+      }
+     ],
+     "output_shape": [
+      128
+     ]
+    },
+    {
+     "type": "dense",
+     "name": "dense_1",
+     "units": 128,
+     "activation": "relu",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_normal",
+       "shape": [
+        128,
+        128
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        128
+       ]
+      }
+     ],
+     "output_shape": [
+      128
+     ]
+    },
+    {
+     "type": "dense",
+     "name": "logits",
+     "units": 10,
+     "activation": "softmax",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_normal",
+       "shape": [
+        128,
+        10
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        10
+       ]
+      }
+     ],
+     "output_shape": [
+      10
+     ]
+    }
+   ]
+  },
+  {
+   "name": "C3",
+   "family": "cnn",
+   "size": 3,
+   "batch": 64,
+   "input_shape": [
+    32,
+    32,
+    3
+   ],
+   "num_classes": 10,
+   "params": 2307210,
+   "layers": [
+    {
+     "type": "conv2d",
+     "name": "conv_0",
+     "filters": 64,
+     "kernel_size": [
+      3,
+      3
+     ],
+     "padding": "same",
+     "activation": "relu",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_normal",
+       "shape": [
+        3,
+        3,
+        3,
+        64
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        64
+       ]
+      }
+     ],
+     "output_shape": [
+      32,
+      32,
+      64
+     ]
+    },
+    {
+     "type": "maxpool2d",
+     "name": "pool_0",
+     "pool_size": [
+      2,
+      2
+     ],
+     "output_shape": [
+      16,
+      16,
+      64
+     ]
+    },
+    {
+     "type": "conv2d",
+     "name": "conv_1",
+     "filters": 128,
+     "kernel_size": [
+      3,
+      3
+     ],
+     "padding": "same",
+     "activation": "relu",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_normal",
+       "shape": [
+        3,
+        3,
+        64,
+        128
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        128
+       ]
+      }
+     ],
+     "output_shape": [
+      16,
+      16,
+      128
+     ]
+    },
+    {
+     "type": "maxpool2d",
+     "name": "pool_1",
+     "pool_size": [
+      2,
+      2
+     ],
+     "output_shape": [
+      8,
+      8,
+      128
+     ]
+    },
+    {
+     "type": "flatten",
+     "name": "flatten",
+     "output_shape": [
+      8192
+     ]
+    },
+    {
+     "type": "dense",
+     "name": "dense_0",
+     "units": 256,
+     "activation": "relu",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_normal",
+       "shape": [
+        8192,
+        256
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        256
+       ]
+      }
+     ],
+     "output_shape": [
+      256
+     ]
+    },
+    {
+     "type": "dense",
+     "name": "dense_1",
+     "units": 256,
+     "activation": "relu",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_normal",
+       "shape": [
+        256,
+        256
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        256
+       ]
+      }
+     ],
+     "output_shape": [
+      256
+     ]
+    },
+    {
+     "type": "dense",
+     "name": "dense_2",
+     "units": 256,
+     "activation": "relu",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_normal",
+       "shape": [
+        256,
+        256
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        256
+       ]
+      }
+     ],
+     "output_shape": [
+      256
+     ]
+    },
+    {
+     "type": "dense",
+     "name": "logits",
+     "units": 10,
+     "activation": "softmax",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_normal",
+       "shape": [
+        256,
+        10
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        10
+       ]
+      }
+     ],
+     "output_shape": [
+      10
+     ]
+    }
+   ]
+  },
+  {
+   "name": "C4",
+   "family": "cnn",
+   "size": 4,
+   "batch": 64,
+   "input_shape": [
+    32,
+    32,
+    3
+   ],
+   "num_classes": 10,
+   "params": 5063562,
+   "layers": [
+    {
+     "type": "conv2d",
+     "name": "conv_0",
+     "filters": 64,
+     "kernel_size": [
+      3,
+      3
+     ],
+     "padding": "same",
+     "activation": "relu",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_normal",
+       "shape": [
+        3,
+        3,
+        3,
+        64
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        64
+       ]
+      }
+     ],
+     "output_shape": [
+      32,
+      32,
+      64
+     ]
+    },
+    {
+     "type": "maxpool2d",
+     "name": "pool_0",
+     "pool_size": [
+      2,
+      2
+     ],
+     "output_shape": [
+      16,
+      16,
+      64
+     ]
+    },
+    {
+     "type": "conv2d",
+     "name": "conv_1",
+     "filters": 128,
+     "kernel_size": [
+      3,
+      3
+     ],
+     "padding": "same",
+     "activation": "relu",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_normal",
+       "shape": [
+        3,
+        3,
+        64,
+        128
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        128
+       ]
+      }
+     ],
+     "output_shape": [
+      16,
+      16,
+      128
+     ]
+    },
+    {
+     "type": "maxpool2d",
+     "name": "pool_1",
+     "pool_size": [
+      2,
+      2
+     ],
+     "output_shape": [
+      8,
+      8,
+      128
+     ]
+    },
+    {
+     "type": "flatten",
+     "name": "flatten",
+     "output_shape": [
+      8192
+     ]
+    },
+    {
+     "type": "dense",
+     "name": "dense_0",
+     "units": 512,
+     "activation": "relu",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_normal",
+       "shape": [
+        8192,
+        512
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        512
+       ]
+      }
+     ],
+     "output_shape": [
+      512
+     ]
+    },
+    {
+     "type": "dense",
+     "name": "dense_1",
+     "units": 512,
+     "activation": "relu",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_normal",
+       "shape": [
+        512,
+        512
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        512
+       ]
+      }
+     ],
+     "output_shape": [
+      512
+     ]
+    },
+    {
+     "type": "dense",
+     "name": "dense_2",
+     "units": 512,
+     "activation": "relu",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_normal",
+       "shape": [
+        512,
+        512
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        512
+       ]
+      }
+     ],
+     "output_shape": [
+      512
+     ]
+    },
+    {
+     "type": "dense",
+     "name": "dense_3",
+     "units": 512,
+     "activation": "relu",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_normal",
+       "shape": [
+        512,
+        512
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        512
+       ]
+      }
+     ],
+     "output_shape": [
+      512
+     ]
+    },
+    {
+     "type": "dense",
+     "name": "logits",
+     "units": 10,
+     "activation": "softmax",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_normal",
+       "shape": [
+        512,
+        10
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        10
+       ]
+      }
+     ],
+     "output_shape": [
+      10
+     ]
+    }
+   ]
+  },
+  {
+   "name": "C5",
+   "family": "cnn",
+   "size": 5,
+   "batch": 64,
+   "input_shape": [
+    32,
+    32,
+    3
+   ],
+   "num_classes": 10,
+   "params": 12673930,
+   "layers": [
+    {
+     "type": "conv2d",
+     "name": "conv_0",
+     "filters": 64,
+     "kernel_size": [
+      3,
+      3
+     ],
+     "padding": "same",
+     "activation": "relu",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_normal",
+       "shape": [
+        3,
+        3,
+        3,
+        64
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        64
+       ]
+      }
+     ],
+     "output_shape": [
+      32,
+      32,
+      64
+     ]
+    },
+    {
+     "type": "maxpool2d",
+     "name": "pool_0",
+     "pool_size": [
+      2,
+      2
+     ],
+     "output_shape": [
+      16,
+      16,
+      64
+     ]
+    },
+    {
+     "type": "conv2d",
+     "name": "conv_1",
+     "filters": 128,
+     "kernel_size": [
+      3,
+      3
+     ],
+     "padding": "same",
+     "activation": "relu",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_normal",
+       "shape": [
+        3,
+        3,
+        64,
+        128
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        128
+       ]
+      }
+     ],
+     "output_shape": [
+      16,
+      16,
+      128
+     ]
+    },
+    {
+     "type": "maxpool2d",
+     "name": "pool_1",
+     "pool_size": [
+      2,
+      2
+     ],
+     "output_shape": [
+      8,
+      8,
+      128
+     ]
+    },
+    {
+     "type": "flatten",
+     "name": "flatten",
+     "output_shape": [
+      8192
+     ]
+    },
+    {
+     "type": "dense",
+     "name": "dense_0",
+     "units": 1024,
+     "activation": "relu",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_normal",
+       "shape": [
+        8192,
+        1024
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        1024
+       ]
+      }
+     ],
+     "output_shape": [
+      1024
+     ]
+    },
+    {
+     "type": "dense",
+     "name": "dense_1",
+     "units": 1024,
+     "activation": "relu",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_normal",
+       "shape": [
+        1024,
+        1024
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        1024
+       ]
+      }
+     ],
+     "output_shape": [
+      1024
+     ]
+    },
+    {
+     "type": "dense",
+     "name": "dense_2",
+     "units": 1024,
+     "activation": "relu",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_normal",
+       "shape": [
+        1024,
+        1024
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        1024
+       ]
+      }
+     ],
+     "output_shape": [
+      1024
+     ]
+    },
+    {
+     "type": "dense",
+     "name": "dense_3",
+     "units": 1024,
+     "activation": "relu",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_normal",
+       "shape": [
+        1024,
+        1024
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        1024
+       ]
+      }
+     ],
+     "output_shape": [
+      1024
+     ]
+    },
+    {
+     "type": "dense",
+     "name": "dense_4",
+     "units": 1024,
+     "activation": "relu",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_normal",
+       "shape": [
+        1024,
+        1024
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        1024
+       ]
+      }
+     ],
+     "output_shape": [
+      1024
+     ]
+    },
+    {
+     "type": "dense",
+     "name": "logits",
+     "units": 10,
+     "activation": "softmax",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_normal",
+       "shape": [
+        1024,
+        10
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        10
+       ]
+      }
+     ],
+     "output_shape": [
+      10
+     ]
+    }
+   ]
+  },
+  {
+   "name": "R1",
+   "family": "simple_rnn",
+   "size": 1,
+   "batch": 32,
+   "input_shape": [
+    32,
+    32,
+    3
+   ],
+   "num_classes": 10,
+   "params": 10954,
+   "layers": [
+    {
+     "type": "reshape",
+     "name": "rows",
+     "target_shape": [
+      32,
+      96
+     ],
+     "output_shape": [
+      32,
+      96
+     ]
+    },
+    {
+     "type": "simple_rnn",
+     "name": "simple_rnn_0",
+     "units": 64,
+     "return_sequences": false,
+     "activation": "relu",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        96,
+        64
+       ]
+      },
+      {
+       "name": "recurrent_kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        64,
+        64
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        64
+       ]
+      }
+     ],
+     "output_shape": [
+      64
+     ]
+    },
+    {
+     "type": "dense",
+     "name": "logits",
+     "units": 10,
+     "activation": "softmax",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        64,
+        10
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        10
+       ]
+      }
+     ],
+     "output_shape": [
+      10
+     ]
+    }
+   ]
+  },
+  {
+   "name": "R2",
+   "family": "simple_rnn",
+   "size": 2,
+   "batch": 32,
+   "input_shape": [
+    32,
+    32,
+    3
+   ],
+   "num_classes": 10,
+   "params": 62986,
+   "layers": [
+    {
+     "type": "reshape",
+     "name": "rows",
+     "target_shape": [
+      32,
+      96
+     ],
+     "output_shape": [
+      32,
+      96
+     ]
+    },
+    {
+     "type": "simple_rnn",
+     "name": "simple_rnn_0",
+     "units": 128,
+     "return_sequences": true,
+     "activation": "relu",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        96,
+        128
+       ]
+      },
+      {
+       "name": "recurrent_kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        128,
+        128
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        128
+       ]
+      }
+     ],
+     "output_shape": [
+      32,
+      128
+     ]
+    },
+    {
+     "type": "simple_rnn",
+     "name": "simple_rnn_1",
+     "units": 128,
+     "return_sequences": false,
+     "activation": "relu",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        128,
+        128
+       ]
+      },
+      {
+       "name": "recurrent_kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        128,
+        128
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        128
+       ]
+      }
+     ],
+     "output_shape": [
+      128
+     ]
+    },
+    {
+     "type": "dense",
+     "name": "logits",
+     "units": 10,
+     "activation": "softmax",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        128,
+        10
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        10
+       ]
+      }
+     ],
+     "output_shape": [
+      10
+     ]
+    }
+   ]
+  },
+  {
+   "name": "R3",
+   "family": "simple_rnn",
+   "size": 3,
+   "batch": 32,
+   "input_shape": [
+    32,
+    32,
+    3
+   ],
+   "num_classes": 10,
+   "params": 355594,
+   "layers": [
+    {
+     "type": "reshape",
+     "name": "rows",
+     "target_shape": [
+      32,
+      96
+     ],
+     "output_shape": [
+      32,
+      96
+     ]
+    },
+    {
+     "type": "simple_rnn",
+     "name": "simple_rnn_0",
+     "units": 256,
+     "return_sequences": true,
+     "activation": "relu",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        96,
+        256
+       ]
+      },
+      {
+       "name": "recurrent_kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        256,
+        256
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        256
+       ]
+      }
+     ],
+     "output_shape": [
+      32,
+      256
+     ]
+    },
+    {
+     "type": "simple_rnn",
+     "name": "simple_rnn_1",
+     "units": 256,
+     "return_sequences": true,
+     "activation": "relu",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        256,
+        256
+       ]
+      },
+      {
+       "name": "recurrent_kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        256,
+        256
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        256
+       ]
+      }
+     ],
+     "output_shape": [
+      32,
+      256
+     ]
+    },
+    {
+     "type": "simple_rnn",
+     "name": "simple_rnn_2",
+     "units": 256,
+     "return_sequences": false,
+     "activation": "relu",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        256,
+        256
+       ]
+      },
+      {
+       "name": "recurrent_kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        256,
+        256
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        256
+       ]
+      }
+     ],
+     "output_shape": [
+      256
+     ]
+    },
+    {
+     "type": "dense",
+     "name": "logits",
+     "units": 10,
+     "activation": "softmax",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        256,
+        10
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        10
+       ]
+      }
+     ],
+     "output_shape": [
+      10
+     ]
+    }
+   ]
+  },
+  {
+   "name": "R4",
+   "family": "simple_rnn",
+   "size": 4,
+   "batch": 32,
+   "input_shape": [
+    32,
+    32,
+    3
+   ],
+   "num_classes": 10,
+   "params": 1891338,
+   "layers": [
+    {
+     "type": "reshape",
+     "name": "rows",
+     "target_shape": [
+      32,
+      96
+     ],
+     "output_shape": [
+      32,
+      96
+     ]
+    },
+    {
+     "type": "simple_rnn",
+     "name": "simple_rnn_0",
+     "units": 512,
+     "return_sequences": true,
+     "activation": "relu",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        96,
+        512
+       ]
+      },
+      {
+       "name": "recurrent_kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        512,
+        512
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        512
+       ]
+      }
+     ],
+     "output_shape": [
+      32,
+      512
+     ]
+    },
+    {
+     "type": "simple_rnn",
+     "name": "simple_rnn_1",
+     "units": 512,
+     "return_sequences": true,
+     "activation": "relu",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        512,
+        512
+       ]
+      },
+      {
+       "name": "recurrent_kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        512,
+        512
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        512
+       ]
+      }
+     ],
+     "output_shape": [
+      32,
+      512
+     ]
+    },
+    {
+     "type": "simple_rnn",
+     "name": "simple_rnn_2",
+     "units": 512,
+     "return_sequences": true,
+     "activation": "relu",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        512,
+        512
+       ]
+      },
+      {
+       "name": "recurrent_kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        512,
+        512
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        512
+       ]
+      }
+     ],
+     "output_shape": [
+      32,
+      512
+     ]
+    },
+    {
+     "type": "simple_rnn",
+     "name": "simple_rnn_3",
+     "units": 512,
+     "return_sequences": false,
+     "activation": "relu",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        512,
+        512
+       ]
+      },
+      {
+       "name": "recurrent_kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        512,
+        512
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        512
+       ]
+      }
+     ],
+     "output_shape": [
+      512
+     ]
+    },
+    {
+     "type": "dense",
+     "name": "logits",
+     "units": 10,
+     "activation": "softmax",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        512,
+        10
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        10
+       ]
+      }
+     ],
+     "output_shape": [
+      10
+     ]
+    }
+   ]
+  },
+  {
+   "name": "R5",
+   "family": "simple_rnn",
+   "size": 5,
+   "batch": 32,
+   "input_shape": [
+    32,
+    32,
+    3
+   ],
+   "num_classes": 10,
+   "params": 9550858,
+   "layers": [
+    {
+     "type": "reshape",
+     "name": "rows",
+     "target_shape": [
+      32,
+      96
+     ],
+     "output_shape": [
+      32,
+      96
+     ]
+    },
+    {
+     "type": "simple_rnn",
+     "name": "simple_rnn_0",
+     "units": 1024,
+     "return_sequences": true,
+     "activation": "relu",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        96,
+        1024
+       ]
+      },
+      {
+       "name": "recurrent_kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        1024,
+        1024
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        1024
+       ]
+      }
+     ],
+     "output_shape": [
+      32,
+      1024
+     ]
+    },
+    {
+     "type": "simple_rnn",
+     "name": "simple_rnn_1",
+     "units": 1024,
+     "return_sequences": true,
+     "activation": "relu",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        1024,
+        1024
+       ]
+      },
+      {
+       "name": "recurrent_kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        1024,
+        1024
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        1024
+       ]
+      }
+     ],
+     "output_shape": [
+      32,
+      1024
+     ]
+    },
+    {
+     "type": "simple_rnn",
+     "name": "simple_rnn_2",
+     "units": 1024,
+     "return_sequences": true,
+     "activation": "relu",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        1024,
+        1024
+       ]
+      },
+      {
+       "name": "recurrent_kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        1024,
+        1024
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        1024
+       ]
+      }
+     ],
+     "output_shape": [
+      32,
+      1024
+     ]
+    },
+    {
+     "type": "simple_rnn",
+     "name": "simple_rnn_3",
+     "units": 1024,
+     "return_sequences": true,
+     "activation": "relu",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        1024,
+        1024
+       ]
+      },
+      {
+       "name": "recurrent_kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        1024,
+        1024
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        1024
+       ]
+      }
+     ],
+     "output_shape": [
+      32,
+      1024
+     ]
+    },
+    {
+     "type": "simple_rnn",
+     "name": "simple_rnn_4",
+     "units": 1024,
+     "return_sequences": false,
+     "activation": "relu",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        1024,
+        1024
+       ]
+      },
+      {
+       "name": "recurrent_kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        1024,
+        1024
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        1024
+       ]
+      }
+     ],
+     "output_shape": [
+      1024
+     ]
+    },
+    {
+     "type": "dense",
+     "name": "logits",
+     "units": 10,
+     "activation": "softmax",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        1024,
+        10
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        10
+       ]
+      }
+     ],
+     "output_shape": [
+      10
+     ]
+    }
+   ]
+  },
+  {
+   "name": "L1",
+   "family": "lstm",
+   "size": 1,
+   "batch": 32,
+   "input_shape": [
+    32,
+    32,
+    3
+   ],
+   "num_classes": 10,
+   "params": 41866,
+   "layers": [
+    {
+     "type": "reshape",
+     "name": "rows",
+     "target_shape": [
+      32,
+      96
+     ],
+     "output_shape": [
+      32,
+      96
+     ]
+    },
+    {
+     "type": "lstm",
+     "name": "lstm_0",
+     "units": 64,
+     "return_sequences": false,
+     "activation": "tanh",
+     "recurrent_activation": "sigmoid",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        96,
+        256
+       ]
+      },
+      {
+       "name": "recurrent_kernel",
+       "init": "orthogonal",
+       "shape": [
+        64,
+        256
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "lstm_unit_forget",
+       "shape": [
+        256
+       ]
+      }
+     ],
+     "output_shape": [
+      64
+     ]
+    },
+    {
+     "type": "dense",
+     "name": "logits",
+     "units": 10,
+     "activation": "softmax",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        64,
+        10
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        10
+       ]
+      }
+     ],
+     "output_shape": [
+      10
+     ]
+    }
+   ]
+  },
+  {
+   "name": "L2",
+   "family": "lstm",
+   "size": 2,
+   "batch": 32,
+   "input_shape": [
+    32,
+    32,
+    3
+   ],
+   "num_classes": 10,
+   "params": 248074,
+   "layers": [
+    {
+     "type": "reshape",
+     "name": "rows",
+     "target_shape": [
+      32,
+      96
+     ],
+     "output_shape": [
+      32,
+      96
+     ]
+    },
+    {
+     "type": "lstm",
+     "name": "lstm_0",
+     "units": 128,
+     "return_sequences": true,
+     "activation": "tanh",
+     "recurrent_activation": "sigmoid",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        96,
+        512
+       ]
+      },
+      {
+       "name": "recurrent_kernel",
+       "init": "orthogonal",
+       "shape": [
+        128,
+        512
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "lstm_unit_forget",
+       "shape": [
+        512
+       ]
+      }
+     ],
+     "output_shape": [
+      32,
+      128
+     ]
+    },
+    {
+     "type": "lstm",
+     "name": "lstm_1",
+     "units": 128,
+     "return_sequences": false,
+     "activation": "tanh",
+     "recurrent_activation": "sigmoid",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        128,
+        512
+       ]
+      },
+      {
+       "name": "recurrent_kernel",
+       "init": "orthogonal",
+       "shape": [
+        128,
+        512
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "lstm_unit_forget",
+       "shape": [
+        512
+       ]
+      }
+     ],
+     "output_shape": [
+      128
+     ]
+    },
+    {
+     "type": "dense",
+     "name": "logits",
+     "units": 10,
+     "activation": "softmax",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        128,
+        10
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        10
+       ]
+      }
+     ],
+     "output_shape": [
+      10
+     ]
+    }
+   ]
+  },
+  {
+   "name": "L3",
+   "family": "lstm",
+   "size": 3,
+   "batch": 32,
+   "input_shape": [
+    32,
+    32,
+    3
+   ],
+   "num_classes": 10,
+   "params": 1414666,
+   "layers": [
+    {
+     "type": "reshape",
+     "name": "rows",
+     "target_shape": [
+      32,
+      96
+     ],
+     "output_shape": [
+      32,
+      96
+     ]
+    },
+    {
+     "type": "lstm",
+     "name": "lstm_0",
+     "units": 256,
+     "return_sequences": true,
+     "activation": "tanh",
+     "recurrent_activation": "sigmoid",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        96,
+        1024
+       ]
+      },
+      {
+       "name": "recurrent_kernel",
+       "init": "orthogonal",
+       "shape": [
+        256,
+        1024
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "lstm_unit_forget",
+       "shape": [
+        1024
+       ]
+      }
+     ],
+     "output_shape": [
+      32,
+      256
+     ]
+    },
+    {
+     "type": "lstm",
+     "name": "lstm_1",
+     "units": 256,
+     "return_sequences": true,
+     "activation": "tanh",
+     "recurrent_activation": "sigmoid",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        256,
+        1024
+       ]
+      },
+      {
+       "name": "recurrent_kernel",
+       "init": "orthogonal",
+       "shape": [
+        256,
+        1024
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "lstm_unit_forget",
+       "shape": [
+        1024
+       ]
+      }
+     ],
+     "output_shape": [
+      32,
+      256
+     ]
+    },
+    {
+     "type": "lstm",
+     "name": "lstm_2",
+     "units": 256,
+     "return_sequences": false,
+     "activation": "tanh",
+     "recurrent_activation": "sigmoid",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        256,
+        1024
+       ]
+      },
+      {
+       "name": "recurrent_kernel",
+       "init": "orthogonal",
+       "shape": [
+        256,
+        1024
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "lstm_unit_forget",
+       "shape": [
+        1024
+       ]
+      }
+     ],
+     "output_shape": [
+      256
+     ]
+    },
+    {
+     "type": "dense",
+     "name": "logits",
+     "units": 10,
+     "activation": "softmax",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        256,
+        10
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        10
+       ]
+      }
+     ],
+     "output_shape": [
+      10
+     ]
+    }
+   ]
+  },
+  {
+   "name": "L4",
+   "family": "lstm",
+   "size": 4,
+   "batch": 32,
+   "input_shape": [
+    32,
+    32,
+    3
+   ],
+   "num_classes": 10,
+   "params": 7549962,
+   "layers": [
+    {
+     "type": "reshape",
+     "name": "rows",
+     "target_shape": [
+      32,
+      96
+     ],
+     "output_shape": [
+      32,
+      96
+     ]
+    },
+    {
+     "type": "lstm",
+     "name": "lstm_0",
+     "units": 512,
+     "return_sequences": true,
+     "activation": "tanh",
+     "recurrent_activation": "sigmoid",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        96,
+        2048
+       ]
+      },
+      {
+       "name": "recurrent_kernel",
+       "init": "orthogonal",
+       "shape": [
+        512,
+        2048
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "lstm_unit_forget",
+       "shape": [
+        2048
+       ]
+      }
+     ],
+     "output_shape": [
+      32,
+      512
+     ]
+    },
+    {
+     "type": "lstm",
+     "name": "lstm_1",
+     "units": 512,
+     "return_sequences": true,
+     "activation": "tanh",
+     "recurrent_activation": "sigmoid",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        512,
+        2048
+       ]
+      },
+      {
+       "name": "recurrent_kernel",
+       "init": "orthogonal",
+       "shape": [
+        512,
+        2048
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "lstm_unit_forget",
+       "shape": [
+        2048
+       ]
+      }
+     ],
+     "output_shape": [
+      32,
+      512
+     ]
+    },
+    {
+     "type": "lstm",
+     "name": "lstm_2",
+     "units": 512,
+     "return_sequences": true,
+     "activation": "tanh",
+     "recurrent_activation": "sigmoid",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        512,
+        2048
+       ]
+      },
+      {
+       "name": "recurrent_kernel",
+       "init": "orthogonal",
+       "shape": [
+        512,
+        2048
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "lstm_unit_forget",
+       "shape": [
+        2048
+       ]
+      }
+     ],
+     "output_shape": [
+      32,
+      512
+     ]
+    },
+    {
+     "type": "lstm",
+     "name": "lstm_3",
+     "units": 512,
+     "return_sequences": false,
+     "activation": "tanh",
+     "recurrent_activation": "sigmoid",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        512,
+        2048
+       ]
+      },
+      {
+       "name": "recurrent_kernel",
+       "init": "orthogonal",
+       "shape": [
+        512,
+        2048
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "lstm_unit_forget",
+       "shape": [
+        2048
+       ]
+      }
+     ],
+     "output_shape": [
+      512
+     ]
+    },
+    {
+     "type": "dense",
+     "name": "logits",
+     "units": 10,
+     "activation": "softmax",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        512,
+        10
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        10
+       ]
+      }
+     ],
+     "output_shape": [
+      10
+     ]
+    }
+   ]
+  },
+  {
+   "name": "L5",
+   "family": "lstm",
+   "size": 5,
+   "batch": 32,
+   "input_shape": [
+    32,
+    32,
+    3
+   ],
+   "num_classes": 10,
+   "params": 38172682,
+   "layers": [
+    {
+     "type": "reshape",
+     "name": "rows",
+     "target_shape": [
+      32,
+      96
+     ],
+     "output_shape": [
+      32,
+      96
+     ]
+    },
+    {
+     "type": "lstm",
+     "name": "lstm_0",
+     "units": 1024,
+     "return_sequences": true,
+     "activation": "tanh",
+     "recurrent_activation": "sigmoid",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        96,
+        4096
+       ]
+      },
+      {
+       "name": "recurrent_kernel",
+       "init": "orthogonal",
+       "shape": [
+        1024,
+        4096
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "lstm_unit_forget",
+       "shape": [
+        4096
+       ]
+      }
+     ],
+     "output_shape": [
+      32,
+      1024
+     ]
+    },
+    {
+     "type": "lstm",
+     "name": "lstm_1",
+     "units": 1024,
+     "return_sequences": true,
+     "activation": "tanh",
+     "recurrent_activation": "sigmoid",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        1024,
+        4096
+       ]
+      },
+      {
+       "name": "recurrent_kernel",
+       "init": "orthogonal",
+       "shape": [
+        1024,
+        4096
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "lstm_unit_forget",
+       "shape": [
+        4096
+       ]
+      }
+     ],
+     "output_shape": [
+      32,
+      1024
+     ]
+    },
+    {
+     "type": "lstm",
+     "name": "lstm_2",
+     "units": 1024,
+     "return_sequences": true,
+     "activation": "tanh",
+     "recurrent_activation": "sigmoid",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        1024,
+        4096
+       ]
+      },
+      {
+       "name": "recurrent_kernel",
+       "init": "orthogonal",
+       "shape": [
+        1024,
+        4096
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "lstm_unit_forget",
+       "shape": [
+        4096
+       ]
+      }
+     ],
+     "output_shape": [
+      32,
+      1024
+     ]
+    },
+    {
+     "type": "lstm",
+     "name": "lstm_3",
+     "units": 1024,
+     "return_sequences": true,
+     "activation": "tanh",
+     "recurrent_activation": "sigmoid",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        1024,
+        4096
+       ]
+      },
+      {
+       "name": "recurrent_kernel",
+       "init": "orthogonal",
+       "shape": [
+        1024,
+        4096
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "lstm_unit_forget",
+       "shape": [
+        4096
+       ]
+      }
+     ],
+     "output_shape": [
+      32,
+      1024
+     ]
+    },
+    {
+     "type": "lstm",
+     "name": "lstm_4",
+     "units": 1024,
+     "return_sequences": false,
+     "activation": "tanh",
+     "recurrent_activation": "sigmoid",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        1024,
+        4096
+       ]
+      },
+      {
+       "name": "recurrent_kernel",
+       "init": "orthogonal",
+       "shape": [
+        1024,
+        4096
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "lstm_unit_forget",
+       "shape": [
+        4096
+       ]
+      }
+     ],
+     "output_shape": [
+      1024
+     ]
+    },
+    {
+     "type": "dense",
+     "name": "logits",
+     "units": 10,
+     "activation": "softmax",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        1024,
+        10
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        10
+       ]
+      }
+     ],
+     "output_shape": [
+      10
+     ]
+    }
+   ]
+  },
+  {
+   "name": "G1",
+   "family": "gru",
+   "size": 1,
+   "batch": 32,
+   "input_shape": [
+    32,
+    32,
+    3
+   ],
+   "num_classes": 10,
+   "params": 31562,
+   "layers": [
+    {
+     "type": "reshape",
+     "name": "rows",
+     "target_shape": [
+      32,
+      96
+     ],
+     "output_shape": [
+      32,
+      96
+     ]
+    },
+    {
+     "type": "gru",
+     "name": "gru_0",
+     "units": 64,
+     "return_sequences": false,
+     "activation": "tanh",
+     "recurrent_activation": "sigmoid",
+     "reset_after": false,
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        96,
+        192
+       ]
+      },
+      {
+       "name": "recurrent_kernel",
+       "init": "orthogonal",
+       "shape": [
+        64,
+        192
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        192
+       ]
+      }
+     ],
+     "output_shape": [
+      64
+     ]
+    },
+    {
+     "type": "dense",
+     "name": "logits",
+     "units": 10,
+     "activation": "softmax",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        64,
+        10
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        10
+       ]
+      }
+     ],
+     "output_shape": [
+      10
+     ]
+    }
+   ]
+  },
+  {
+   "name": "G2",
+   "family": "gru",
+   "size": 2,
+   "batch": 32,
+   "input_shape": [
+    32,
+    32,
+    3
+   ],
+   "num_classes": 10,
+   "params": 186378,
+   "layers": [
+    {
+     "type": "reshape",
+     "name": "rows",
+     "target_shape": [
+      32,
+      96
+     ],
+     "output_shape": [
+      32,
+      96
+     ]
+    },
+    {
+     "type": "gru",
+     "name": "gru_0",
+     "units": 128,
+     "return_sequences": true,
+     "activation": "tanh",
+     "recurrent_activation": "sigmoid",
+     "reset_after": false,
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        96,
+        384
+       ]
+      },
+      {
+       "name": "recurrent_kernel",
+       "init": "orthogonal",
+       "shape": [
+        128,
+        384
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        384
+       ]
+      }
+     ],
+     "output_shape": [
+      32,
+      128
+     ]
+    },
+    {
+     "type": "gru",
+     "name": "gru_1",
+     "units": 128,
+     "return_sequences": false,
+     "activation": "tanh",
+     "recurrent_activation": "sigmoid",
+     "reset_after": false,
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        128,
+        384
+       ]
+      },
+      {
+       "name": "recurrent_kernel",
+       "init": "orthogonal",
+       "shape": [
+        128,
+        384
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        384
+       ]
+      }
+     ],
+     "output_shape": [
+      128
+     ]
+    },
+    {
+     "type": "dense",
+     "name": "logits",
+     "units": 10,
+     "activation": "softmax",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        128,
+        10
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        10
+       ]
+      }
+     ],
+     "output_shape": [
+      10
+     ]
+    }
+   ]
+  },
+  {
+   "name": "G3",
+   "family": "gru",
+   "size": 3,
+   "batch": 32,
+   "input_shape": [
+    32,
+    32,
+    3
+   ],
+   "num_classes": 10,
+   "params": 1061642,
+   "layers": [
+    {
+     "type": "reshape",
+     "name": "rows",
+     "target_shape": [
+      32,
+      96
+     ],
+     "output_shape": [
+      32,
+      96
+     ]
+    },
+    {
+     "type": "gru",
+     "name": "gru_0",
+     "units": 256,
+     "return_sequences": true,
+     "activation": "tanh",
+     "recurrent_activation": "sigmoid",
+     "reset_after": false,
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        96,
+        768
+       ]
+      },
+      {
+       "name": "recurrent_kernel",
+       "init": "orthogonal",
+       "shape": [
+        256,
+        768
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        768
+       ]
+      }
+     ],
+     "output_shape": [
+      32,
+      256
+     ]
+    },
+    {
+     "type": "gru",
+     "name": "gru_1",
+     "units": 256,
+     "return_sequences": true,
+     "activation": "tanh",
+     "recurrent_activation": "sigmoid",
+     "reset_after": false,
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        256,
+        768
+       ]
+      },
+      {
+       "name": "recurrent_kernel",
+       "init": "orthogonal",
+       "shape": [
+        256,
+        768
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        768
+       ]
+      }
+     ],
+     "output_shape": [
+      32,
+      256
+     ]
+    },
+    {
+     "type": "gru",
+     "name": "gru_2",
+     "units": 256,
+     "return_sequences": false,
+     "activation": "tanh",
+     "recurrent_activation": "sigmoid",
+     "reset_after": false,
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        256,
+        768
+       ]
+      },
+      {
+       "name": "recurrent_kernel",
+       "init": "orthogonal",
+       "shape": [
+        256,
+        768
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        768
+       ]
+      }
+     ],
+     "output_shape": [
+      256
+     ]
+    },
+    {
+     "type": "dense",
+     "name": "logits",
+     "units": 10,
+     "activation": "softmax",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        256,
+        10
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        10
+       ]
+      }
+     ],
+     "output_shape": [
+      10
+     ]
+    }
+   ]
+  },
+  {
+   "name": "G4",
+   "family": "gru",
+   "size": 4,
+   "batch": 32,
+   "input_shape": [
+    32,
+    32,
+    3
+   ],
+   "num_classes": 10,
+   "params": 5663754,
+   "layers": [
+    {
+     "type": "reshape",
+     "name": "rows",
+     "target_shape": [
+      32,
+      96
+     ],
+     "output_shape": [
+      32,
+      96
+     ]
+    },
+    {
+     "type": "gru",
+     "name": "gru_0",
+     "units": 512,
+     "return_sequences": true,
+     "activation": "tanh",
+     "recurrent_activation": "sigmoid",
+     "reset_after": false,
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        96,
+        1536
+       ]
+      },
+      {
+       "name": "recurrent_kernel",
+       "init": "orthogonal",
+       "shape": [
+        512,
+        1536
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        1536
+       ]
+      }
+     ],
+     "output_shape": [
+      32,
+      512
+     ]
+    },
+    {
+     "type": "gru",
+     "name": "gru_1",
+     "units": 512,
+     "return_sequences": true,
+     "activation": "tanh",
+     "recurrent_activation": "sigmoid",
+     "reset_after": false,
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        512,
+        1536
+       ]
+      },
+      {
+       "name": "recurrent_kernel",
+       "init": "orthogonal",
+       "shape": [
+        512,
+        1536
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        1536
+       ]
+      }
+     ],
+     "output_shape": [
+      32,
+      512
+     ]
+    },
+    {
+     "type": "gru",
+     "name": "gru_2",
+     "units": 512,
+     "return_sequences": true,
+     "activation": "tanh",
+     "recurrent_activation": "sigmoid",
+     "reset_after": false,
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        512,
+        1536
+       ]
+      },
+      {
+       "name": "recurrent_kernel",
+       "init": "orthogonal",
+       "shape": [
+        512,
+        1536
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        1536
+       ]
+      }
+     ],
+     "output_shape": [
+      32,
+      512
+     ]
+    },
+    {
+     "type": "gru",
+     "name": "gru_3",
+     "units": 512,
+     "return_sequences": false,
+     "activation": "tanh",
+     "recurrent_activation": "sigmoid",
+     "reset_after": false,
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        512,
+        1536
+       ]
+      },
+      {
+       "name": "recurrent_kernel",
+       "init": "orthogonal",
+       "shape": [
+        512,
+        1536
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        1536
+       ]
+      }
+     ],
+     "output_shape": [
+      512
+     ]
+    },
+    {
+     "type": "dense",
+     "name": "logits",
+     "units": 10,
+     "activation": "softmax",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        512,
+        10
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        10
+       ]
+      }
+     ],
+     "output_shape": [
+      10
+     ]
+    }
+   ]
+  },
+  {
+   "name": "G5",
+   "family": "gru",
+   "size": 5,
+   "batch": 32,
+   "input_shape": [
+    32,
+    32,
+    3
+   ],
+   "num_classes": 10,
+   "params": 28632074,
+   "layers": [
+    {
+     "type": "reshape",
+     "name": "rows",
+     "target_shape": [
+      32,
+      96
+     ],
+     "output_shape": [
+      32,
+      96
+     ]
+    },
+    {
+     "type": "gru",
+     "name": "gru_0",
+     "units": 1024,
+     "return_sequences": true,
+     "activation": "tanh",
+     "recurrent_activation": "sigmoid",
+     "reset_after": false,
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        96,
+        3072
+       ]
+      },
+      {
+       "name": "recurrent_kernel",
+       "init": "orthogonal",
+       "shape": [
+        1024,
+        3072
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        3072
+       ]
+      }
+     ],
+     "output_shape": [
+      32,
+      1024
+     ]
+    },
+    {
+     "type": "gru",
+     "name": "gru_1",
+     "units": 1024,
+     "return_sequences": true,
+     "activation": "tanh",
+     "recurrent_activation": "sigmoid",
+     "reset_after": false,
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        1024,
+        3072
+       ]
+      },
+      {
+       "name": "recurrent_kernel",
+       "init": "orthogonal",
+       "shape": [
+        1024,
+        3072
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        3072
+       ]
+      }
+     ],
+     "output_shape": [
+      32,
+      1024
+     ]
+    },
+    {
+     "type": "gru",
+     "name": "gru_2",
+     "units": 1024,
+     "return_sequences": true,
+     "activation": "tanh",
+     "recurrent_activation": "sigmoid",
+     "reset_after": false,
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        1024,
+        3072
+       ]
+      },
+      {
+       "name": "recurrent_kernel",
+       "init": "orthogonal",
+       "shape": [
+        1024,
+        3072
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        3072
+       ]
+      }
+     ],
+     "output_shape": [
+      32,
+      1024
+     ]
+    },
+    {
+     "type": "gru",
+     "name": "gru_3",
+     "units": 1024,
+     "return_sequences": true,
+     "activation": "tanh",
+     "recurrent_activation": "sigmoid",
+     "reset_after": false,
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        1024,
+        3072
+       ]
+      },
+      {
+       "name": "recurrent_kernel",
+       "init": "orthogonal",
+       "shape": [
+        1024,
+        3072
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        3072
+       ]
+      }
+     ],
+     "output_shape": [
+      32,
+      1024
+     ]
+    },
+    {
+     "type": "gru",
+     "name": "gru_4",
+     "units": 1024,
+     "return_sequences": false,
+     "activation": "tanh",
+     "recurrent_activation": "sigmoid",
+     "reset_after": false,
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        1024,
+        3072
+       ]
+      },
+      {
+       "name": "recurrent_kernel",
+       "init": "orthogonal",
+       "shape": [
+        1024,
+        3072
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        3072
+       ]
+      }
+     ],
+     "output_shape": [
+      1024
+     ]
+    },
+    {
+     "type": "dense",
+     "name": "logits",
+     "units": 10,
+     "activation": "softmax",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        1024,
+        10
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        10
+       ]
+      }
+     ],
+     "output_shape": [
+      10
+     ]
+    }
+   ]
+  },
+  {
+   "name": "T1",
+   "family": "transformer",
+   "size": 1,
+   "batch": 32,
+   "input_shape": [
+    32,
+    32,
+    3
+   ],
+   "num_classes": 10,
+   "params": 59018,
+   "layers": [
+    {
+     "type": "reshape",
+     "name": "rows",
+     "target_shape": [
+      32,
+      96
+     ],
+     "output_shape": [
+      32,
+      96
+     ]
+    },
+    {
+     "type": "dense",
+     "name": "token_proj",
+     "units": 64,
+     "activation": "linear",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        96,
+        64
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        64
+       ]
+      }
+     ],
+     "output_shape": [
+      32,
+      64
+     ]
+    },
+    {
+     "type": "positional",
+     "name": "pos",
+     "length": 32,
+     "dim": 64,
+     "weights": [
+      {
+       "name": "table",
+       "init": "uniform_0.05",
+       "shape": [
+        32,
+        64
+       ]
+      }
+     ],
+     "output_shape": [
+      32,
+      64
+     ]
+    },
+    {
+     "type": "encoder_block",
+     "name": "block_0",
+     "dim": 64,
+     "heads": 1,
+     "ffn": 256,
+     "ln_eps": 1e-05,
+     "weights": [
+      {
+       "name": "ln1_gamma",
+       "init": "ones",
+       "shape": [
+        64
+       ]
+      },
+      {
+       "name": "ln1_beta",
+       "init": "zeros",
+       "shape": [
+        64
+       ]
+      },
+      {
+       "name": "wq",
+       "init": "glorot_uniform",
+       "shape": [
+        64,
+        64
+       ]
+      },
+      {
+       "name": "bq",
+       "init": "zeros",
+       "shape": [
+        64
+       ]
+      },
+      {
+       "name": "wk",
+       "init": "glorot_uniform",
+       "shape": [
+        64,
+        64
+       ]
+      },
+      {
+       "name": "bk",
+       "init": "zeros",
+       "shape": [
+        64
+       ]
+      },
+      {
+       "name": "wv",
+       "init": "glorot_uniform",
+       "shape": [
+        64,
+        64
+       ]
+      },
+      {
+       "name": "bv",
+       "init": "zeros",
+       "shape": [
+        64
+       ]
+      },
+      {
+       "name": "wo",
+       "init": "glorot_uniform",
+       "shape": [
+        64,
+        64
+       ]
+      },
+      {
+       "name": "bo",
+       "init": "zeros",
+       "shape": [
+        64
+       ]
+      },
+      {
+       "name": "ln2_gamma",
+       "init": "ones",
+       "shape": [
+        64
+       ]
+      },
+      {
+       "name": "ln2_beta",
+       "init": "zeros",
+       "shape": [
+        64
+       ]
+      },
+      {
+       "name": "w1",
+       "init": "glorot_uniform",
+       "shape": [
+        64,
+        256
+       ]
+      },
+      {
+       "name": "b1",
+       "init": "zeros",
+       "shape": [
+        256
+       ]
+      },
+      {
+       "name": "w2",
+       "init": "glorot_uniform",
+       "shape": [
+        256,
+        64
+       ]
+      },
+      {
+       "name": "b2",
+       "init": "zeros",
+       "shape": [
+        64
+       ]
+      }
+     ],
+     "output_shape": [
+      32,
+      64
+     ]
+    },
+    {
+     "type": "layer_norm",
+     "name": "final_ln",
+     "ln_eps": 1e-05,
+     "weights": [
+      {
+       "name": "gamma",
+       "init": "ones",
+       "shape": [
+        64
+       ]
+      },
+      {
+       "name": "beta",
+       "init": "zeros",
+       "shape": [
+        64
+       ]
+      }
+     ],
+     "output_shape": [
+      32,
+      64
+     ]
+    },
+    {
+     "type": "global_avg_pool_1d",
+     "name": "pool",
+     "output_shape": [
+      64
+     ]
+    },
+    {
+     "type": "dense",
+     "name": "logits",
+     "units": 10,
+     "activation": "softmax",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        64,
+        10
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        10
+       ]
+      }
+     ],
+     "output_shape": [
+      10
+     ]
+    }
+   ]
+  },
+  {
+   "name": "T2",
+   "family": "transformer",
+   "size": 2,
+   "batch": 32,
+   "input_shape": [
+    32,
+    32,
+    3
+   ],
+   "num_classes": 10,
+   "params": 414602,
+   "layers": [
+    {
+     "type": "reshape",
+     "name": "rows",
+     "target_shape": [
+      32,
+      96
+     ],
+     "output_shape": [
+      32,
+      96
+     ]
+    },
+    {
+     "type": "dense",
+     "name": "token_proj",
+     "units": 128,
+     "activation": "linear",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        96,
+        128
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        128
+       ]
+      }
+     ],
+     "output_shape": [
+      32,
+      128
+     ]
+    },
+    {
+     "type": "positional",
+     "name": "pos",
+     "length": 32,
+     "dim": 128,
+     "weights": [
+      {
+       "name": "table",
+       "init": "uniform_0.05",
+       "shape": [
+        32,
+        128
+       ]
+      }
+     ],
+     "output_shape": [
+      32,
+      128
+     ]
+    },
+    {
+     "type": "encoder_block",
+     "name": "block_0",
+     "dim": 128,
+     "heads": 2,
+     "ffn": 512,
+     "ln_eps": 1e-05,
+     "weights": [
+      {
+       "name": "ln1_gamma",
+       "init": "ones",
+       "shape": [
+        128
+       ]
+      },
+      {
+       "name": "ln1_beta",
+       "init": "zeros",
+       "shape": [
+        128
+       ]
+      },
+      {
+       "name": "wq",
+       "init": "glorot_uniform",
+       "shape": [
+        128,
+        128
+       ]
+      },
+      {
+       "name": "bq",
+       "init": "zeros",
+       "shape": [
+        128
+       ]
+      },
+      {
+       "name": "wk",
+       "init": "glorot_uniform",
+       "shape": [
+        128,
+        128
+       ]
+      },
+      {
+       "name": "bk",
+       "init": "zeros",
+       "shape": [
+        128
+       ]
+      },
+      {
+       "name": "wv",
+       "init": "glorot_uniform",
+       "shape": [
+        128,
+        128
+       ]
+      },
+      {
+       "name": "bv",
+       "init": "zeros",
+       "shape": [
+        128
+       ]
+      },
+      {
+       "name": "wo",
+       "init": "glorot_uniform",
+       "shape": [
+        128,
+        128
+       ]
+      },
+      {
+       "name": "bo",
+       "init": "zeros",
+       "shape": [
+        128
+       ]
+      },
+      {
+       "name": "ln2_gamma",
+       "init": "ones",
+       "shape": [
+        128
+       ]
+      },
+      {
+       "name": "ln2_beta",
+       "init": "zeros",
+       "shape": [
+        128
+       ]
+      },
+      {
+       "name": "w1",
+       "init": "glorot_uniform",
+       "shape": [
+        128,
+        512
+       ]
+      },
+      {
+       "name": "b1",
+       "init": "zeros",
+       "shape": [
+        512
+       ]
+      },
+      {
+       "name": "w2",
+       "init": "glorot_uniform",
+       "shape": [
+        512,
+        128
+       ]
+      },
+      {
+       "name": "b2",
+       "init": "zeros",
+       "shape": [
+        128
+       ]
+      }
+     ],
+     "output_shape": [
+      32,
+      128
+     ]
+    },
+    {
+     "type": "encoder_block",
+     "name": "block_1",
+     "dim": 128,
+     "heads": 2,
+     "ffn": 512,
+     "ln_eps": 1e-05,
+     "weights": [
+      {
+       "name": "ln1_gamma",
+       "init": "ones",
+       "shape": [
+        128
+       ]
+      },
+      {
+       "name": "ln1_beta",
+       "init": "zeros",
+       "shape": [
+        128
+       ]
+      },
+      {
+       "name": "wq",
+       "init": "glorot_uniform",
+       "shape": [
+        128,
+        128
+       ]
+      },
+      {
+       "name": "bq",
+       "init": "zeros",
+       "shape": [
+        128
+       ]
+      },
+      {
+       "name": "wk",
+       "init": "glorot_uniform",
+       "shape": [
+        128,
+        128
+       ]
+      },
+      {
+       "name": "bk",
+       "init": "zeros",
+       "shape": [
+        128
+       ]
+      },
+      {
+       "name": "wv",
+       "init": "glorot_uniform",
+       "shape": [
+        128,
+        128
+       ]
+      },
+      {
+       "name": "bv",
+       "init": "zeros",
+       "shape": [
+        128
+       ]
+      },
+      {
+       "name": "wo",
+       "init": "glorot_uniform",
+       "shape": [
+        128,
+        128
+       ]
+      },
+      {
+       "name": "bo",
+       "init": "zeros",
+       "shape": [
+        128
+       ]
+      },
+      {
+       "name": "ln2_gamma",
+       "init": "ones",
+       "shape": [
+        128
+       ]
+      },
+      {
+       "name": "ln2_beta",
+       "init": "zeros",
+       "shape": [
+        128
+       ]
+      },
+      {
+       "name": "w1",
+       "init": "glorot_uniform",
+       "shape": [
+        128,
+        512
+       ]
+      },
+      {
+       "name": "b1",
+       "init": "zeros",
+       "shape": [
+        512
+       ]
+      },
+      {
+       "name": "w2",
+       "init": "glorot_uniform",
+       "shape": [
+        512,
+        128
+       ]
+      },
+      {
+       "name": "b2",
+       "init": "zeros",
+       "shape": [
+        128
+       ]
+      }
+     ],
+     "output_shape": [
+      32,
+      128
+     ]
+    },
+    {
+     "type": "layer_norm",
+     "name": "final_ln",
+     "ln_eps": 1e-05,
+     "weights": [
+      {
+       "name": "gamma",
+       "init": "ones",
+       "shape": [
+        128
+       ]
+      },
+      {
+       "name": "beta",
+       "init": "zeros",
+       "shape": [
+        128
+       ]
+      }
+     ],
+     "output_shape": [
+      32,
+      128
+     ]
+    },
+    {
+     "type": "global_avg_pool_1d",
+     "name": "pool",
+     "output_shape": [
+      128
+     ]
+    },
+    {
+     "type": "dense",
+     "name": "logits",
+     "units": 10,
+     "activation": "softmax",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        128,
+        10
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        10
+       ]
+      }
+     ],
+     "output_shape": [
+      10
+     ]
+    }
+   ]
+  },
+  {
+   "name": "T3",
+   "family": "transformer",
+   "size": 3,
+   "batch": 32,
+   "input_shape": [
+    32,
+    32,
+    3
+   ],
+   "num_classes": 10,
+   "params": 2405386,
+   "layers": [
+    {
+     "type": "reshape",
+     "name": "rows",
+     "target_shape": [
+      32,
+      96
+     ],
+     "output_shape": [
+      32,
+      96
+     ]
+    },
+    {
+     "type": "dense",
+     "name": "token_proj",
+     "units": 256,
+     "activation": "linear",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        96,
+        256
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        256
+       ]
+      }
+     ],
+     "output_shape": [
+      32,
+      256
+     ]
+    },
+    {
+     "type": "positional",
+     "name": "pos",
+     "length": 32,
+     "dim": 256,
+     "weights": [
+      {
+       "name": "table",
+       "init": "uniform_0.05",
+       "shape": [
+        32,
+        256
+       ]
+      }
+     ],
+     "output_shape": [
+      32,
+      256
+     ]
+    },
+    {
+     "type": "encoder_block",
+     "name": "block_0",
+     "dim": 256,
+     "heads": 4,
+     "ffn": 1024,
+     "ln_eps": 1e-05,
+     "weights": [
+      {
+       "name": "ln1_gamma",
+       "init": "ones",
+       "shape": [
+        256
+       ]
+      },
+      {
+       "name": "ln1_beta",
+       "init": "zeros",
+       "shape": [
+        256
+       ]
+      },
+      {
+       "name": "wq",
+       "init": "glorot_uniform",
+       "shape": [
+        256,
+        256
+       ]
+      },
+      {
+       "name": "bq",
+       "init": "zeros",
+       "shape": [
+        256
+       ]
+      },
+      {
+       "name": "wk",
+       "init": "glorot_uniform",
+       "shape": [
+        256,
+        256
+       ]
+      },
+      {
+       "name": "bk",
+       "init": "zeros",
+       "shape": [
+        256
+       ]
+      },
+      {
+       "name": "wv",
+       "init": "glorot_uniform",
+       "shape": [
+        256,
+        256
+       ]
+      },
+      {
+       "name": "bv",
+       "init": "zeros",
+       "shape": [
+        256
+       ]
+      },
+      {
+       "name": "wo",
+       "init": "glorot_uniform",
+       "shape": [
+        256,
+        256
+       ]
+      },
+      {
+       "name": "bo",
+       "init": "zeros",
+       "shape": [
+        256
+       ]
+      },
+      {
+       "name": "ln2_gamma",
+       "init": "ones",
+       "shape": [
+        256
+       ]
+      },
+      {
+       "name": "ln2_beta",
+       "init": "zeros",
+       "shape": [
+        256
+       ]
+      },
+      {
+       "name": "w1",
+       "init": "glorot_uniform",
+       "shape": [
+        256,
+        1024
+       ]
+      },
+      {
+       "name": "b1",
+       "init": "zeros",
+       "shape": [
+        1024
+       ]
+      },
+      {
+       "name": "w2",
+       "init": "glorot_uniform",
+       "shape": [
+        1024,
+        256
+       ]
+      },
+      {
+       "name": "b2",
+       "init": "zeros",
+       "shape": [
+        256
+       ]
+      }
+     ],
+     "output_shape": [
+      32,
+      256
+     ]
+    },
+    {
+     "type": "encoder_block",
+     "name": "block_1",
+     "dim": 256,
+     "heads": 4,
+     "ffn": 1024,
+     "ln_eps": 1e-05,
+     "weights": [
+      {
+       "name": "ln1_gamma",
+       "init": "ones",
+       "shape": [
+        256
+       ]
+      },
+      {
+       "name": "ln1_beta",
+       "init": "zeros",
+       "shape": [
+        256
+       ]
+      },
+      {
+       "name": "wq",
+       "init": "glorot_uniform",
+       "shape": [
+        256,
+        256
+       ]
+      },
+      {
+       "name": "bq",
+       "init": "zeros",
+       "shape": [
+        256
+       ]
+      },
+      {
+       "name": "wk",
+       "init": "glorot_uniform",
+       "shape": [
+        256,
+        256
+       ]
+      },
+      {
+       "name": "bk",
+       "init": "zeros",
+       "shape": [
+        256
+       ]
+      },
+      {
+       "name": "wv",
+       "init": "glorot_uniform",
+       "shape": [
+        256,
+        256
+       ]
+      },
+      {
+       "name": "bv",
+       "init": "zeros",
+       "shape": [
+        256
+       ]
+      },
+      {
+       "name": "wo",
+       "init": "glorot_uniform",
+       "shape": [
+        256,
+        256
+       ]
+      },
+      {
+       "name": "bo",
+       "init": "zeros",
+       "shape": [
+        256
+       ]
+      },
+      {
+       "name": "ln2_gamma",
+       "init": "ones",
+       "shape": [
+        256
+       ]
+      },
+      {
+       "name": "ln2_beta",
+       "init": "zeros",
+       "shape": [
+        256
+       ]
+      },
+      {
+       "name": "w1",
+       "init": "glorot_uniform",
+       "shape": [
+        256,
+        1024
+       ]
+      },
+      {
+       "name": "b1",
+       "init": "zeros",
+       "shape": [
+        1024
+       ]
+      },
+      {
+       "name": "w2",
+       "init": "glorot_uniform",
+       "shape": [
+        1024,
+        256
+       ]
+      },
+      {
+       "name": "b2",
+       "init": "zeros",
+       "shape": [
+        256
+       ]
+      }
+     ],
+     "output_shape": [
+      32,
+      256
+     ]
+    },
+    {
+     "type": "encoder_block",
+     "name": "block_2",
+     "dim": 256,
+     "heads": 4,
+     "ffn": 1024,
+     "ln_eps": 1e-05,
+     "weights": [
+      {
+       "name": "ln1_gamma",
+       "init": "ones",
+       "shape": [
+        256
+       ]
+      },
+      {
+       "name": "ln1_beta",
+       "init": "zeros",
+       "shape": [
+        256
+       ]
+      },
+      {
+       "name": "wq",
+       "init": "glorot_uniform",
+       "shape": [
+        256,
+        256
+       ]
+      },
+      {
+       "name": "bq",
+       "init": "zeros",
+       "shape": [
+        256
+       ]
+      },
+      {
+       "name": "wk",
+       "init": "glorot_uniform",
+       "shape": [
+        256,
+        256
+       ]
+      },
+      {
+       "name": "bk",
+       "init": "zeros",
+       "shape": [
+        256
+       ]
+      },
+      {
+       "name": "wv",
+       "init": "glorot_uniform",
+       "shape": [
+        256,
+        256
+       ]
+      },
+      {
+       "name": "bv",
+       "init": "zeros",
+       "shape": [
+        256
+       ]
+      },
+      {
+       "name": "wo",
+       "init": "glorot_uniform",
+       "shape": [
+        256,
+        256
+       ]
+      },
+      {
+       "name": "bo",
+       "init": "zeros",
+       "shape": [
+        256
+       ]
+      },
+      {
+       "name": "ln2_gamma",
+       "init": "ones",
+       "shape": [
+        256
+       ]
+      },
+      {
+       "name": "ln2_beta",
+       "init": "zeros",
+       "shape": [
+        256
+       ]
+      },
+      {
+       "name": "w1",
+       "init": "glorot_uniform",
+       "shape": [
+        256,
+        1024
+       ]
+      },
+      {
+       "name": "b1",
+       "init": "zeros",
+       "shape": [
+        1024
+       ]
+      },
+      {
+       "name": "w2",
+       "init": "glorot_uniform",
+       "shape": [
+        1024,
+        256
+       ]
+      },
+      {
+       "name": "b2",
+       "init": "zeros",
+       "shape": [
+        256
+       ]
+      }
+     ],
+     "output_shape": [
+      32,
+      256
+     ]
+    },
+    {
+     "type": "layer_norm",
+     "name": "final_ln",
+     "ln_eps": 1e-05,
+     "weights": [
+      {
+       "name": "gamma",
+       "init": "ones",
+       "shape": [
+        256
+       ]
+      },
+      {
+       "name": "beta",
+       "init": "zeros",
+       "shape": [
+        256
+       ]
+      }
+     ],
+     "output_shape": [
+      32,
+      256
+     ]
+    },
+    {
+     "type": "global_avg_pool_1d",
+     "name": "pool",
+     "output_shape": [
+      256
+     ]
+    },
+    {
+     "type": "dense",
+     "name": "logits",
+     "units": 10,
+     "activation": "softmax",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        256,
+        10
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        10
+       ]
+      }
+     ],
+     "output_shape": [
+      10
+     ]
+    }
+   ]
+  },
+  {
+   "name": "T4",
+   "family": "transformer",
+   "size": 4,
+   "batch": 32,
+   "input_shape": [
+    32,
+    32,
+    3
+   ],
+   "num_classes": 10,
+   "params": 12681738,
+   "layers": [
+    {
+     "type": "reshape",
+     "name": "rows",
+     "target_shape": [
+      32,
+      96
+     ],
+     "output_shape": [
+      32,
+      96
+     ]
+    },
+    {
+     "type": "dense",
+     "name": "token_proj",
+     "units": 512,
+     "activation": "linear",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        96,
+        512
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        512
+       ]
+      }
+     ],
+     "output_shape": [
+      32,
+      512
+     ]
+    },
+    {
+     "type": "positional",
+     "name": "pos",
+     "length": 32,
+     "dim": 512,
+     "weights": [
+      {
+       "name": "table",
+       "init": "uniform_0.05",
+       "shape": [
+        32,
+        512
+       ]
+      }
+     ],
+     "output_shape": [
+      32,
+      512
+     ]
+    },
+    {
+     "type": "encoder_block",
+     "name": "block_0",
+     "dim": 512,
+     "heads": 8,
+     "ffn": 2048,
+     "ln_eps": 1e-05,
+     "weights": [
+      {
+       "name": "ln1_gamma",
+       "init": "ones",
+       "shape": [
+        512
+       ]
+      },
+      {
+       "name": "ln1_beta",
+       "init": "zeros",
+       "shape": [
+        512
+       ]
+      },
+      {
+       "name": "wq",
+       "init": "glorot_uniform",
+       "shape": [
+        512,
+        512
+       ]
+      },
+      {
+       "name": "bq",
+       "init": "zeros",
+       "shape": [
+        512
+       ]
+      },
+      {
+       "name": "wk",
+       "init": "glorot_uniform",
+       "shape": [
+        512,
+        512
+       ]
+      },
+      {
+       "name": "bk",
+       "init": "zeros",
+       "shape": [
+        512
+       ]
+      },
+      {
+       "name": "wv",
+       "init": "glorot_uniform",
+       "shape": [
+        512,
+        512
+       ]
+      },
+      {
+       "name": "bv",
+       "init": "zeros",
+       "shape": [
+        512
+       ]
+      },
+      {
+       "name": "wo",
+       "init": "glorot_uniform",
+       "shape": [
+        512,
+        512
+       ]
+      },
+      {
+       "name": "bo",
+       "init": "zeros",
+       "shape": [
+        512
+       ]
+      },
+      {
+       "name": "ln2_gamma",
+       "init": "ones",
+       "shape": [
+        512
+       ]
+      },
+      {
+       "name": "ln2_beta",
+       "init": "zeros",
+       "shape": [
+        512
+       ]
+      },
+      {
+       "name": "w1",
+       "init": "glorot_uniform",
+       "shape": [
+        512,
+        2048
+       ]
+      },
+      {
+       "name": "b1",
+       "init": "zeros",
+       "shape": [
+        2048
+       ]
+      },
+      {
+       "name": "w2",
+       "init": "glorot_uniform",
+       "shape": [
+        2048,
+        512
+       ]
+      },
+      {
+       "name": "b2",
+       "init": "zeros",
+       "shape": [
+        512
+       ]
+      }
+     ],
+     "output_shape": [
+      32,
+      512
+     ]
+    },
+    {
+     "type": "encoder_block",
+     "name": "block_1",
+     "dim": 512,
+     "heads": 8,
+     "ffn": 2048,
+     "ln_eps": 1e-05,
+     "weights": [
+      {
+       "name": "ln1_gamma",
+       "init": "ones",
+       "shape": [
+        512
+       ]
+      },
+      {
+       "name": "ln1_beta",
+       "init": "zeros",
+       "shape": [
+        512
+       ]
+      },
+      {
+       "name": "wq",
+       "init": "glorot_uniform",
+       "shape": [
+        512,
+        512
+       ]
+      },
+      {
+       "name": "bq",
+       "init": "zeros",
+       "shape": [
+        512
+       ]
+      },
+      {
+       "name": "wk",
+       "init": "glorot_uniform",
+       "shape": [
+        512,
+        512
+       ]
+      },
+      {
+       "name": "bk",
+       "init": "zeros",
+       "shape": [
+        512
+       ]
+      },
+      {
+       "name": "wv",
+       "init": "glorot_uniform",
+       "shape": [
+        512,
+        512
+       ]
+      },
+      {
+       "name": "bv",
+       "init": "zeros",
+       "shape": [
+        512
+       ]
+      },
+      {
+       "name": "wo",
+       "init": "glorot_uniform",
+       "shape": [
+        512,
+        512
+       ]
+      },
+      {
+       "name": "bo",
+       "init": "zeros",
+       "shape": [
+        512
+       ]
+      },
+      {
+       "name": "ln2_gamma",
+       "init": "ones",
+       "shape": [
+        512
+       ]
+      },
+      {
+       "name": "ln2_beta",
+       "init": "zeros",
+       "shape": [
+        512
+       ]
+      },
+      {
+       "name": "w1",
+       "init": "glorot_uniform",
+       "shape": [
+        512,
+        2048
+       ]
+      },
+      {
+       "name": "b1",
+       "init": "zeros",
+       "shape": [
+        2048
+       ]
+      },
+      {
+       "name": "w2",
+       "init": "glorot_uniform",
+       "shape": [
+        2048,
+        512
+       ]
+      },
+      {
+       "name": "b2",
+       "init": "zeros",
+       "shape": [
+        512
+       ]
+      }
+     ],
+     "output_shape": [
+      32,
+      512
+     ]
+    },
+    {
+     "type": "encoder_block",
+     "name": "block_2",
+     "dim": 512,
+     "heads": 8,
+     "ffn": 2048,
+     "ln_eps": 1e-05,
+     "weights": [
+      {
+       "name": "ln1_gamma",
+       "init": "ones",
+       "shape": [
+        512
+       ]
+      },
+      {
+       "name": "ln1_beta",
+       "init": "zeros",
+       "shape": [
+        512
+       ]
+      },
+      {
+       "name": "wq",
+       "init": "glorot_uniform",
+       "shape": [
+        512,
+        512
+       ]
+      },
+      {
+       "name": "bq",
+       "init": "zeros",
+       "shape": [
+        512
+       ]
+      },
+      {
+       "name": "wk",
+       "init": "glorot_uniform",
+       "shape": [
+        512,
+        512
+       ]
+      },
+      {
+       "name": "bk",
+       "init": "zeros",
+       "shape": [
+        512
+       ]
+      },
+      {
+       "name": "wv",
+       "init": "glorot_uniform",
+       "shape": [
+        512,
+        512
+       ]
+      },
+      {
+       "name": "bv",
+       "init": "zeros",
+       "shape": [
+        512
+       ]
+      },
+      {
+       "name": "wo",
+       "init": "glorot_uniform",
+       "shape": [
+        512,
+        512
+       ]
+      },
+      {
+       "name": "bo",
+       "init": "zeros",
+       "shape": [
+        512
+       ]
+      },
+      {
+       "name": "ln2_gamma",
+       "init": "ones",
+       "shape": [
+        512
+       ]
+      },
+      {
+       "name": "ln2_beta",
+       "init": "zeros",
+       "shape": [
+        512
+       ]
+      },
+      {
+       "name": "w1",
+       "init": "glorot_uniform",
+       "shape": [
+        512,
+        2048
+       ]
+      },
+      {
+       "name": "b1",
+       "init": "zeros",
+       "shape": [
+        2048
+       ]
+      },
+      {
+       "name": "w2",
+       "init": "glorot_uniform",
+       "shape": [
+        2048,
+        512
+       ]
+      },
+      {
+       "name": "b2",
+       "init": "zeros",
+       "shape": [
+        512
+       ]
+      }
+     ],
+     "output_shape": [
+      32,
+      512
+     ]
+    },
+    {
+     "type": "encoder_block",
+     "name": "block_3",
+     "dim": 512,
+     "heads": 8,
+     "ffn": 2048,
+     "ln_eps": 1e-05,
+     "weights": [
+      {
+       "name": "ln1_gamma",
+       "init": "ones",
+       "shape": [
+        512
+       ]
+      },
+      {
+       "name": "ln1_beta",
+       "init": "zeros",
+       "shape": [
+        512
+       ]
+      },
+      {
+       "name": "wq",
+       "init": "glorot_uniform",
+       "shape": [
+        512,
+        512
+       ]
+      },
+      {
+       "name": "bq",
+       "init": "zeros",
+       "shape": [
+        512
+       ]
+      },
+      {
+       "name": "wk",
+       "init": "glorot_uniform",
+       "shape": [
+        512,
+        512
+       ]
+      },
+      {
+       "name": "bk",
+       "init": "zeros",
+       "shape": [
+        512
+       ]
+      },
+      {
+       "name": "wv",
+       "init": "glorot_uniform",
+       "shape": [
+        512,
+        512
+       ]
+      },
+      {
+       "name": "bv",
+       "init": "zeros",
+       "shape": [
+        512
+       ]
+      },
+      {
+       "name": "wo",
+       "init": "glorot_uniform",
+       "shape": [
+        512,
+        512
+       ]
+      },
+      {
+       "name": "bo",
+       "init": "zeros",
+       "shape": [
+        512
+       ]
+      },
+      {
+       "name": "ln2_gamma",
+       "init": "ones",
+       "shape": [
+        512
+       ]
+      },
+      {
+       "name": "ln2_beta",
+       "init": "zeros",
+       "shape": [
+        512
+       ]
+      },
+      {
+       "name": "w1",
+       "init": "glorot_uniform",
+       "shape": [
+        512,
+        2048
+       ]
+      },
+      {
+       "name": "b1",
+       "init": "zeros",
+       "shape": [
+        2048
+       ]
+      },
+      {
+       "name": "w2",
+       "init": "glorot_uniform",
+       "shape": [
+        2048,
+        512
+       ]
+      },
+      {
+       "name": "b2",
+       "init": "zeros",
+       "shape": [
+        512
+       ]
+      }
+     ],
+     "output_shape": [
+      32,
+      512
+     ]
+    },
+    {
+     "type": "layer_norm",
+     "name": "final_ln",
+     "ln_eps": 1e-05,
+     "weights": [
+      {
+       "name": "gamma",
+       "init": "ones",
+       "shape": [
+        512
+       ]
+      },
+      {
+       "name": "beta",
+       "init": "zeros",
+       "shape": [
+        512
+       ]
+      }
+     ],
+     "output_shape": [
+      32,
+      512
+     ]
+    },
+    {
+     "type": "global_avg_pool_1d",
+     "name": "pool",
+     "output_shape": [
+      512
+     ]
+    },
+    {
+     "type": "dense",
+     "name": "logits",
+     "units": 10,
+     "activation": "softmax",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        512,
+        10
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        10
+       ]
+      }
+     ],
+     "output_shape": [
+      10
+     ]
+    }
+   ]
+  },
+  {
+   "name": "T5",
+   "family": "transformer",
+   "size": 5,
+   "batch": 32,
+   "input_shape": [
+    32,
+    32,
+    3
+   ],
+   "num_classes": 10,
+   "params": 63125514,
+   "layers": [
+    {
+     "type": "reshape",
+     "name": "rows",
+     "target_shape": [
+      32,
+      96
+     ],
+     "output_shape": [
+      32,
+      96
+     ]
+    },
+    {
+     "type": "dense",
+     "name": "token_proj",
+     "units": 1024,
+     "activation": "linear",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        96,
+        1024
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        1024
+       ]
+      }
+     ],
+     "output_shape": [
+      32,
+      1024
+     ]
+    },
+    {
+     "type": "positional",
+     "name": "pos",
+     "length": 32,
+     "dim": 1024,
+     "weights": [
+      {
+       "name": "table",
+       "init": "uniform_0.05",
+       "shape": [
+        32,
+        1024
+       ]
+      }
+     ],
+     "output_shape": [
+      32,
+      1024
+     ]
+    },
+    {
+     "type": "encoder_block",
+     "name": "block_0",
+     "dim": 1024,
+     "heads": 16,
+     "ffn": 4096,
+     "ln_eps": 1e-05,
+     "weights": [
+      {
+       "name": "ln1_gamma",
+       "init": "ones",
+       "shape": [
+        1024
+       ]
+      },
+      {
+       "name": "ln1_beta",
+       "init": "zeros",
+       "shape": [
+        1024
+       ]
+      },
+      {
+       "name": "wq",
+       "init": "glorot_uniform",
+       "shape": [
+        1024,
+        1024
+       ]
+      },
+      {
+       "name": "bq",
+       "init": "zeros",
+       "shape": [
+        1024
+       ]
+      },
+      {
+       "name": "wk",
+       "init": "glorot_uniform",
+       "shape": [
+        1024,
+        1024
+       ]
+      },
+      {
+       "name": "bk",
+       "init": "zeros",
+       "shape": [
+        1024
+       ]
+      },
+      {
+       "name": "wv",
+       "init": "glorot_uniform",
+       "shape": [
+        1024,
+        1024
+       ]
+      },
+      {
+       "name": "bv",
+       "init": "zeros",
+       "shape": [
+        1024
+       ]
+      },
+      {
+       "name": "wo",
+       "init": "glorot_uniform",
+       "shape": [
+        1024,
+        1024
+       ]
+      },
+      {
+       "name": "bo",
+       "init": "zeros",
+       "shape": [
+        1024
+       ]
+      },
+      {
+       "name": "ln2_gamma",
+       "init": "ones",
+       "shape": [
+        1024
+       ]
+      },
+      {
+       "name": "ln2_beta",
+       "init": "zeros",
+       "shape": [
+        1024
+       ]
+      },
+      {
+       "name": "w1",
+       "init": "glorot_uniform",
+       "shape": [
+        1024,
+        4096
+       ]
+      },
+      {
+       "name": "b1",
+       "init": "zeros",
+       "shape": [
+        4096
+       ]
+      },
+      {
+       "name": "w2",
+       "init": "glorot_uniform",
+       "shape": [
+        4096,
+        1024
+       ]
+      },
+      {
+       "name": "b2",
+       "init": "zeros",
+       "shape": [
+        1024
+       ]
+      }
+     ],
+     "output_shape": [
+      32,
+      1024
+     ]
+    },
+    {
+     "type": "encoder_block",
+     "name": "block_1",
+     "dim": 1024,
+     "heads": 16,
+     "ffn": 4096,
+     "ln_eps": 1e-05,
+     "weights": [
+      {
+       "name": "ln1_gamma",
+       "init": "ones",
+       "shape": [
+        1024
+       ]
+      },
+      {
+       "name": "ln1_beta",
+       "init": "zeros",
+       "shape": [
+        1024
+       ]
+      },
+      {
+       "name": "wq",
+       "init": "glorot_uniform",
+       "shape": [
+        1024,
+        1024
+       ]
+      },
+      {
+       "name": "bq",
+       "init": "zeros",
+       "shape": [
+        1024
+       ]
+      },
+      {
+       "name": "wk",
+       "init": "glorot_uniform",
+       "shape": [
+        1024,
+        1024
+       ]
+      },
+      {
+       "name": "bk",
+       "init": "zeros",
+       "shape": [
+        1024
+       ]
+      },
+      {
+       "name": "wv",
+       "init": "glorot_uniform",
+       "shape": [
+        1024,
+        1024
+       ]
+      },
+      {
+       "name": "bv",
+       "init": "zeros",
+       "shape": [
+        1024
+       ]
+      },
+      {
+       "name": "wo",
+       "init": "glorot_uniform",
+       "shape": [
+        1024,
+        1024
+       ]
+      },
+      {
+       "name": "bo",
+       "init": "zeros",
+       "shape": [
+        1024
+       ]
+      },
+      {
+       "name": "ln2_gamma",
+       "init": "ones",
+       "shape": [
+        1024
+       ]
+      },
+      {
+       "name": "ln2_beta",
+       "init": "zeros",
+       "shape": [
+        1024
+       ]
+      },
+      {
+       "name": "w1",
+       "init": "glorot_uniform",
+       "shape": [
+        1024,
+        4096
+       ]
+      },
+      {
+       "name": "b1",
+       "init": "zeros",
+       "shape": [
+        4096
+       ]
+      },
+      {
+       "name": "w2",
+       "init": "glorot_uniform",
+       "shape": [
+        4096,
+        1024
+       ]
+      },
+      {
+       "name": "b2",
+       "init": "zeros",
+       "shape": [
+        1024
+       ]
+      }
+     ],
+     "output_shape": [
+      32,
+      1024
+     ]
+    },
+    {
+     "type": "encoder_block",
+     "name": "block_2",
+     "dim": 1024,
+     "heads": 16,
+     "ffn": 4096,
+     "ln_eps": 1e-05,
+     "weights": [
+      {
+       "name": "ln1_gamma",
+       "init": "ones",
+       "shape": [
+        1024
+       ]
+      },
+      {
+       "name": "ln1_beta",
+       "init": "zeros",
+       "shape": [
+        1024
+       ]
+      },
+      {
+       "name": "wq",
+       "init": "glorot_uniform",
+       "shape": [
+        1024,
+        1024
+       ]
+      },
+      {
+       "name": "bq",
+       "init": "zeros",
+       "shape": [
+        1024
+       ]
+      },
+      {
+       "name": "wk",
+       "init": "glorot_uniform",
+       "shape": [
+        1024,
+        1024
+       ]
+      },
+      {
+       "name": "bk",
+       "init": "zeros",
+       "shape": [
+        1024
+       ]
+      },
+      {
+       "name": "wv",
+       "init": "glorot_uniform",
+       "shape": [
+        1024,
+        1024
+       ]
+      },
+      {
+       "name": "bv",
+       "init": "zeros",
+       "shape": [
+        1024
+       ]
+      },
+      {
+       "name": "wo",
+       "init": "glorot_uniform",
+       "shape": [
+        1024,
+        1024
+       ]
+      },
+      {
+       "name": "bo",
+       "init": "zeros",
+       "shape": [
+        1024
+       ]
+      },
+      {
+       "name": "ln2_gamma",
+       "init": "ones",
+       "shape": [
+        1024
+       ]
+      },
+      {
+       "name": "ln2_beta",
+       "init": "zeros",
+       "shape": [
+        1024
+       ]
+      },
+      {
+       "name": "w1",
+       "init": "glorot_uniform",
+       "shape": [
+        1024,
+        4096
+       ]
+      },
+      {
+       "name": "b1",
+       "init": "zeros",
+       "shape": [
+        4096
+       ]
+      },
+      {
+       "name": "w2",
+       "init": "glorot_uniform",
+       "shape": [
+        4096,
+        1024
+       ]
+      },
+      {
+       "name": "b2",
+       "init": "zeros",
+       "shape": [
+        1024
+       ]
+      }
+     ],
+     "output_shape": [
+      32,
+      1024
+     ]
+    },
+    {
+     "type": "encoder_block",
+     "name": "block_3",
+     "dim": 1024,
+     "heads": 16,
+     "ffn": 4096,
+     "ln_eps": 1e-05,
+     "weights": [
+      {
+       "name": "ln1_gamma",
+       "init": "ones",
+       "shape": [
+        1024
+       ]
+      },
+      {
+       "name": "ln1_beta",
+       "init": "zeros",
+       "shape": [
+        1024
+       ]
+      },
+      {
+       "name": "wq",
+       "init": "glorot_uniform",
+       "shape": [
+        1024,
+        1024
+       ]
+      },
+      {
+       "name": "bq",
+       "init": "zeros",
+       "shape": [
+        1024
+       ]
+      },
+      {
+       "name": "wk",
+       "init": "glorot_uniform",
+       "shape": [
+        1024,
+        1024
+       ]
+      },
+      {
+       "name": "bk",
+       "init": "zeros",
+       "shape": [
+        1024
+       ]
+      },
+      {
+       "name": "wv",
+       "init": "glorot_uniform",
+       "shape": [
+        1024,
+        1024
+       ]
+      },
+      {
+       "name": "bv",
+       "init": "zeros",
+       "shape": [
+        1024
+       ]
+      },
+      {
+       "name": "wo",
+       "init": "glorot_uniform",
+       "shape": [
+        1024,
+        1024
+       ]
+      },
+      {
+       "name": "bo",
+       "init": "zeros",
+       "shape": [
+        1024
+       ]
+      },
+      {
+       "name": "ln2_gamma",
+       "init": "ones",
+       "shape": [
+        1024
+       ]
+      },
+      {
+       "name": "ln2_beta",
+       "init": "zeros",
+       "shape": [
+        1024
+       ]
+      },
+      {
+       "name": "w1",
+       "init": "glorot_uniform",
+       "shape": [
+        1024,
+        4096
+       ]
+      },
+      {
+       "name": "b1",
+       "init": "zeros",
+       "shape": [
+        4096
+       ]
+      },
+      {
+       "name": "w2",
+       "init": "glorot_uniform",
+       "shape": [
+        4096,
+        1024
+       ]
+      },
+      {
+       "name": "b2",
+       "init": "zeros",
+       "shape": [
+        1024
+       ]
+      }
+     ],
+     "output_shape": [
+      32,
+      1024
+     ]
+    },
+    {
+     "type": "encoder_block",
+     "name": "block_4",
+     "dim": 1024,
+     "heads": 16,
+     "ffn": 4096,
+     "ln_eps": 1e-05,
+     "weights": [
+      {
+       "name": "ln1_gamma",
+       "init": "ones",
+       "shape": [
+        1024
+       ]
+      },
+      {
+       "name": "ln1_beta",
+       "init": "zeros",
+       "shape": [
+        1024
+       ]
+      },
+      {
+       "name": "wq",
+       "init": "glorot_uniform",
+       "shape": [
+        1024,
+        1024
+       ]
+      },
+      {
+       "name": "bq",
+       "init": "zeros",
+       "shape": [
+        1024
+       ]
+      },
+      {
+       "name": "wk",
+       "init": "glorot_uniform",
+       "shape": [
+        1024,
+        1024
+       ]
+      },
+      {
+       "name": "bk",
+       "init": "zeros",
+       "shape": [
+        1024
+       ]
+      },
+      {
+       "name": "wv",
+       "init": "glorot_uniform",
+       "shape": [
+        1024,
+        1024
+       ]
+      },
+      {
+       "name": "bv",
+       "init": "zeros",
+       "shape": [
+        1024
+       ]
+      },
+      {
+       "name": "wo",
+       "init": "glorot_uniform",
+       "shape": [
+        1024,
+        1024
+       ]
+      },
+      {
+       "name": "bo",
+       "init": "zeros",
+       "shape": [
+        1024
+       ]
+      },
+      {
+       "name": "ln2_gamma",
+       "init": "ones",
+       "shape": [
+        1024
+       ]
+      },
+      {
+       "name": "ln2_beta",
+       "init": "zeros",
+       "shape": [
+        1024
+       ]
+      },
+      {
+       "name": "w1",
+       "init": "glorot_uniform",
+       "shape": [
+        1024,
+        4096
+       ]
+      },
+      {
+       "name": "b1",
+       "init": "zeros",
+       "shape": [
+        4096
+       ]
+      },
+      {
+       "name": "w2",
+       "init": "glorot_uniform",
+       "shape": [
+        4096,
+        1024
+       ]
+      },
+      {
+       "name": "b2",
+       "init": "zeros",
+       "shape": [
+        1024
+       ]
+      }
+     ],
+     "output_shape": [
+      32,
+      1024
+     ]
+    },
+    {
+     "type": "layer_norm",
+     "name": "final_ln",
+     "ln_eps": 1e-05,
+     "weights": [
+      {
+       "name": "gamma",
+       "init": "ones",
+       "shape": [
+        1024
+       ]
+      },
+      {
+       "name": "beta",
+       "init": "zeros",
+       "shape": [
+        1024
+       ]
+      }
+     ],
+     "output_shape": [
+      32,
+      1024
+     ]
+    },
+    {
+     "type": "global_avg_pool_1d",
+     "name": "pool",
+     "output_shape": [
+      1024
+     ]
+    },
+    {
+     "type": "dense",
+     "name": "logits",
+     "units": 10,
+     "activation": "softmax",
+     "weights": [
+      {
+       "name": "kernel",
+       "init": "glorot_uniform",
+       "shape": [
+        1024,
+        10
+       ]
+      },
+      {
+       "name": "bias",
+       "init": "zeros",
+       "shape": [
+        10
+       ]
+      }
+     ],
+     "output_shape": [
+      10
+     ]
+    }
+   ]
+  }
+ ]
+}
