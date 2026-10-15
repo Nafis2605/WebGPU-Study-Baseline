@@ -1,0 +1,13 @@
+model,backend,per-step sync,pipelined (10 steps / sync),"model.fit (no sync), epoch 2"
+D3,webgl,7.725,4.074,2.07
+D3,webgpu,5.895,4.956,2.65
+C3,webgl,44.183,37.125,36.87
+C3,webgpu,49.76,50.044,47.73
+R3,webgl,25.467,26.154,19.12
+R3,webgpu,29.623,30.091,62.62
+L3,webgl,51.22,51.522,43.11
+L3,webgpu,67.5,66.885,467.87
+G3,webgl,53.843,60.492,48.38
+G3,webgpu,75.205,89.095,581.86
+T3,webgl,30.255,32.927,26.78
+T3,webgpu,28.61,30.473,37.78

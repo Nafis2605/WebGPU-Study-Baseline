@@ -68,16 +68,17 @@ export function oneHot(yU8, rows, out = null) {
 }
 
 /**
- * Training batch k at batch size B: rows order[epoch][(k*B) mod N ... +B), epoch = floor(k*B / N).
- * N is divisible by every batch size in the study, so a batch never straddles two epochs.
+ * Training batch k at batch size B: rows order[epoch mod E][(k*B) mod N ... +B), epoch = floor(k*B / N),
+ * E = epochs in order.u32 (10). N is divisible by every batch size in the study, so a batch never straddles
+ * two epochs. Steps past E epochs reuse the orders cyclically (fast pairs with the 1 s warm-up floor and the
+ * 2 s minimum window run > 800 steps at B = 64); native/data.py does the same, so batches stay identical.
  */
 export function trainRows(data, k, B) {
   const N = data.n_train;
   if (N % B !== 0) throw new Error(`batch ${B} does not divide the training subset (${N})`);
   const start = k * B;
   const epoch = Math.floor(start / N);
-  if (epoch >= data.epochs_in_order) throw new Error(`step ${k} at batch ${B} is beyond the ${data.epochs_in_order} epochs in order.u32`);
-  const off = epoch * N + (start % N);
+  const off = (epoch % data.epochs_in_order) * N + (start % N);
   return { rows: data.order.subarray(off, off + B), epoch };
 }
 

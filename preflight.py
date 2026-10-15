@@ -8,7 +8,8 @@ Preflight: will the full study complete on the locked environment, and are its i
    the data manifest is the CIFAR-10 release (not a placeholder); every model has init and trained weights.
 2. The real pipeline (run_study.py: lock checks, GPU idle + boost guards, every stage, every model x config
    pair, native stages, GPU traces, all analyses) with minimal run counts into benchmark_results/preflight/.
-   The train / infer_latency smoke keep the full warm-up counts, so warm-up sufficiency is checked.
+   The infer_latency / infer_native / train / native_train smoke keep the full warm-up rule and measure 20
+   records where they fit in 10 s, so warm-up sufficiency is checked (analysis/warmup.py).
 3. Report (preflight_report.json / .md): per stage launches, failures by category; failures that are not
    known TF.js coverage gaps are BLOCKERS (incl. status leak_detected / rng_used / nonfinite_loss /
    backend_not_verified / strict_violation); low-clock re-runs; warm-up sufficiency; analysis tracebacks;
@@ -40,13 +41,18 @@ TRAIN_MODES = {"train", "train_pipelined", "train_profile", "train_correctness",
                "train_fit", "train_phases", "train_responsiveness", "lifecycle"}
 
 S_INFER = ["--trials", "1", "--measure", "5", "--min-measure", "5", "--max-measure-s", "10", "--min-measure-s", "0"]
+# warm-up gate stages: full warm-up rule and 20 measured records (analysis/warmup.py MIN_MEASURED) where they
+# fit in the 10 s cap; slower pairs stop at 5 and are reported "not assessable" (seconds-long steps)
+S_INFER_GATE = ["--trials", "1", "--measure", "20", "--min-measure", "5", "--max-measure-s", "10", "--min-measure-s", "0"]
 S_TRAIN = ["--trials", "1", "--train-measure", "10", "--train-min-measure", "5", "--train-max-s", "10",
            "--min-measure-s", "0", "--infer-warmup", "2", "--infer-measure", "3", "--infer-max-s", "5"]
+S_TRAIN_GATE = ["--trials", "1", "--train-measure", "20", "--train-min-measure", "5", "--train-max-s", "10",
+                "--min-measure-s", "0", "--infer-warmup", "2", "--infer-measure", "3", "--infer-max-s", "5"]
 S_NATIVE = ["--trials", "1"]
 SMOKE = {
     # full warm-up counts kept (warm-up sufficiency check), fewer measured records
-    "infer_latency": S_INFER, "train": S_TRAIN,
-    "infer_native": [*S_INFER, "--warmup", "3"], "infer_native_why": [*S_INFER, "--warmup", "2"],
+    "infer_latency": S_INFER_GATE, "train": S_TRAIN_GATE,
+    "infer_native": S_INFER_GATE, "infer_native_why": [*S_INFER, "--warmup", "2"],
     "infer_correctness": ["--warmup", "0"], "infer_native_correctness": ["--warmup", "0"],
     "infer_batch": [*S_INFER, "--warmup", "1", "--measure", "2", "--min-measure", "2", "--batch-values", "1", "32", "256"],
     "infer_native_batch": [*S_INFER, "--warmup", "1", "--measure", "2", "--min-measure", "2", "--batch-values", "1", "32", "256"],
@@ -59,7 +65,7 @@ SMOKE = {
     "warmup_precompile": [*S_INFER, "--warmup", "2"], "warmup_diskcache": [*S_INFER, "--warmup", "2"],
     "warmup_precompile_train": [*S_TRAIN, "--train-warmup", "3"],
     "warmup_lifecycle_if": [*S_TRAIN, "--train-warmup", "2"], "warmup_lifecycle_tf": [*S_TRAIN, "--train-warmup", "2"],
-    "native_train": S_TRAIN, "native_train_why": [*S_TRAIN, "--train-warmup", "3"],
+    "native_train": S_TRAIN_GATE, "native_train_why": [*S_TRAIN, "--train-warmup", "3"],
     "train_instrumented": [*S_TRAIN, "--train-warmup", "2", "--train-measure", "2"],
     "train_profile": ["--trials", "1", "--train-warmup", "1", "--profile-steps", "1", "--train-max-s", "10"],
     "train_coverage": [],
@@ -217,8 +223,8 @@ def phase_has_batch(g):
 
 
 def warmup_check():
-    """Warm-up sufficiency on the smoke launches of infer_latency and train (full warm-up counts kept)."""
-    dirs = [str(stage_dir(s)) for s in ("infer_latency", "train", "native_train") if stage_dir(s)]
+    """Warm-up sufficiency on the smoke launches of infer_latency, infer_native, train, native_train (full warm-up rule)."""
+    dirs = [str(stage_dir(s)) for s in ("infer_latency", "infer_native", "train", "native_train") if stage_dir(s)]
     if not dirs:
         return None, []
     out = OUT / "analysis" / "warmup_smoke"
@@ -228,8 +234,9 @@ def warmup_check():
     if p.returncode != 0 or not f.exists():
         return {"error": p.stderr[-500:]}, [{"stage": "warmup", "problem": "warmup analysis failed"}]
     t = pd.read_csv(f)
-    bad = t[~t["warmup_sufficient"].astype(bool)]
-    rep = {"launches": len(t), "insufficient": len(bad),
+    bad = t[t["warmup_sufficient"] == False]  # noqa: E712 (None = not assessable: < MIN_MEASURED records)
+    rep = {"launches": len(t), "assessable": int(t["warmup_sufficient"].notna().sum()), "insufficient": len(bad),
+           "drift_flags": int((t["drift_flag"] == True).sum()),  # noqa: E712
            "examples": bad[["model", "backend", "mode", "steps_to_steady", "warmup_configured"]].head(20).to_dict("records")}
     return rep, [{"stage": "warmup", "model": r["model"], "config": r["backend"], "mode": r["mode"],
                   "problem": f"warmup_insufficient: steps_to_steady {r['steps_to_steady']} > warm-up {r['warmup_configured']}"}
@@ -276,8 +283,8 @@ def main():
         blockers.append({"stage": "analyses", "problem": f"{report['analysis_tracebacks']} analysis tracebacks (analysis.log)"})
     stage_min = {s: json.loads((OUT / s / "stage_done.json").read_text(encoding="utf-8")).get("minutes")
                  for s in run_study.STAGES if (OUT / s / "stage_done.json").exists()}
-    if "gpu_trace" in stage_min:   # smoke: 3 models x 1 repeat; full: 6 models x 2 repeats
-        report["stages"]["gpu_trace"]["projected_full_minutes"] = round(stage_min["gpu_trace"] * 4, 1)
+    if "gpu_trace" in stage_min:   # smoke: 3 models x 1 repeat; full: 30 models x 2 repeats
+        report["stages"]["gpu_trace"]["projected_full_minutes"] = round(stage_min["gpu_trace"] * 20, 1)
     if "readback_micro" in stage_min:
         report["stages"]["readback_micro"]["projected_full_minutes"] = round(stage_min["readback_micro"] * 3 * 10 * 85 / 65, 1)
     guards = []

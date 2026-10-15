@@ -23,6 +23,10 @@ Per (model, backend, phase):
     inferences, inference_p50_ms, inferences_per_s   (inference phase) runs completed while the page
                            was animating and being clicked, their median duration and rate
 
+Training launches (mode train_responsiveness) use the same page harness with a training runner: the
+page labels the work phase "inference" and its records "load"; here they are relabelled "train" and the
+counts become steps, step_p50_ms, steps_per_s.
+
 responsiveness_summary.csv   medians over trials per (model, backend, phase)
 responsiveness_delta.csv     per (model, backend): inference - baseline for the page metrics
 
@@ -47,7 +51,11 @@ def main():
     out = Path(args.out or d)
     out.mkdir(parents=True, exist_ok=True)
     sessions = pd.read_csv(d / "sessions.csv")
-    ok = sessions[(sessions["status"] == "ok") & (sessions["mode"] == "responsiveness")][KEY]
+    modes = sessions.loc[sessions["status"] == "ok", "mode"].unique()
+    if len(modes) > 1:
+        raise SystemExit(f"mixed modes in one directory: {list(modes)}")
+    train = list(modes) == ["train_responsiveness"]
+    ok = sessions[(sessions["status"] == "ok") & sessions["mode"].isin(["responsiveness", "train_responsiveness"])][KEY]
     empty = pd.DataFrame(columns=KEY + ["phase"])
     load = lambda name: pd.read_csv(d / name).merge(ok, on=KEY) if (d / name).exists() else empty
     phases = load("phases.csv")
@@ -108,8 +116,9 @@ def main():
                         "inferences_per_s": len(r) / secs if secs else np.nan})
         rows.append(row)
     t = pd.DataFrame(rows)
+    if t.empty:
+        raise SystemExit(f"no ok responsiveness launches in {d}")
     summary = t.groupby(["model", "backend", "phase"]).median(numeric_only=True).drop(columns="trial").reset_index()
-    summary.to_csv(out / "responsiveness_summary.csv", index=False)
     metrics = [c for c in ["frame_interval_p50_ms", "frame_interval_p95_ms", "frame_interval_p99_ms",
                            "missed_deadline_frac", "dropped_frames_per_s", "click_input_delay_p50_ms",
                            "click_input_delay_p95_ms", "click_to_next_frame_p50_ms", "click_to_next_frame_p95_ms",
@@ -119,6 +128,11 @@ def main():
     delta = (inf[metrics] - base).add_suffix("_delta")
     extra = [c for c in ["inferences_per_s", "inference_p50_ms"] if c in inf]
     delta = delta.join(inf[extra]).reset_index()
+    if train:
+        names = {"inferences": "steps", "inference_p50_ms": "step_p50_ms", "inferences_per_s": "steps_per_s"}
+        summary = summary.rename(columns=names).replace({"phase": {"inference": "train"}})
+        delta = delta.rename(columns=names)
+    summary.to_csv(out / "responsiveness_summary.csv", index=False)
     delta.to_csv(out / "responsiveness_delta.csv", index=False)
     with pd.option_context("display.width", 250, "display.max_columns", 40):
         print(summary.round(3).to_string(index=False))

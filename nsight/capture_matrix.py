@@ -1,15 +1,15 @@
 """
 Run the GPU-trace matrix with Nsight Systems (port of the sibling study's capture_matrix.py): browser
-captures (nsight/run_nsys.py) and native TensorFlow CUDA captures (nsight/run_nsys_native.py), for the
-representative subset, inference and training. Each entry is repeated; finished captures are skipped on
+captures (nsight/run_nsys.py) and native TensorFlow CUDA captures (nsight/run_nsys_native.py), for all 30
+models, inference and training. Each entry is repeated; finished captures are skipped on
 re-run (resume), keyed by output-folder prefix and tag.
 
 Browser (<out>/nsys), D3D12 workloads (WebGPU) / GPU metrics (WebGL: D3D11 API tracing slows ANGLE):
-  B1 training steps    webgpu, webgl on the subset: GPU busy fraction per step, idle gaps, workloads/step
-  B2 inference         webgpu, webgl on the subset at batch 1
+  B1 training steps    webgpu, webgl, every model: GPU busy fraction per step, idle gaps, workloads/step
+  B2 inference         webgpu, webgl, every model at batch 1
 Native (<out>/nsys_native), CUDA kernels / copies:
-  N1 training steps    tf-cuda-fp32 (graph) and tf-cuda-eager on the subset
-  N2 inference         tf-cuda-fp32 on the subset
+  N1 training steps    tf-cuda-fp32 (graph) and tf-cuda-eager, every model
+  N2 inference         tf-cuda-fp32, every model
 
 Usage:
     python nsight/capture_matrix.py --out <dir> [--only B1 N1] [--repeats 1] [--dry-run]
@@ -21,19 +21,19 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-SUBSET = ["D3", "C3", "R3", "L3", "G3", "T3"]
+MODELS = [f + str(i) for f in "DCRLGT" for i in range(1, 6)]   # all 30 (was the 6-model subset)
 D12 = ["--trace", "dx12", "--gpu-metrics"]
 MET = ["--trace", "none", "--gpu-metrics"]
 TRAIN_RUNS = ["--start-at-run", "15", "--measure-runs", "100", "--window-s", "60"]
 
 # (group, model, config, task, extra args, repeats)
 MATRIX = [
-    *[("B1", m, "webgpu", "train", [*D12, *TRAIN_RUNS], 2) for m in SUBSET],
-    *[("B1", m, "webgl", "train", [*MET, *TRAIN_RUNS], 2) for m in SUBSET],
-    *[("B2", m, "webgpu", "infer", D12, 2) for m in SUBSET],
-    *[("B2", m, "webgl", "infer", MET, 2) for m in SUBSET],
-    *[("N1", m, c, "train", [], 2) for m in SUBSET for c in ("tf-cuda-fp32", "tf-cuda-eager")],
-    *[("N2", m, "tf-cuda-fp32", "infer", [], 2) for m in SUBSET],
+    *[("B1", m, "webgpu", "train", [*D12, *TRAIN_RUNS], 2) for m in MODELS],
+    *[("B1", m, "webgl", "train", [*MET, *TRAIN_RUNS], 2) for m in MODELS],
+    *[("B2", m, "webgpu", "infer", D12, 2) for m in MODELS],
+    *[("B2", m, "webgl", "infer", MET, 2) for m in MODELS],
+    *[("N1", m, c, "train", [], 2) for m in MODELS for c in ("tf-cuda-fp32", "tf-cuda-eager")],
+    *[("N2", m, "tf-cuda-fp32", "infer", [], 2) for m in MODELS],
 ]
 
 

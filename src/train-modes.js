@@ -15,7 +15,7 @@
 import { tf } from "./tfjs-setup.js";
 import { makeTrainRunner, makeOptimizer, cceLoss } from "./train-runner.js";
 import { inferRunner } from "./infer-modes.js";
-import { instrumented, runnerRuns, capOf, encodeTensor, mulberry32, fnv1a32, pageMemory } from "./common.js";
+import { instrumented, runnerRuns, capOf, encodeTensor, mulberry32, fnv1a32, pageMemory, warmupCap } from "./common.js";
 import { profileMode } from "./profile.js";
 import { responsivenessMode } from "./responsiveness.js";
 import { imagesF32, oneHot, valRows, PIXELS, CLASSES } from "./data.js";
@@ -41,12 +41,9 @@ const trainCap = cfg => capOf(cfg.trainMaxS, cfg.trainMinMeasure, cfg.trainMeasu
 const inferCap = cfg => capOf(cfg.inferMaxS, cfg.inferMinMeasure, cfg.inferMeasure, cfg.minMeasureS);
 
 /** Warm-up + capped measure of one runner, labelled with a phase prefix. */
-// Warm-up time cap (slow pairs, e.g. L5 on WASM at seconds per step): stop warming up after
-// cfg.warmupMaxS once >= 3 warm-up records exist; flagged in result.capped, checked by analysis/warmup.py.
-let WARMUP_CAP = null;
-export function setWarmupCap(c) { WARMUP_CAP = c; }
+// Warm-up rule (count, time floor, time cap): common.js warmupCap().
 async function warmMeasure(runner, prefix, warmup, measure, cap, result, extra = {}) {
-  const w = await runnerRuns(runner, `${prefix}_warmup`, warmup, result.runs, extra, WARMUP_CAP);
+  const w = await runnerRuns(runner, `${prefix}_warmup`, warmup, result.runs, extra, warmupCap());
   if (w.capped) result.capped.push({ phase: `${prefix}_warmup`, runs: w.runs, ...extra });
   const m = await runnerRuns(runner, prefix, measure, result.runs, extra, cap);
   if (m.capped) result.capped.push({ phase: prefix, runs: m.runs, ...extra });
@@ -114,7 +111,7 @@ export const TRAIN_MODES = {
   /** Sync-policy why-axis: n unsynced steps per window, one fence + loss read per window. */
   async train_pipelined(model, ctx, cfg, result) {
     const runner = trainRunner(model, ctx, cfg);
-    await runnerRuns(runner, "train_warmup", cfg.trainWarmup, result.runs);
+    await runnerRuns(runner, "train_warmup", cfg.trainWarmup, result.runs, {}, warmupCap());
     const n = cfg.pipelineWindow ?? 10;
     const cap = trainCap(cfg);
     const windows = Math.max(1, Math.ceil(cfg.trainMeasure / n));

@@ -1,0 +1,7 @@
+family,webgl,webgpu,ratio
+MLP,29.05,24.4,0.84
+CNN,39.7,24.29,0.61
+SimpleRNN,5.71,7.74,1.35
+LSTM,6.97,9.88,1.42
+GRU,6.86,9.23,1.35
+Transformer,18.8,16.28,0.87

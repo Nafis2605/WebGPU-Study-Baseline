@@ -190,7 +190,7 @@ def op_speedup(top, lat, cpu_cfg="wasm-8t", gpu_cfg="webgpu"):
     a = top[top["backend"] == cpu_cfg].set_index(["model", "name"])["ms_per_run"]
     b = top[top["backend"] == gpu_cfg].set_index(["model", "name"])["ms_per_run"]
     j = pd.concat([a.rename("cpu_ms"), b.rename("gpu_ms")], axis=1).dropna()
-    j = j[j["gpu_ms"] > 0].reset_index()
+    j = j[(j["gpu_ms"] > 0) & (j["cpu_ms"] > 0)].reset_index()   # 0 ms (metadata-only) kernels: undefined
     j["speedup"] = j["cpu_ms"] / j["gpu_ms"]
     per_op = j.groupby("name").agg(models=("model", "nunique"), cpu_total_ms=("cpu_ms", "sum"),
                                    gpu_total_ms=("gpu_ms", "sum"),

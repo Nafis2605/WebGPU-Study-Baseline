@@ -51,10 +51,9 @@ class Data:
             raise ValueError(f"batch {B} does not divide the training subset ({N})")
         start = k * B
         epoch = start // N
-        if epoch >= self.order.shape[0]:
-            raise ValueError(f"step {k} at batch {B} is beyond the epochs in order.u32")
         off = start % N
-        return self.order[epoch, off:off + B], epoch
+        # past the epochs in order.u32 the orders repeat cyclically (same rule as src/data.js trainRows)
+        return self.order[epoch % self.order.shape[0], off:off + B], epoch
 
     def val_rows(self, i, B):
         return (i * B + np.arange(B)) % self.n_val

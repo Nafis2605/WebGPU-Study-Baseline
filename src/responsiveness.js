@@ -29,6 +29,7 @@
 //                 next paint). Complete and unthresholded.
 //   loaf          Long Animation Frame entries (frames > 50 ms): duration, blockingDuration
 import { yieldToBrowser } from "./timing.js";
+import { warmUp } from "./common.js";
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
@@ -89,7 +90,7 @@ export async function responsivenessMode(runner, cfg, result) {
   }
 
   // Warmup first so the inference phase measures steady-state interference, not compilation.
-  for (let i = 0; i < cfg.warmup; i++) await runner.run();
+  await warmUp(runner, cfg.warmup);
 
   const anim = cfg.animate ? startAnimation(canvas) : { frames: [], stop() {} };
   const phases = {};

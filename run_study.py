@@ -246,7 +246,7 @@ def cross_stage_analyses(study):
                      "--out", str(out / "profile")])
     if "train_profile" in have:
         jobs.append(["analysis/profile_summary.py", have["train_profile"], "--mode", "train_profile",
-                     "--latency", *dirs("train"), "--out", str(out / "profile")])
+                     "--latency", *dirs("train"), "--out", str(out / "train_profile")])
     if dirs("infer_profile", "train_profile"):
         jobs.append(["analysis/features.py", *dirs("infer_profile", "train_profile"), "--out", str(out / "features")])
     if dirs("train_profile", "train_instrumented", "train_phases", "native_train_phases"):

@@ -55,3 +55,13 @@ Filled in from `probes/out/` as each probe completes.
 * **steps_to_steady definition.** A 5-step window median masked a single 100x cold first step and a fixed
   10 % band rejected noisy WebGL; the band is now the launch's own steady P90 with a per-record condition
   at the start (analysis/warmup.py docstring).
+* **Warm-up floor and steps_to_steady horizon (preflight).** See VERIFICATION.md "Revisions forced by the
+  preflight": every timed warm-up runs >= 1 s after the cold first record (browser and native), and the
+  steps_to_steady window condition covers the next 10 records instead of the rest of the series.
+* **Cap and batch trims not applied.** With the measured per-pair times, a 20 s instead of 30 s cap changes
+  the measured window only where 200 records (inference) / 100 steps (training) take > 20 s, saving ~7 min
+  of the main stages; fewer batch values (inference {1,4,16,64,256}, training {16,64,256}) would save
+  ~25-30 min. Validating either would cost more run time than it saves, so both are kept at full size.
+* **GPU traces for every model (requested before the final run).** The Nsight matrix (`gpu_trace`) now covers all
+  30 models instead of the 6-model subset: WebGPU and WebGL (inference at batch 1 and training steps), native
+  tf-cuda-fp32 (inference, training) and tf-cuda-eager (training), 2 repeats each: 420 captures (~36 GB).

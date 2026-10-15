@@ -116,7 +116,7 @@ def main():
     pillar = "train" if mode in TRAIN_MODES else "infer"
     res = {"schema": 3, "model": job["model"], "backend": "native", "config_label": cfg, "mode": mode, "pillar": pillar,
            "status": "failed", "failure": None, "runs": [], "capped": [],
-           "config": {"warmup": job.get("warmup"), "measure": job.get("measure"), "seed": None, "strict": False,
+           "config": {"warmup": job.get("warmup"), "warmup_min_s": job.get("warmup_min_s"), "measure": job.get("measure"), "seed": None, "strict": False,
                       "threads_requested": job.get("threads"), "flags": {"tf32": cfg in ("tf-cuda", "tf-cuda-resident")},
                       "exec": "eager" if cfg == "tf-cuda-eager" else "tf.function", "precompile": False,
                       "instrumented": False, "weights": job.get("weights"),
@@ -300,11 +300,22 @@ def main():
                 res["runs"].append({"phase": phase, "i": i, **(extra or {}), **rec})
                 i += 1
 
-        def warm_measure(run, prefix, warm, meas, cap_s, cap_min, extra=None, part=None, measure_name=None):
-            for i in range(warm):
+        def warm_loop(run, phase, count, extra=None, part=None):
+            # same rule as the page's warm-up (common.js warmupCap): >= count records and >= warmup_min_s
+            # seconds after the end of the first (cold) record
+            floor_s = job.get("warmup_min_s") or 0
+            t_floor = time.perf_counter()
+            i = 0
+            while i < count or time.perf_counter() - t_floor < floor_s:
                 rec = run(part) if part else run()
                 rec = rec[0] if isinstance(rec, tuple) else rec
-                res["runs"].append({"phase": f"{prefix}_warmup", "i": i, **(extra or {}), **rec})
+                res["runs"].append({"phase": phase, "i": i, **(extra or {}), **rec})
+                if i == 0:
+                    t_floor = time.perf_counter()
+                i += 1
+
+        def warm_measure(run, prefix, warm, meas, cap_s, cap_min, extra=None, part=None, measure_name=None):
+            warm_loop(run, f"{prefix}_warmup", warm, extra, part)
             capped_loop(run, measure_name or prefix, meas, cap_s, cap_min, extra, part)
 
         stage = "run"
@@ -313,8 +324,7 @@ def main():
             res["config"]["train_batch"] = B
         if mode == "latency":
             run, _ = make_infer(job.get("infer_batch", 1))
-            for i in range(job["warmup"]):
-                res["runs"].append({"phase": "warmup", "i": i, **run()[0]})
+            warm_loop(run, "warmup", job["warmup"])
             capped_loop(run, "measure", job["measure"], job.get("max_measure_s"), job.get("min_measure", 30))
         elif mode == "batch":
             vals = sorted(job.get("batch_values") or [1, 2, 4, 8, 16, 32, 64, 128, 256])

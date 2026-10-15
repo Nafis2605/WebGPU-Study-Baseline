@@ -77,6 +77,7 @@ def build_job(args, model, config):
         "model": model["name"], "config": config, "mode": args.mode, "weights": args.weights,
         "verify_weights": args.verify_weights, "threads": 8, "determinism": args.determinism,
         "warmup": args.warmup, "measure": args.measure, "max_measure_s": args.max_measure_s,
+        "warmup_min_s": args.warmup_min_s,
         "min_measure": args.min_measure, "min_measure_s": args.min_measure_s, "infer_batch": args.infer_batch, "batch_values": args.batch_values,
         "correctness_batch": args.correctness_batch,
         "train_warmup": args.train_warmup, "train_measure": args.train_measure, "train_max_s": args.train_max_s,
@@ -102,6 +103,8 @@ def main(argv=None):
     ap.add_argument("--io-dir", default=None, help="browser correctness stage io/ (TF.js cpu reference, --mode correctness)")
     ap.add_argument("--trials", type=int, default=3)
     ap.add_argument("--warmup", type=int, default=10)
+    ap.add_argument("--warmup-min-s", type=float, default=1.0,
+                    help="timed warm-ups run >= the warm-up count and >= this many seconds after the first record")
     ap.add_argument("--measure", type=int, default=200)
     ap.add_argument("--max-measure-s", type=float, default=None)
     ap.add_argument("--min-measure", type=int, default=30)

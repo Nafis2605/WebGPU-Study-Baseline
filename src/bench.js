@@ -24,11 +24,11 @@ import { buildModel, weightSlots } from "./models/build.js";
 import { loadData } from "./data.js";
 import { fetchWeights, assignWeights, verifyAssigned } from "./weights.js";
 import { INFER_MODES } from "./infer-modes.js";
-import { TRAIN_MODES, setWarmupCap } from "./train-modes.js";
+import { TRAIN_MODES } from "./train-modes.js";
 import { makeLayersRunner } from "./layers-runner.js";
 import { makeTrainRunner } from "./train-runner.js";
 import { memorySnapshot } from "./memory.js";
-import { withTimeout, pageMemory, RUN_COUNTERS } from "./common.js";
+import { withTimeout, pageMemory, RUN_COUNTERS, setWarmupCap } from "./common.js";
 
 const SCHEMA_VERSION = 3;
 const MODES = { ...INFER_MODES, ...TRAIN_MODES };
@@ -148,6 +148,7 @@ export async function runExperiment(cfg) {
     config_label: cfg.configLabel ?? backend,
     config: {
       warmup: cfg.warmup, measure: cfg.measure, seed: cfg.seed,
+      warmup_min_s: cfg.warmupMinS ?? 0, warmup_max_s: cfg.warmupMaxS ?? null,
       max_measure_s: cfg.maxMeasureS ?? null, min_measure: cfg.maxMeasureS ? (cfg.minMeasure ?? 30) : null,
       infer_batch: cfg.inferBatch ?? 1,
       train_batch: cfg.trainBatch ?? spec.batch,
@@ -268,7 +269,8 @@ export async function runExperiment(cfg) {
 
     stage = "run";
     log(`[${spec.name}/${result.config_label}] mode ${mode}`);
-    setWarmupCap(cfg.warmupMaxS ? { maxMs: cfg.warmupMaxS * 1000, min: 3, minMs: 0 } : null);
+    setWarmupCap({ maxMs: (cfg.warmupMaxS || Infinity) * 1000, min: 3, minMs: (cfg.warmupMinS ?? 0) * 1000,
+                   floorAfterFirst: true, maxExtend: Infinity });
     runner = await MODES[mode](model, ctx, cfg, result);
     result.feeds = runner.spec;
 

@@ -47,3 +47,6 @@ Rebuild (`npx vite build`) after editing `src/`. `TRAINBENCH_ALLOW_DIRTY=1` only
   reset_after=true (Keras GRU then can't use cuDNN: native_cudnn_rnn records it).
 - TF.js Adam creates scalar tensors per variable per step (CPU-forwarded, counted by the hooks).
 - WebGPU dataSync goes through a canvas path (sibling finding): runners use data().
+- `preflight.py` has no argparse: any invocation (even `--help`) starts a preflight. Read its docstring instead.
+- Timed warm-ups run >= W records and >= 1 s after the first record (`--warmup-min-s`, page and native):
+  fast models get hundreds of warm-up records, so steps_to_steady uses a 10-record horizon (analysis/warmup.py).

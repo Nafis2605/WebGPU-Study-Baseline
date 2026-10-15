@@ -1,0 +1,12 @@
+,backend,predictors,R2,intercept_ms,per_kernel_us,per_MMAC_us
+0,webgpu,kernels,0.9804,1.8455,8.7175,
+1,webgpu,MMACs,0.1282,8.8919,,8.885
+2,webgpu,kernels+MMACs,0.9813,1.7874,8.622,0.81
+3,webgpu,dispatches,0.9878,2.4793,10.0128,
+4,webgl,kernels,0.8291,4.0524,7.2484,
+5,webgl,MMACs,0.2554,9.1611,,11.3386
+6,webgl,kernels+MMACs,0.8753,3.6853,6.6454,5.1147
+7,webgl,draws,0.7753,4.6672,6.9487,
+8,wasm-8t,kernels,0.3757,-162.5278,305.8394,
+9,wasm-8t,MMACs,0.1038,57.8302,,453.1334
+10,wasm-8t,kernels+MMACs,0.3915,-175.9781,283.7488,187.3864

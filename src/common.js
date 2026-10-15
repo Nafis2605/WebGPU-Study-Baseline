@@ -108,15 +108,33 @@ export function instrumented(runner) {
 const MAX_EXTEND = 50;
 export async function runnerRuns(runner, phase, count, records, extra = {}, cap = null) {
   const t0 = performance.now();
+  // Floor clock: from the start, or (cap.floorAfterFirst, warm-up) from the end of the cold first run.
+  let tFloor = t0;
+  const maxExtend = cap?.maxExtend ?? MAX_EXTEND;
   let i = 0;
   for (;; i++) {
-    const el = performance.now() - t0;
-    if (i >= count && (!cap?.minMs || el >= cap.minMs || i >= count * MAX_EXTEND)) break;
+    const now = performance.now();
+    const el = now - t0;
+    if (i >= count && (!cap?.minMs || now - tFloor >= cap.minMs || i >= count * maxExtend)) break;
     if (cap && i >= cap.min && el > cap.maxMs) break;
     records.push({ phase, i, ...extra, ...(await runner.run()) });
+    if (i === 0 && cap?.floorAfterFirst) tFloor = performance.now();
   }
   return { runs: i, capped: i < count };
 }
+
+/**
+ * Warm-up rule of every timed mode (set per launch by bench.js): at least the configured count and at
+ * least cfg.warmupMinS seconds after the first (cold) record, so fast models warm up for more than a
+ * few ms (preflight: 10 records of a 0.3-3 ms inference left the first 0.2-0.3 s of the measured window
+ * 3-10 % slow); bounded by cfg.warmupMaxS once >= 3 records exist (slow pairs, e.g. seconds per step on
+ * WASM). A capped warm-up is flagged in result.capped; sufficiency is checked by analysis/warmup.py.
+ */
+let WARMUP_CAP = null;
+export function setWarmupCap(c) { WARMUP_CAP = c; }
+export const warmupCap = () => WARMUP_CAP;
+/** Unrecorded warm-up with the same rule (load / responsiveness settle the runner before their window). */
+export async function warmUp(runner, count) { await runnerRuns(runner, "warmup", count, [], {}, WARMUP_CAP); }
 
 /** The measurement cap from a launch config: {maxMs, min, minMs} or null. */
 export function capOf(maxS, min, count, minS = null) {

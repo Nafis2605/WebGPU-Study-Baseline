@@ -1,0 +1,4 @@
+backend,intercept_ms,us_per_kernel,R2
+webgpu,1.8455,8.7175,0.9804
+webgl,4.0524,7.2484,0.8291
+wasm-8t,-162.5278,305.8394,0.3757

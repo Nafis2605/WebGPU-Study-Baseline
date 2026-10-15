@@ -1,0 +1,13 @@
+model,config,page_p50_ms,gpu_busy_ms_per_inference,gpu_busy_frac_in_inference
+D3,native-tf-cuda-eager,10.078,0.328,0.032
+D3,native-tf-cuda-fp32,1.543,0.231,0.143
+D3,webgl,11.613,,
+D3,webgpu,6.35,1.069,0.169
+L3,native-tf-cuda-eager,36.587,4.637,0.129
+L3,native-tf-cuda-fp32,12.728,4.147,0.32
+L3,webgl,55.633,,
+L3,webgpu,75.865,22.672,0.299
+T3,native-tf-cuda-eager,72.536,7.022,0.099
+T3,native-tf-cuda-fp32,9.275,6.421,0.689
+T3,webgl,32.935,,
+T3,webgpu,31.095,11.446,0.371

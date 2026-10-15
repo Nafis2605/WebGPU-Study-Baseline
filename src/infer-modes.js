@@ -3,7 +3,7 @@
 // study's trained weights. The batch dimension is the models' only free input dimension, so the
 // shapes mode sweeps it.
 import { makeLayersRunner } from "./layers-runner.js";
-import { instrumented, runnerRuns, capOf, shapeSequence, encodeTensor, pageMemory } from "./common.js";
+import { instrumented, runnerRuns, capOf, shapeSequence, encodeTensor, pageMemory, warmupCap } from "./common.js";
 import { profileMode } from "./profile.js";
 import { loadMode } from "./load.js";
 import { responsivenessMode } from "./responsiveness.js";
@@ -23,7 +23,7 @@ export const INFER_MODES = {
   /** Closed-loop latency at the base batch (cfg.inferBatch, default 1). */
   async latency(model, ctx, cfg, result) {
     const runner = inferRunner(model, ctx, cfg, cfg.inferBatch ?? 1);
-    await runnerRuns(runner, "warmup", cfg.warmup, result.runs);
+    await runnerRuns(runner, "warmup", cfg.warmup, result.runs, {}, warmupCap());
     const m = await runnerRuns(runner, "measure", cfg.measure, result.runs, {}, measureCap(cfg));
     if (m.capped) result.capped.push({ phase: "measure", runs: m.runs });
     return runner;
@@ -36,7 +36,7 @@ export const INFER_MODES = {
   async shapes(model, ctx, cfg, result) {
     const baseB = cfg.inferBatch ?? 1;
     const base = inferRunner(model, ctx, cfg, baseB);
-    await runnerRuns(base, "warmup", cfg.warmup, result.runs);
+    await runnerRuns(base, "warmup", cfg.warmup, result.runs, {}, warmupCap());
     const values = cfg.shapeValues ?? DEFAULT_SHAPE_VALUES;
     const shapeSeed = cfg.seed + (cfg.trial ?? 0);
     const sequence = shapeSequence(values, cfg.shapeRounds ?? 3, shapeSeed);
@@ -66,7 +66,7 @@ export const INFER_MODES = {
     let base = null;
     for (const value of values) {
       const runner = inferRunner(model, ctx, cfg, value);
-      await runnerRuns(runner, "batch_warmup", cfg.warmup, result.runs, { batch: value });
+      await runnerRuns(runner, "batch_warmup", cfg.warmup, result.runs, { batch: value }, warmupCap());
       const m = await runnerRuns(runner, "batch", cfg.measure, result.runs, { batch: value }, measureCap(cfg));
       if (m.capped) result.capped.push({ phase: "batch", batch: value, runs: m.runs });
       if (value === (cfg.inferBatch ?? 1)) base = runner;

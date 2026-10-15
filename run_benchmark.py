@@ -129,6 +129,8 @@ def parse_args(argv=None):
     p.add_argument("--train-measure", type=int, default=100)
     p.add_argument("--train-max-s", type=float, default=30.0)
     p.add_argument("--train-min-measure", type=int, default=10)
+    p.add_argument("--warmup-min-s", type=float, default=1.0,
+                   help="timed warm-ups run >= the warm-up count and >= this many seconds after the first (cold) record")
     p.add_argument("--warmup-max-s", type=float, default=30.0,
                    help="training warm-up stops after this long once >= 3 steps are done (flagged)")
     p.add_argument("--train-batch", type=int, default=None, help="override the spec's training batch")
@@ -252,7 +254,7 @@ def page_cfg(args, model, config, trial):
         "inferBatch": args.infer_batch, "batchValues": args.batch_values, "shapeValues": args.shape_values,
         "shapeRounds": args.shape_rounds, "shapeRepeats": args.shape_repeats, "correctnessBatch": args.correctness_batch,
         "trainWarmup": args.train_warmup, "trainMeasure": args.train_measure, "trainMaxS": args.train_max_s,
-        "trainMinMeasure": args.train_min_measure, "warmupMaxS": args.warmup_max_s, "trainBatch": args.train_batch,
+        "trainMinMeasure": args.train_min_measure, "warmupMaxS": args.warmup_max_s, "warmupMinS": args.warmup_min_s, "trainBatch": args.train_batch,
         "trainBatchValues": args.train_batch_values, "batchWarmup": args.batch_warmup, "batchMaxS": args.batch_max_s,
         "batchMinMeasure": args.batch_min_measure,
         "inferWarmup": args.infer_warmup, "inferMeasure": args.infer_measure, "inferMaxS": args.infer_max_s,

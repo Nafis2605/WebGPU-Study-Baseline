@@ -12,6 +12,7 @@
 // Optional: cfg.withAnimation runs the responsiveness page workload (rAF canvas) so frame timing
 // under each load level is recorded too.
 import { yieldToBrowser } from "./timing.js";
+import { warmUp } from "./common.js";
 import { startAnimation } from "./responsiveness.js";
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -95,7 +96,7 @@ async function runRate(runner, rate, cfg, seed, requests) {
 
 /** runner: a src/runner.js runner (built by bench.js for the experiment's model and config). */
 export async function loadMode(runner, cfg, result) {
-  for (let i = 0; i < cfg.warmup; i++) await runner.run();
+  await warmUp(runner, cfg.warmup);
 
   let anim = null;
   if (cfg.withAnimation) anim = startAnimation(document.getElementById("animCanvas"));
