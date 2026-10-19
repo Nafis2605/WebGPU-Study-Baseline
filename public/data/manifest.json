@@ -1,0 +1,100 @@
+{
+ "dataset": "CIFAR-10 (binary release)",
+ "source": "https://www.cs.toronto.edu/~kriz/cifar-10-binary.tar.gz",
+ "archive_md5": "c32a1d4ab5d03f1284b67883e8d87530",
+ "archive_sha256": "c4a38c50a1bc5f3a1c5537f2155ab9d68f9f25eb1ed8d9ddda3db29a59bca1dd",
+ "seed": 20261012,
+ "layout": "NHWC uint8, little-endian",
+ "normalisation": "float32(x / 255) via LUT",
+ "lut_sha256": "010413efe9fc4438fee48de66c4d09f377b28af6a9fe2522201e8c1dbb831fc8",
+ "epochs_in_order": 10,
+ "files": {
+  "train_x.u8": {
+   "shape": [
+    5120,
+    32,
+    32,
+    3
+   ],
+   "dtype": "uint8",
+   "bytes": 15728640,
+   "sha256": "2f5b2769ad8e06844ec42395547547eaf694d5ba89e7f21e57589020f1f00856"
+  },
+  "train_y.u8": {
+   "shape": [
+    5120
+   ],
+   "dtype": "uint8",
+   "bytes": 5120,
+   "sha256": "7bf56fc29f63dff668f669ab672a6007704101e3dee937a0718a575cd66fcf46"
+  },
+  "val_x.u8": {
+   "shape": [
+    1000,
+    32,
+    32,
+    3
+   ],
+   "dtype": "uint8",
+   "bytes": 3072000,
+   "sha256": "2c715ac242e2c4d08907f44936ee5ce5e7fa5b2fd038bebda1e0e9e924004455"
+  },
+  "val_y.u8": {
+   "shape": [
+    1000
+   ],
+   "dtype": "uint8",
+   "bytes": 1000,
+   "sha256": "9f53b25c7277115b6559b36c2deda50771a816d683f612c389be6acf7ba5065c"
+  },
+  "order.u32": {
+   "shape": [
+    10,
+    5120
+   ],
+   "dtype": "uint32",
+   "bytes": 204800,
+   "sha256": "deaa334a120c087ce9cd5a945bf1e508f70ef0c702a58b7726a2564676c7b2b9"
+  },
+  "train_src.u32": {
+   "shape": [
+    5120
+   ],
+   "dtype": "uint32",
+   "bytes": 20480,
+   "sha256": "7a0c80f9e64cfce3f73e28c08a5ef30e5a510964b8c4a5f17697badd650a435d"
+  },
+  "val_src.u32": {
+   "shape": [
+    1000
+   ],
+   "dtype": "uint32",
+   "bytes": 4000,
+   "sha256": "28d1ab421f558b97e08b648ba0f051be61c5667082f3dfdeaf8764741ea48b7d"
+  }
+ },
+ "train_class_counts": [
+  512,
+  512,
+  512,
+  512,
+  512,
+  512,
+  512,
+  512,
+  512,
+  512
+ ],
+ "val_class_counts": [
+  100,
+  100,
+  100,
+  100,
+  100,
+  100,
+  100,
+  100,
+  100,
+  100
+ ]
+}

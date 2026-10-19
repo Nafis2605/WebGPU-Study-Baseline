@@ -1,46 +1,38 @@
 <!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TensorFlow.js - Different Backends</title>
-  <link rel="icon" href="favicon.ico" type="image/x-icon"> 
-
-    <!-- Import TensorFlow.js -->
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"></script>
-
-    <!-- Import tfjs-vis -->
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-vis@1.0.2/dist/tfjs-vis.umd.min.js"></script>
-
-    <!-- Adds the CPU backend to the global backend registry -->
-    <!--
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-cpu"></script>
-    -->
-
-    <!-- Adds the WebGL backend to the global backend registry -->
-    <!--
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-webgl"></script>
-    -->
- 
-
-    <!-- Adds the WASM backend to the global backend registry -->
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-wasm/dist/tf-backend-wasm.js"></script>
-
-    <!-- Import the WebGPU backend --> 
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-webgpu@latest/dist/tf-backend-webgpu.js"></script>
-
-    <!-- Import the data file -->
-    <script src="./data_cifar10.js" type="module"></script>
-
-    <!-- Import the main script file -->
-    <script src="./RNN/R4.js" type="module"></script>
-
-</head>
-<body>
-    <h1>CIFAR-10 with DNN</h1>
-</body>
-  
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>TF.js custom-model study</title>
+    <style>
+      body { font-family: system-ui, sans-serif; margin: 16px; background: #fafafa; color: #111; }
+      .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: end; margin: 8px 0; }
+      label { display: flex; flex-direction: column; font-size: 13px; gap: 4px; }
+      select, input, button { font-size: 14px; padding: 4px 6px; }
+      pre { background: #fff; border: 1px solid #ddd; padding: 8px; max-height: 300px; overflow: auto; font-size: 12px; }
+      table { border-collapse: collapse; font-size: 13px; }
+      td, th { border: 1px solid #ccc; padding: 3px 6px; }
+    </style>
+  </head>
+  <body>
+    <h2>TF.js warmup / inference / training study (custom models)</h2>
+    <!-- Declared page workload for the responsiveness modes; idle otherwise. -->
+    <div>
+      <canvas id="animCanvas" width="480" height="270" style="background:#101820; max-width:100%;"></canvas>
+      <div><button id="interactBtn">Interaction target</button> clicks handled: <span id="interactCount">0</span></div>
+    </div>
+    <p>Manual mode. The backend is chosen explicitly with <code>tf.setBackend()</code>; a run fails instead of
+      falling back, and is <em>ok</em> only when graphics-API counters confirm the backend did the work. Study runs
+      use <code>run_benchmark.py</code>, which drives this page through <code>window.__bench</code>.</p>
+    <div class="row">
+      <label>Model <select id="modelSelect"></select></label>
+      <label>Config <select id="configSelect"></select></label>
+      <label>Mode <select id="modeSelect"></select></label>
+      <button id="runBtn">Run</button>
+    </div>
+    <table><thead><tr><th>model</th><th>config</th><th>mode</th><th>status</th><th>detail</th><th>first ms</th><th>median ms</th><th>n</th></tr></thead>
+      <tbody id="resultsBody"></tbody></table>
+    <pre id="status"></pre>
+    <script type="module" src="/src/main.js"></script>
+  </body>
 </html>
-
-<!-- http://127.0.0.1:5500/Tensorflow_JS/index.html -->   
