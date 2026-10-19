@@ -55,7 +55,10 @@ from benchkit.clockguard import ClockSampler, idle_check  # noqa: E402
 from benchkit.paths import resolve_result_dir  # noqa: E402
 from benchkit import layout  # noqa: E402
 
-PRIMARY = ["wasm-8t", "webgl", "webgpu"]
+# macOS: TF.js grants at most half the logical cores as WASM threads (4 on the 8-core M3): wasm-4t is its top config
+# (see run_benchmark.py WASM_TOP; results/macos-m3/probes/wasm_threads_probe.json).
+WASM_TOP = "wasm-4t" if sys.platform == "darwin" else "wasm-8t"
+PRIMARY = [WASM_TOP, "webgl", "webgpu"]
 SUBSET = ["D3", "C3", "R3", "L3", "G3", "T3"]
 SIZES_135 = [f"{f}{k}" for f in "DCRLGT" for k in (1, 3, 5)]
 SIZES_12 = [f"{f}{k}" for f in "DCRLGT" for k in (1, 2)]
@@ -133,7 +136,7 @@ STAGES = {
                            "--train-max-s", "30", "--trials", "1", "--skip-known-gaps"], []),
     # Coverage record of the CNN x wasm training gap (fails in seconds with the kernel error). The L5 / G5 x wasm
     # gap (4 GB heap exhausted, then a hang) is not re-run: evidence in results/<device>/probes/p02_l5diag (FEASIBILITY.md).
-    "train_coverage": (RB, ["--mode", "train", "--config", "wasm-8t", "--filter", "C1", "C5", "--trials", "1",
+    "train_coverage": (RB, ["--mode", "train", "--config", WASM_TOP, "--filter", "C1", "C5", "--trials", "1",
                             "--no-telemetry", "--no-infer-after-train"], []),
     "train_correctness": (RB, ["--mode", "train_correctness", "--config", *PRIMARY, "--correctness-steps", "20",
                                "--trials", "1", "--no-telemetry", "--skip-known-gaps"], []),
@@ -244,6 +247,18 @@ VERIFY_STAGES = ["infer_latency", "infer_correctness", "infer_instrumented", "in
                  "train_profile", "train_why"]
 VERIFY_SUBSET_STAGES = {"infer_latency", "infer_instrumented", "infer_profile", "train", "train_instrumented",
                         "train_profile"}
+# --flight os: the cross-OS replication flight (same Chrome build, other operating system / machine). The verify
+# stages plus the stages that probe OS-dependent subsystems, all with the stage's own arguments and the same
+# six-model subset rule, so every stage is directly comparable with the same stage of the other OS's full flight:
+#   shader compile and cache   warmup_precompile, warmup_precompile_train, warmup_diskcache
+#   readback / host-device I/O train_sync_io, readback_micro (verify), infer_batch, train_batch (transfer scaling)
+#   machine-independent numerics reference  native_train_correctness_ref (tf-cpu on this machine)
+# Left out (they ask machine-specific or methodological questions, not an OS one): native GPU stages, train_long
+# (window representativeness), train_fit, train_pipelined, train_phases, infer_shapes, load / responsiveness
+# stages, gpu_trace. Each skipped stage is listed in the run's summary.
+OS_EXTRA_STAGES = ["warmup_precompile", "warmup_precompile_train", "warmup_diskcache", "train_sync_io", "infer_batch",
+                   "train_batch", "native_train_correctness_ref"]
+OS_STAGES = VERIFY_STAGES + OS_EXTRA_STAGES
 
 
 def browser_priming(study, browser):
@@ -380,7 +395,7 @@ def mac_native_args(bench_args):
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--stages", nargs="+", default=None, choices=list(STAGES))
-    ap.add_argument("--flight", default=None, choices=("verify",),
+    ap.add_argument("--flight", default=None, choices=("verify", "os"),
                     help="verify: the Firefox verification flight (stage list and model subset above)")
     ap.add_argument("--resume", action="store_true", help="skip stages that already have stage_done.json")
     ap.add_argument("--analyze-only", action="store_true")
@@ -400,7 +415,7 @@ def main():
 
     if args.device_id:
         os.environ["TRAINBENCH_DEVICE"] = args.device_id
-    run_name = args.run_name or ("verify" if args.flight == "verify" else "full")
+    run_name = args.run_name or (args.flight if args.flight else "full")
     study = Path(args.output_dir) if args.output_dir else layout.run_dir(args.browser, run_name)
     if not study.is_absolute():
         study = ROOT / study
@@ -418,10 +433,10 @@ def main():
                                device=layout.device_id(), harness=layout.harness_state(), command=sys.argv,
                                env_lock_sha256=lock["sha256"])
     stage_args = json.loads(args.stage_args)
-    if args.flight == "verify":
+    if args.flight in ("verify", "os"):
         if args.browser == "chrome" and not args.reference:
-            ap.error("--flight verify with --browser chrome is the cross-device replication flight: give --reference")
-        args.stages = args.stages or VERIFY_STAGES
+            ap.error(f"--flight {args.flight} with --browser chrome is the cross-device replication flight: give --reference")
+        args.stages = args.stages or (OS_STAGES if args.flight == "os" else VERIFY_STAGES)
         for st in VERIFY_SUBSET_STAGES:
             stage_args[st] = [*stage_args.get(st, []), *F(*SUBSET)]
     args.stages = args.stages or list(STAGES)
@@ -498,7 +513,7 @@ def main():
                 print(f"=== {stage} failed (exit {rc}); stopping so it can be fixed and resumed.", flush=True)
                 break
 
-    if args.flight == "verify" and not args.no_analyze:
+    if args.flight in ("verify", "os") and not args.no_analyze:
         for name, rc in verify_analyses(study, args.browser, args.reference):
             summary.append((f"analysis:{name}", "ok" if rc == 0 else f"failed (exit {rc})", 0, study / "analysis"))
     elif not args.no_analyze:

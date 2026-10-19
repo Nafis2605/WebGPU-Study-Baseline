@@ -84,7 +84,12 @@ CONFIGS = {
     # Correctness reference: TF.js's pure-JS cpu backend.
     "cpu": {"backend": "cpu"},
 }
-PRIMARY = ["wasm-8t", "webgl", "webgpu"]
+# The top WASM thread count is what TF.js grants: it clamps the request to half the logical cores (measured on the
+# Apple M3, hardwareConcurrency 8: requests 1-4 granted, 5-16 all get 4; results/macos-m3/probes/wasm_threads_probe.json).
+# A request above the grant fails the no-fallback check (wasm_threads_mismatch), so the macOS primary WASM config is
+# wasm-4t and wasm-8t stays unreachable there (recorded, not worked around).
+WASM_TOP = "wasm-4t" if sys.platform == "darwin" else "wasm-8t"
+PRIMARY = [WASM_TOP, "webgl", "webgpu"]
 INFER_MODES = ("latency", "shapes", "batch", "profile", "correctness", "load", "responsiveness")
 TRAIN_MODES = ("train", "train_pipelined", "train_profile", "train_correctness", "train_batch", "train_long",
                "train_fit", "train_phases", "train_responsiveness", "lifecycle")

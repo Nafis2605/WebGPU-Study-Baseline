@@ -95,13 +95,14 @@ def guard():
 
 
 def wait_cool(timeout_s=900, poll_s=5):
-    """macOS has no GPU temperature without root: wait until no thermal/performance warning is recorded and GPU
-    utilisation is back near idle (<= 10 %). Returns seconds waited."""
+    """macOS has no GPU temperature without root: wait until no thermal/performance warning is recorded.
+    Returns seconds waited. (A GPU-utilisation criterion was tried and removed: the idle floor of this machine is
+    about 22 % because the compositor drives the retina display, so "back near idle" never held and every wait ran
+    into its timeout; see results/<device>/chrome-*/_dev/preflight_aborted_1.)"""
     t0 = time.time()
     while time.time() - t0 < timeout_s:
         s = power_state()
-        u = gpu_sample().get("gpu_util_pct")
-        if not s["thermal_warning"] and not s["performance_warning"] and (u is None or u <= 10):
+        if not s["thermal_warning"] and not s["performance_warning"]:
             break
         time.sleep(poll_s)
     return time.time() - t0
