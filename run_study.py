@@ -51,16 +51,20 @@ PY = sys.executable
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT))
 from benchkit import envlock  # noqa: E402
+from benchkit import clockguard, gpucheck  # noqa: E402
 from benchkit.clockguard import ClockSampler, idle_check  # noqa: E402
-from benchkit.paths import resolve_result_dir  # noqa: E402
+from benchkit.paths import path_settings, resolve_result_dir  # noqa: E402
 from benchkit import layout  # noqa: E402
 
 PRIMARY = ["wasm-8t", "webgl", "webgpu"]
 SUBSET = ["D3", "C3", "R3", "L3", "G3", "T3"]
 SIZES_135 = [f"{f}{k}" for f in "DCRLGT" for k in (1, 3, 5)]
 SIZES_12 = [f"{f}{k}" for f in "DCRLGT" for k in (1, 2)]
-COOL_TO_C = "60"   # the RTX 3060 idles at 53-57 C (fans stop below ~60 C); 60 = back to idle (sibling)
-BOOST_MHZ = 1700
+# Guard thresholds live in benchkit/clockguard.py (defaults of the first machine, an RTX 3060 that idles at 53-57 C with
+# fans stopping below ~60 C; override per device with TRAINBENCH_COOL_TO_C / _BOOST_MHZ / _IDLE_MAX_MHZ). They are
+# recorded in run.json.
+COOL_TO_C = str(clockguard.COOL_TO_C)
+BOOST_MHZ = clockguard.BOOST_MHZ
 INFER_CAP = ["--warmup", "10", "--measure", "200", "--max-measure-s", "30", "--min-measure", "30"]
 TRAIN_CAP = ["--train-warmup", "15", "--train-measure", "100", "--train-max-s", "30", "--train-min-measure", "20"]
 POST_INFER = ["--infer-warmup", "5", "--infer-measure", "50", "--infer-max-s", "10"]
@@ -376,7 +380,8 @@ def main():
     (study / "env.lock.json").write_text(envlock.LOCK.read_text(encoding="utf-8"), encoding="utf-8")
     layout.update_run_manifest(study, kind="flight", run=study.name, flight=args.flight, browser=layout.browser_id(args.browser),
                                device=layout.device_id(), harness=layout.harness_state(), command=sys.argv,
-                               env_lock_sha256=lock["sha256"])
+                               env_lock_sha256=lock["sha256"], guard_settings=clockguard.guard_settings(),
+                               tool_paths=path_settings(), require_gpu_vendor=gpucheck.required_vendor())
     stage_args = json.loads(args.stage_args)
     if args.flight == "verify":
         if args.browser == "chrome":

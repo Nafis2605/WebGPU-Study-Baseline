@@ -40,14 +40,16 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from benchkit.paths import ROOT, TFGPU, CONDA, NSYS, SPEC, DATA_DIR, WEIGHTS_DIR  # noqa: E402
+from benchkit.paths import ROOT, TFGPU, CONDA, NSYS, NGFX_DIR, SPEC, DATA_DIR, WEIGHTS_DIR  # noqa: E402
 
 LOCK = ROOT / "env.lock.json"
-NGFX_DIR = Path(r"C:\Program Files\NVIDIA Corporation\Nsight Graphics 2026.3.1")
 
 
 def _run(cmd, **kw):
-    r = subprocess.run(cmd, capture_output=True, text=True, errors="replace", **kw)
+    try:
+        r = subprocess.run(cmd, capture_output=True, text=True, errors="replace", **kw)
+    except FileNotFoundError:
+        sys.exit(f"envlock: '{cmd[0]}' was not found; install it or put it on PATH (see README, Setup).")
     return r.stdout.strip()
 
 

@@ -30,6 +30,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from benchkit.correctness import compare  # noqa: E402
 from benchkit.envinfo import host_info  # noqa: E402
+from benchkit import clockguard  # noqa: E402
 from benchkit.clockguard import LOW_CLOCK_MHZ, ClockSampler  # noqa: E402
 from benchkit.results import ResultWriter  # noqa: E402
 from benchkit.paths import SPEC, TFGPU, tfgpu_env  # noqa: E402
@@ -39,7 +40,8 @@ MODES = ("latency", "batch", "correctness", "train", "train_batch", "train_long"
          "train_correctness", "lifecycle")
 
 
-def wait_for_gpu_temp(limit_c, timeout_s=180):
+def wait_for_gpu_temp(limit_c, timeout_s=None):
+    timeout_s = clockguard.COOL_TIMEOUT_S if timeout_s is None else timeout_s
     import pynvml as nv
     nv.nvmlInit()
     h = nv.nvmlDeviceGetHandleByIndex(0)

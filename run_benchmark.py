@@ -48,7 +48,7 @@ from benchkit.correctness import compare_all
 from benchkit.devtools import DiagCollector
 from benchkit.envinfo import host_info
 from benchkit.results import ResultWriter
-from benchkit.paths import SPEC
+from benchkit.paths import SPEC, path_settings
 from benchkit import envlock, layout
 
 # Named experiment configurations: TF.js backend + runtime options. Env flags are set before
@@ -248,8 +248,10 @@ async def click_while_running(page, experiment, interval_s):
     return clicks
 
 
-async def wait_for_gpu_temp(limit_c, timeout_s=180):
-    """Hold the next launch until the GPU has cooled to limit_c (returns seconds waited)."""
+async def wait_for_gpu_temp(limit_c, timeout_s=None):
+    """Hold the next launch until the GPU has cooled to limit_c (returns seconds waited; gives up after
+    timeout_s, default clockguard.COOL_TIMEOUT_S = 180 s unless TRAINBENCH_COOL_TIMEOUT_S says otherwise)."""
+    timeout_s = clockguard.COOL_TIMEOUT_S if timeout_s is None else timeout_s
     import pynvml as nv
     nv.nvmlInit()
     h = nv.nvmlDeviceGetHandleByIndex(0)
@@ -259,6 +261,7 @@ async def wait_for_gpu_temp(limit_c, timeout_s=180):
     return time.time() - t0
 
 
+from benchkit import clockguard, gpucheck  # noqa: E402
 from benchkit.clockguard import LOW_CLOCK_MHZ, ClockSampler  # noqa: E402
 
 
@@ -335,6 +338,7 @@ async def run_one(pw, args, chrome, model, config, trial, writer, telemetry=None
                                  user_data_dir=shared_profile, flags=flags)
         async with launch as (page, version):
             page_env = await page.evaluate("() => window.__bench.probeEnv()")
+            gpucheck.require_gpu(page_env, backend)
             if telemetry:
                 telemetry.mark("experiment_start")
             experiment = asyncio.ensure_future(page.evaluate("cfg => window.__bench.runExperiment(cfg)", cfg))
@@ -350,7 +354,8 @@ async def run_one(pw, args, chrome, model, config, trial, writer, telemetry=None
             "schema": 3, "model": model["name"], "family": model["family"], "size": model["size"],
             "params": model["params"], "backend": backend, "config_label": config, "mode": args.mode,
             "pillar": "train" if args.mode in TRAIN_MODES else "infer", "status": "failed",
-            "failure": {"stage": "browser", "category": "browser_failure", "message": f"{type(e).__name__}: {e}"},
+            "failure": {"stage": "browser", "category": "wrong_gpu" if isinstance(e, gpucheck.WrongGpuError) else "browser_failure",
+                        "message": f"{type(e).__name__}: {e}"},
             "runs": [],
         }
     finally:
@@ -417,7 +422,9 @@ async def main(argv=None):
         layout.write_device_manifest()
         layout.write_browser_manifest(args.browser)
         layout.update_run_manifest(out_dir, kind="adhoc", browser=layout.browser_id(args.browser), device=layout.device_id(),
-                                   harness=layout.harness_state(), command=sys.argv)
+                                   harness=layout.harness_state(), command=sys.argv,
+                                   guard_settings=clockguard.guard_settings(), tool_paths=path_settings(),
+                                   require_gpu_vendor=gpucheck.required_vendor())
     env = {"created_at": datetime.now().isoformat(timespec="seconds"), "args": vars(args), "browser": args.browser,
            "chrome_executable": chrome, "chrome_flags": CHROME_FLAGS,
            **({"firefox_prefs": FIREFOX_PREFS} if args.browser == "firefox" else {}), "host": host_info(), "env_lock_sha256": lock["sha256"], "page_env": None}

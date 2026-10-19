@@ -22,6 +22,7 @@ __pycache__/
 /reports/
 /ACM_Web_2027_WebGPU/
 device.local.json
+trainbench.env
 logs/
 *.log
 
