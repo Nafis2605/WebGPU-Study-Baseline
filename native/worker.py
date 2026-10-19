@@ -14,6 +14,9 @@ Configs (job["config"]):
                     execution (why-axis: how much of the gap is graph compilation)
   tf-cuda-resident  inference input / training batch placed on the GPU before the timed region
   tf-cpu            CPU only (CUDA_VISIBLE_DEVICES=-1 set by the driver), 8 intra-op threads (counterpart of wasm-8t)
+                    macOS: tensorflow-macos 2.10.0; the Metal device is hidden with set_visible_devices
+  tf-metal          macOS only: tensorflow-metal PluggableDevice (Apple GPU), FP32 (no TF32 on Apple GPUs), graph
+                    mode; the counterpart of tf-cuda-fp32 on a different GPU stack, never pooled with it
 
 Timing (same definitions as the page):
   inference  dur_ms = input array -> tensor -> model -> output as a host array; exec_ms = until the call returned;
@@ -35,7 +38,8 @@ from pathlib import Path
 T_PROCESS = time.perf_counter()
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "native"))
-CONFIGS = ("tf-cuda", "tf-cuda-fp32", "tf-cuda-eager", "tf-cuda-resident", "tf-cpu")
+CONFIGS = ("tf-cuda", "tf-cuda-fp32", "tf-cuda-eager", "tf-cuda-resident", "tf-cpu", "tf-metal")
+IS_MAC = sys.platform == "darwin"
 INFER_MODES = ("latency", "batch", "correctness", "shapes")
 TRAIN_MODES = ("train", "train_batch", "train_long", "train_fit", "train_phases", "train_correctness", "lifecycle")
 
@@ -135,9 +139,16 @@ def main():
             tf.config.experimental.enable_tensor_float_32_execution(False)
         if job.get("determinism"):
             tf.config.experimental.enable_op_determinism()
-        gpus = tf.config.list_physical_devices("GPU")
+        if IS_MAC and cfg == "tf-cpu":
+            # tensorflow-metal registers the Apple GPU at import; hide it so the launch is CPU only
+            tf.config.set_visible_devices([], "GPU")
+        gpus = tf.config.list_logical_devices("GPU") if IS_MAC else tf.config.list_physical_devices("GPU")
         bi = tf.sysconfig.get_build_info()
-        if cfg.startswith("tf-cuda"):
+        if cfg == "tf-metal":
+            if not IS_MAC or not gpus:
+                raise RuntimeError("backend_unavailable: no Metal GPU visible to TensorFlow")
+            dev = "/GPU:0"
+        elif cfg.startswith("tf-cuda"):
             if not gpus:
                 raise RuntimeError("backend_unavailable: no GPU visible to TensorFlow")
             for gp in gpus:

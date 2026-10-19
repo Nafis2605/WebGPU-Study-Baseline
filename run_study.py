@@ -61,6 +61,11 @@ SIZES_135 = [f"{f}{k}" for f in "DCRLGT" for k in (1, 3, 5)]
 SIZES_12 = [f"{f}{k}" for f in "DCRLGT" for k in (1, 2)]
 COOL_TO_C = "60"   # the RTX 3060 idles at 53-57 C (fans stop below ~60 C); 60 = back to idle (sibling)
 BOOST_MHZ = 1700
+IS_MAC = sys.platform == "darwin"
+# macOS (Apple silicon): no CUDA. tf-cuda-fp32 (FP32 GPU parity config) -> tf-metal, tf-cpu stays tf-cpu
+# (tensorflow-macos); tf-cuda (TF32), tf-cuda-eager and tf-cuda-resident have no counterpart and are dropped,
+# which the stage summary records.
+MAC_NATIVE = {"tf-cuda-fp32": "tf-metal", "tf-cpu": "tf-cpu"}
 INFER_CAP = ["--warmup", "10", "--measure", "200", "--max-measure-s", "30", "--min-measure", "30"]
 TRAIN_CAP = ["--train-warmup", "15", "--train-measure", "100", "--train-max-s", "30", "--train-min-measure", "20"]
 POST_INFER = ["--infer-warmup", "5", "--infer-measure", "50", "--infer-max-s", "10"]
@@ -212,6 +217,15 @@ def boost_probe(study, timeout_s=900):
                "--low-clock-retries", "0", "--output-dir", str(study / "_guards" / "boost_probe")]
         rc = subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True).returncode
         mx = clock.stop()
+        if IS_MAC:
+            # The Apple GPU clock needs root (powermetrics): the probe still runs (it warms the browser binaries
+            # in the OS file cache and is the drift sentinel) and the power-state guard stands in for the boost check.
+            if rc == 0:
+                return True, f"boost probe (macOS: GPU clock not readable, run as warm-up + drift sentinel), attempt {attempt}"
+            if time.time() - t0 > timeout_s:
+                return False, f"boost probe failed: rc {rc} after {attempt} attempts"
+            time.sleep(60)
+            continue
         if rc == 0 and mx is not None and mx >= BOOST_MHZ:
             return True, f"boost probe: SM max {mx} MHz (attempt {attempt})"
         if time.time() - t0 > timeout_s:
@@ -242,10 +256,14 @@ def browser_priming(study, browser):
     return f"{browser} priming launch: exit {rc}"
 
 
-def verify_analyses(study):
+def verify_analyses(study, browser="firefox", reference=None):
     """Verification-flight analyses: training numerics against the Chrome flight's tf-cpu reference, then the
-    pre-registered Firefox-vs-Chrome comparison (analysis/browser_compare.py)."""
-    chrome = layout.run_dir("chrome", "full")
+    pre-registered Firefox-vs-Chrome comparison (analysis/browser_compare.py). A Chrome flight on another device
+    (reference = that device's Chrome full flight) gets only the numerics check against the reference's tf-cpu
+    trajectory; its cross-device comparison is a separate, pre-registered analysis, not browser_compare."""
+    chrome = Path(reference) if reference else layout.run_dir("chrome", "full")
+    if not chrome.is_absolute():
+        chrome = ROOT / chrome
     out = study / "analysis"
     out.mkdir(exist_ok=True)
     jobs = []
@@ -253,8 +271,9 @@ def verify_analyses(study):
     if tc and ref:
         jobs.append(("train_correctness", ["analysis/train_correctness.py", str(tc), str(ref), "--reference",
                                            "tf-cpu+tfjsadam", "--out", str(out / "train_correctness")]))
-    jobs.append(("browser_compare", ["analysis/browser_compare.py", "compare", "--chrome", str(chrome),
-                                     "--firefox", str(study), "--out", str(out / "browser_compare")]))
+    if browser != "chrome":
+        jobs.append(("browser_compare", ["analysis/browser_compare.py", "compare", "--chrome", str(chrome),
+                                         "--firefox", str(study), "--out", str(out / "browser_compare")]))
     return [(name, run_logged([PY, *cmd], study / "analysis.log")) for name, cmd in jobs]
 
 
@@ -338,6 +357,24 @@ def keep_awake():
         import ctypes
         ok = ctypes.windll.kernel32.SetThreadExecutionState(0x80000000 | 0x00000001 | 0x00000002)
         print(f"keep-awake request: {'set' if ok else 'FAILED'}")
+    elif IS_MAC:
+        # caffeinate holds display / idle / disk / system sleep off until this process exits
+        subprocess.Popen(["caffeinate", "-dimsu", "-w", str(os.getpid())])
+        print("keep-awake request: caffeinate set")
+
+
+def mac_native_args(bench_args):
+    """A native stage's arguments with its --config list mapped by MAC_NATIVE. Returns (args, dropped configs)."""
+    out, dropped, in_cfg = [], [], False
+    for a in bench_args:
+        if a.startswith("--"):
+            in_cfg = a == "--config"
+            out.append(a)
+        elif in_cfg:
+            (out.append(MAC_NATIVE[a]) if a in MAC_NATIVE else dropped.append(a))
+        else:
+            out.append(a)
+    return out, dropped
 
 
 def main():
@@ -354,6 +391,9 @@ def main():
                     "--flight verify, else full)")
     ap.add_argument("--device-id", default=None, help="result folder of this machine (default: device.local.json)")
     ap.add_argument("--output-dir", default=None, help="explicit study folder (overrides --run-name and --device-id)")
+    ap.add_argument("--reference", default=None,
+                    help="--flight verify --browser chrome on another device: the Chrome full flight to compare with "
+                         "(e.g. results/win11-rtx3060/chrome-157.0.8081.0/full)")
     ap.add_argument("--stage-args", default="{}",
                     help="JSON {stage: [extra args]} appended to that stage's command (preflight uses this)")
     args = ap.parse_args()
@@ -379,8 +419,8 @@ def main():
                                env_lock_sha256=lock["sha256"])
     stage_args = json.loads(args.stage_args)
     if args.flight == "verify":
-        if args.browser == "chrome":
-            ap.error("--flight verify is the replication flight: use --browser firefox")
+        if args.browser == "chrome" and not args.reference:
+            ap.error("--flight verify with --browser chrome is the cross-device replication flight: give --reference")
         args.stages = args.stages or VERIFY_STAGES
         for st in VERIFY_SUBSET_STAGES:
             stage_args[st] = [*stage_args.get(st, []), *F(*SUBSET)]
@@ -399,6 +439,18 @@ def main():
             if args.resume and (stage_dir / "stage_done.json").exists():
                 print(f"\n=== {stage}: already done, skipped (--resume)")
                 continue
+            if IS_MAC and script == "nsight/capture_matrix.py":
+                summary.append((stage, "not available: Nsight Systems does not exist on macOS", 0, None))
+                print(f"\n=== {stage}: Nsight Systems does not exist on macOS; skipped", flush=True)
+                continue
+            if IS_MAC and script == RN:
+                bench_args, dropped = mac_native_args(bench_args)
+                if "--config" not in bench_args or bench_args[bench_args.index("--config") + 1].startswith("--"):
+                    summary.append((stage, f"not available on macOS: {', '.join(dropped)} need CUDA", 0, None))
+                    print(f"\n=== {stage}: no macOS counterpart of {dropped}; skipped", flush=True)
+                    continue
+                if dropped:
+                    print(f"\n=== {stage}: macOS, configs without counterpart dropped: {dropped}", flush=True)
             if stage in NEEDS_IO:
                 corr = stage_result(study, "infer_correctness")
                 if corr is None:
@@ -410,8 +462,9 @@ def main():
             ok, msg = idle_check()
             print(f"\n=== {stage}: GPU idle check: {msg}", flush=True)
             if not ok:
-                summary.append((stage, "not run: GPU clocks locked", 0, None))
-                print("GPU clocks look locked (idle SM clock stays high). Stopping.", flush=True)
+                summary.append((stage, f"not run: {msg}" if IS_MAC else "not run: GPU clocks locked", 0, None))
+                print(f"Guard failed ({msg}). Stopping." if IS_MAC else
+                      "GPU clocks look locked (idle SM clock stays high). Stopping.", flush=True)
                 break
             if not args.no_boost_probe:
                 ok, msg = boost_probe(study)
@@ -446,7 +499,7 @@ def main():
                 break
 
     if args.flight == "verify" and not args.no_analyze:
-        for name, rc in verify_analyses(study):
+        for name, rc in verify_analyses(study, args.browser, args.reference):
             summary.append((f"analysis:{name}", "ok" if rc == 0 else f"failed (exit {rc})", 0, study / "analysis"))
     elif not args.no_analyze:
         print("\n=== Cross-stage analyses", flush=True)

@@ -14,11 +14,14 @@ Per-process GPU memory isn't available under WDDM, so memory is device-wide (com
 idle baseline). All timestamps are Unix epoch milliseconds, the same clock as the browser's
 performance.timeOrigin + performance.now().
 """
+import sys
 import threading
 import time
 
 import psutil
-import pynvml as nv
+
+if sys.platform != "darwin":
+    import pynvml as nv
 
 CLOCK_EVENT_REASONS = {
     0x1: "gpu_idle",
@@ -148,7 +151,9 @@ class NvmlTelemetry:
                 for p in psutil.process_iter(["name", "cmdline"]):
                     try:
                         cmd = p.info["cmdline"] or []
-                        if p.info["name"] and p.info["name"].lower().startswith("chrome") and any(udd in a for a in cmd):
+                        name = (p.info["name"] or "").lower()
+                        # Windows: chrome.exe; macOS: "Google Chrome for Testing" and its "... Helper (GPU|Renderer)"
+                        if name and (name.startswith("chrome") or "chrome for testing" in name) and any(udd in a for a in cmd):
                             kind = next((a.split("=", 1)[1] for a in cmd if a.startswith("--type=")), "browser")
                             procs.append((p, kind))
                     except (psutil.NoSuchProcess, psutil.AccessDenied):
@@ -164,7 +169,8 @@ class NvmlTelemetry:
                         agg = by_kind.setdefault(kind, {"rss_mb": 0.0, "private_mb": 0.0, "cpu_user_s": 0.0,
                                                         "cpu_system_s": 0.0, "processes": 0})
                         agg["rss_mb"] += m.rss / 2**20
-                        agg["private_mb"] += getattr(m, "private", 0) / 2**20
+                        # "private bytes" exist only on Windows; elsewhere the column stays empty (not 0)
+                        agg["private_mb"] = None if not hasattr(m, "private") else agg["private_mb"] + m.private / 2**20
                         agg["cpu_user_s"] += ct.user
                         agg["cpu_system_s"] += ct.system
                         agg["processes"] += 1
@@ -198,3 +204,38 @@ class NvmlTelemetry:
             th.join(timeout=5)
         return {"samples": self.samples, "util": self.util, "pcie": self.pcie,
                 "chrome": self.chrome, "system_cpu": self.system_cpu, "marks": self.marks, "errors": self.errors}
+
+
+class MacTelemetry(NvmlTelemetry):
+    """macOS counterpart (Apple silicon): same streams and output keys as NvmlTelemetry. samples come from the
+    IOAccelerator PerformanceStatistics (benchkit/macgpu.py): GPU device utilisation and the driver's in-use system
+    memory. Power, energy, clocks, temperature, P-state and clock reasons need root (powermetrics) or don't exist,
+    so those keys are present and empty; util and pcie (no PCIe: unified memory) stay empty lists.
+    One ioreg call costs ~10-20 ms of a CPU core, so the interval is at least 0.5 s (recorded in env.json)."""
+
+    def __init__(self, interval_s=0.5, pcie=False, device_index=0):
+        self.interval_s = max(interval_s, 0.5)
+        self.pcie_enabled = False
+        self._stop = threading.Event()
+        self._threads = []
+        self.marks = []
+
+    def _sample_loop(self):
+        from benchkit.macgpu import gpu_sample
+        while not self._stop.is_set():
+            t = time.time() * 1000.0
+            try:
+                g = gpu_sample()
+                self.samples.append({"t_epoch_ms": t, "power_w": None, "energy_mj": None, "sm_clock_mhz": None,
+                                     "mem_clock_mhz": None, "gr_clock_mhz": None, "mem_used_mb": g["gpu_mem_in_use_mb"],
+                                     "temp_c": None, "pstate": None, "clock_reasons": None,
+                                     "gpu_util_pct": g["gpu_util_pct"], "renderer_util_pct": g["renderer_util_pct"],
+                                     "tiler_util_pct": g["tiler_util_pct"], "gpu_mem_alloc_mb": g["gpu_mem_alloc_mb"]})
+            except Exception as e:  # noqa: BLE001
+                self.errors.append(f"{t:.0f} sample: {e}")
+            self._stop.wait(self.interval_s)
+
+
+def make_telemetry(interval_s=0.05, pcie=True):
+    """NvmlTelemetry on the NVIDIA machine, MacTelemetry on macOS."""
+    return MacTelemetry(interval_s) if sys.platform == "darwin" else NvmlTelemetry(interval_s=interval_s, pcie=pcie)

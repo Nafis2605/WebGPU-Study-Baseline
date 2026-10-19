@@ -32,14 +32,17 @@ from benchkit.correctness import compare  # noqa: E402
 from benchkit.envinfo import host_info  # noqa: E402
 from benchkit.clockguard import LOW_CLOCK_MHZ, ClockSampler  # noqa: E402
 from benchkit.results import ResultWriter  # noqa: E402
-from benchkit.paths import SPEC, TFGPU, tfgpu_env  # noqa: E402
+from benchkit.paths import SPEC, TFGPU_PY, tfgpu_env  # noqa: E402
 
-CONFIGS = ("tf-cuda", "tf-cuda-fp32", "tf-cuda-eager", "tf-cuda-resident", "tf-cpu")
+CONFIGS = ("tf-cuda", "tf-cuda-fp32", "tf-cuda-eager", "tf-cuda-resident", "tf-cpu", "tf-metal")
 MODES = ("latency", "batch", "correctness", "train", "train_batch", "train_long", "train_fit", "train_phases",
          "train_correctness", "lifecycle")
 
 
 def wait_for_gpu_temp(limit_c, timeout_s=180):
+    if sys.platform == "darwin":   # no GPU temperature without root: wait for no thermal warning + idle GPU
+        from benchkit.macgpu import wait_cool
+        return wait_cool(timeout_s)
     import pynvml as nv
     nv.nvmlInit()
     h = nv.nvmlDeviceGetHandleByIndex(0)
@@ -55,7 +58,7 @@ def run_worker(job, timeout_s, cpu_only):
     jf = tmp / "job.json"
     jf.write_text(json.dumps(job), encoding="utf-8")
     try:
-        p = subprocess.run([str(TFGPU / "python.exe"), str(ROOT / "native" / "worker.py"), str(jf)],
+        p = subprocess.run([str(TFGPU_PY), str(ROOT / "native" / "worker.py"), str(jf)],
                            capture_output=True, text=True, env=tfgpu_env(cpu_only=cpu_only), timeout=timeout_s,
                            errors="replace", cwd=ROOT)
         line = next((l for l in p.stdout.splitlines() if l.startswith("RESULT ")), None)
@@ -167,8 +170,8 @@ def main(argv=None):
                 for x in rng.sample([p for p in plan if p[0] == t], k=sum(p[0] == t for p in plan))]
     telemetry = None
     if not args.no_telemetry:
-        from benchkit.telemetry import NvmlTelemetry
-        telemetry = NvmlTelemetry(interval_s=0.05, pcie=True)
+        from benchkit.telemetry import make_telemetry
+        telemetry = make_telemetry(interval_s=0.05, pcie=True)
     print(f"Output: {out_dir}\n{len(plan)} experiments", flush=True)
     if plan and not args.no_prime:
         # One unrecorded launch first: the first TensorFlow process after a while reads the CUDA / cuDNN

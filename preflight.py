@@ -15,6 +15,15 @@ Preflight: will the full study complete on the locked environment, and are its i
    backend_not_verified / strict_violation); low-clock re-runs; warm-up sufficiency; analysis tracebacks;
    duration projection for the full study from the measured smoke timings. Verdict: GO only without blockers.
 
+macOS (Apple silicon, 8 GB): the same pipeline with these differences, all recorded in the report:
+  - extra static gates: power-state guard (AC, Low Power Mode off, no thermal warning), pinned Chrome present at the
+    Windows build, Metal GPU visible to the native env, WebGPU adapter is Apple/Metal (browser_caps probe), free memory
+  - stages with no macOS counterpart (gpu_trace: Nsight; native stages whose configs all need CUDA) are listed as
+    "unavailable on macOS", not as blockers; run_study.py records the reason in its summary
+  - a launch of a size 4-5 model that dies with browser_failure / timeout / native_process_failure is a "capacity
+    candidate" (8 GB unified memory), listed apart and not a blocker; every other failure still blocks
+  - swap used before and after the preflight is recorded (memory pressure)
+
 Usage (after `python -m benchkit.envlock freeze` on a committed tree, with `npm run bench:serve` running):
     python preflight.py
     python preflight.py --report-only    # rebuild the report from a finished preflight
@@ -33,6 +42,9 @@ sys.path.insert(0, str(ROOT))
 from benchkit import envlock, layout  # noqa: E402
 from benchkit.paths import DATA_DIR, SPEC, WEIGHTS_DIR  # noqa: E402
 import run_study  # noqa: E402
+
+IS_MAC = sys.platform == "darwin"
+CAPACITY_CATEGORIES = ("browser_failure", "timeout", "native_process_failure")   # 8 GB machine: sizes 4-5 may not fit
 
 OUT = layout.run_dir("chrome", "_dev/preflight")
 # Known, reproducible TF.js coverage gaps (not harness failures): (family, backend, pillar).
@@ -102,7 +114,7 @@ def static_gates():
     for script in ("scripts/check_spec.py", "scripts/check_prng.py"):
         p = subprocess.run([sys.executable, script], cwd=ROOT, capture_output=True, text=True, errors="replace")
         gate(script, p.returncode == 0, p.stdout.strip().splitlines()[-1] if p.stdout.strip() else p.stderr[-300:])
-    p = subprocess.run(["npm.cmd", "ls", "@tensorflow/tfjs-core", "--all", "--parseable"], cwd=ROOT,
+    p = subprocess.run(["npm" if sys.platform == "darwin" else "npm.cmd", "ls", "@tensorflow/tfjs-core", "--all", "--parseable"], cwd=ROOT,
                        capture_output=True, text=True, errors="replace")
     copies = {l.strip() for l in p.stdout.splitlines() if l.strip().lower().endswith("tfjs-core")}
     gate("single @tensorflow/tfjs-core", len(copies) == 1, f"{len(copies)} install path(s)")
@@ -113,7 +125,55 @@ def static_gates():
     names = [m["name"] for m in json.loads(SPEC.read_text(encoding="utf-8"))["models"]]
     missing = [f"{n}:{k}" for n in names for k in ("init", "trained") if k not in wman.get(n, {})]
     gate("init + trained weights for every model", not missing, ", ".join(missing[:10]))
+    files = [WEIGHTS_DIR / e["file"] for v in wman.values() for e in v.values()] + \
+            [DATA_DIR / n for n in man.get("files", {})]
+    absent = [f.name for f in files if not f.is_file()]
+    gate("data and weight files present on disk", not absent, f"{len(absent)} of {len(files)} missing: " + ", ".join(absent[:6]))
+    if IS_MAC:
+        mac_gates(gate)
     return gates
+
+
+def mac_gates(gate):
+    from benchkit import macgpu, chrome
+    ok, msg = macgpu.guard()
+    gate("macOS power-state guard", ok, msg)
+    hz = macgpu.display_refresh_hz()
+    gate("display refresh fixed at 60 Hz", hz == 60.0, f"{hz} Hz")
+    gate("pinned Chrome present", chrome.find_chrome_dev() is not None and chrome.version() == "157.0.8081.0",
+         f"{chrome.version()} (the Windows flight's build is 157.0.8081.0)")
+    from benchkit.paths import TFGPU_PY, tfgpu_env
+    p = subprocess.run([str(TFGPU_PY), "-c", "import tensorflow as tf; print(len(tf.config.list_physical_devices('GPU')))"],
+                       capture_output=True, text=True, env=tfgpu_env(), errors="replace")
+    gate("native env sees the Metal GPU", p.returncode == 0 and p.stdout.strip().endswith("1"), (p.stdout or p.stderr).strip()[-120:])
+    sw = macgpu.swap_counters()
+    gate("swap nearly empty at start", sw["swap_used_mb"] is not None and sw["swap_used_mb"] < 1024, f"{sw['swap_used_mb']} MB used")
+    gate("no stray Chrome / node processes", not _stray(), ", ".join(_stray()) or "none")
+
+
+def _stray():
+    """Other browsers compete for the 8 GB: only the pinned Chrome for Testing may run."""
+    import psutil
+    out = set()
+    for p in psutil.process_iter(["name"]):
+        n = (p.info["name"] or "").lower()
+        if ("google chrome" in n and "chrome for testing" not in n) or n in ("safari", "firefox", "microsoft edge"):
+            out.add(n)
+    return sorted(out)
+
+
+def unavailable_on_mac():
+    """Stages without a macOS counterpart: Nsight, and native stages whose configs all need CUDA."""
+    out = {}
+    for st, (script, args, _) in run_study.STAGES.items():
+        if script == "nsight/capture_matrix.py":
+            out[st] = "Nsight Systems does not exist on macOS"
+        elif script == run_study.RN:
+            kept, dropped = run_study.mac_native_args(args)
+            i = kept.index("--config") if "--config" in kept else -1
+            if i < 0 or kept[i + 1].startswith("--"):
+                out[st] = f"native configs {dropped} need CUDA"
+    return out
 
 
 def stage_dir(stage):
@@ -137,11 +197,14 @@ def stage_report(stage):
     fails = []
     for r in s[s["status"] != "ok"].to_dict("records"):
         kg = known_gap(r) and r.get("failure_category") in ("kernel_unregistered_on_backend", "browser_failure", "timeout")
+        size = str(r["model"])[-1:]
+        cap = (IS_MAC and not kg and r.get("failure_category") in CAPACITY_CATEGORIES and size in ("4", "5"))
         fails.append({"model": r["model"], "config": r["backend"], "status": r["status"],
-                      "category": r.get("failure_category"), "known_gap": kg,
+                      "category": r.get("failure_category"), "known_gap": kg, "capacity_candidate": cap,
                       "message": str(r.get("failure_message") or BAD_STATUS_MEANS.get(r["status"], ""))[:200]})
     rep["failures"] = fails
-    rep["blockers"] = [f for f in fails if not f["known_gap"]]
+    rep["capacity_candidates"] = [f for f in fails if f["capacity_candidate"]]
+    rep["blockers"] = [f for f in fails if not f["known_gap"] and not f["capacity_candidate"]]
     if "low_clock_reruns" in s:
         rep["low_clock_reruns"] = int(pd.to_numeric(s["low_clock_reruns"], errors="coerce").fillna(0).sum())
     if "gpu_sm_clock_max_mhz" in s:
@@ -257,14 +320,26 @@ def main():
     else:
         lock = envlock.verify(scope="full")
         print(f"lock verified ({lock['sha256'][:16]})", flush=True)
+        if IS_MAC:
+            from benchkit import macgpu
+            (OUT / "swap_start.json").write_text(json.dumps(macgpu.swap_counters()), encoding="utf-8")
         if blockers:
             print("static gates failed:\n" + "\n".join(json.dumps(b) for b in blockers))
         cmd = [sys.executable, "run_study.py", "--output-dir", str(OUT), "--resume", "--stage-args", json.dumps(SMOKE)]
         rc = subprocess.call(cmd, cwd=ROOT)
     report = {"env_lock_sha256": lock["sha256"], "static_gates": gates, "run_study_exit": rc, "stages": {}}
+    unavailable = unavailable_on_mac() if IS_MAC else {}
+    report["unavailable_on_macos"] = unavailable
+    if IS_MAC:
+        from benchkit import macgpu
+        report["swap_end"] = macgpu.swap_counters()
+        report["swap_start"] = json.loads((OUT / "swap_start.json").read_text()) if (OUT / "swap_start.json").exists() else None
     for stage in run_study.STAGES:
         rep = stage_report(stage)
         report["stages"][stage] = rep
+        if stage in unavailable:
+            rep["unavailable"] = unavailable[stage]
+            continue
         if not rep.get("done"):
             blockers.append({"stage": stage, "problem": "stage did not complete"})
         blockers += [{"stage": stage, **b} for b in rep.get("blockers", [])]
@@ -283,7 +358,7 @@ def main():
         blockers.append({"stage": "analyses", "problem": f"{report['analysis_tracebacks']} analysis tracebacks (analysis.log)"})
     stage_min = {s: json.loads((OUT / s / "stage_done.json").read_text(encoding="utf-8")).get("minutes")
                  for s in run_study.STAGES if (OUT / s / "stage_done.json").exists()}
-    if "gpu_trace" in stage_min:   # smoke: 3 models x 1 repeat; full: 30 models x 2 repeats
+    if "gpu_trace" in stage_min and "gpu_trace" not in unavailable:   # smoke: 3 models x 1 repeat; full: 30 models x 2 repeats
         report["stages"]["gpu_trace"]["projected_full_minutes"] = round(stage_min["gpu_trace"] * 20, 1)
     if "readback_micro" in stage_min:
         report["stages"]["readback_micro"]["projected_full_minutes"] = round(stage_min["readback_micro"] * 3 * 10 * 85 / 65, 1)
@@ -311,9 +386,20 @@ def main():
              "|---|---|---|---|---|---|---|"]
     for st, v in report["stages"].items():
         f = v.get("failures", [])
+        if v.get("unavailable"):
+            lines.append(f"| {st} | unavailable on macOS: {v['unavailable']} | - | - | - | - | - |")
+            continue
         lines.append(f"| {st} | {v.get('launches', '-' if v.get('done') else 'NOT DONE')} | {len(f)} "
                      f"({sum(x['known_gap'] for x in f)}) | {len(v.get('blockers', []))} | {v.get('low_clock_reruns', '-')} "
                      f"| {v.get('smoke_cooling_min', '-')} | {v.get('projected_full_minutes', '-')} |")
+    cap = [{"stage": st, **c} for st, v in report["stages"].items() for c in v.get("capacity_candidates", [])]
+    report["capacity_candidates"] = cap
+    if IS_MAC:
+        lines += ["", f"Swap used: start {(report['swap_start'] or {}).get('swap_used_mb')} MB, end "
+                      f"{report['swap_end']['swap_used_mb']} MB; swapouts {(report['swap_start'] or {}).get('swapouts')} -> "
+                      f"{report['swap_end']['swapouts']}",
+                  f"Capacity candidates (size 4-5 launches that died; 8 GB machine; findings, not blockers): {len(cap)}"] + \
+                 [f"- {json.dumps(c)}" for c in cap]
     lines += ["", f"Blockers: {len(blockers)}"] + [f"- {json.dumps(b)}" for b in blockers]
     (OUT / "preflight_report.md").write_text("\n".join(lines), encoding="utf-8")
     print("\n".join(lines))

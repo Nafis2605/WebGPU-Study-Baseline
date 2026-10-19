@@ -7,9 +7,16 @@ idle_check()      the GPU can idle: the minimum SM clock over a few seconds is <
                   (a clock lock keeps it at base even when idle)
 LOW_CLOCK_MHZ     a GPU launch whose SM clock never exceeded this ran in a stuck low-power state
                   ("GPU idle" throttle reason while busy); such launches are re-run, never recorded
+
+macOS (Apple silicon): the GPU clock is readable only as root (powermetrics), so ClockSampler records nothing
+(max_mhz() is None: no low-clock re-run) and idle_check() is the power-state guard of benchkit/macgpu.py
+(AC power, Low Power Mode off, no thermal / performance warning).
 """
+import sys
 import threading
 import time
+
+IS_MAC = sys.platform == "darwin"
 
 LOW_CLOCK_MHZ = 1000
 
@@ -21,6 +28,8 @@ class ClockSampler:
         self._t = None
 
     def _run(self):
+        if IS_MAC:
+            return
         import pynvml as nv
         nv.nvmlInit()
         h = nv.nvmlDeviceGetHandleByIndex(0)
@@ -49,6 +58,9 @@ class ClockSampler:
 
 
 def idle_check(seconds=3.0, idle_max_mhz=1000):
+    if IS_MAC:
+        from benchkit.macgpu import guard
+        return guard()
     s = ClockSampler(0.1).start()
     time.sleep(seconds)
     s.stop()

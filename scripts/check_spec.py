@@ -14,7 +14,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from benchkit.paths import ROOT, SPEC, TFGPU, tfgpu_env  # noqa: E402
+from benchkit.paths import ROOT, SPEC, TFGPU_PY, tfgpu_env  # noqa: E402
 
 
 def result_line(cmd, **kw):
@@ -29,7 +29,7 @@ def main():
     only = sys.argv[1:]
     spec = {m["name"]: m for m in json.loads(SPEC.read_text(encoding="utf-8"))["models"]}
     js = result_line(["node", str(ROOT / "scripts" / "check_spec_js.mjs"), *only], cwd=ROOT)
-    py = result_line([str(TFGPU / "python.exe"), str(ROOT / "native" / "keras_models.py"), *only],
+    py = result_line([str(TFGPU_PY), str(ROOT / "native" / "keras_models.py"), *only],
                      cwd=ROOT, env=tfgpu_env(cpu_only=True))
     bad = 0
     for name, m in spec.items():

@@ -54,11 +54,22 @@ def _os_slug():
         return "win11" if platform.release() == "11" else f"win{_slug(platform.release())}"
     if system == "Darwin":
         return "macos"
+
+
+def _apple_chip():
+    """"Apple M3" -> "m3" (macOS on Apple silicon), else None."""
+    try:
+        r = subprocess.run(["sysctl", "-n", "machdep.cpu.brand_string"], capture_output=True, text=True, timeout=5)
+        m = re.match(r"Apple (M\d+\s*\w*)", r.stdout.strip())
+        return _slug(m.group(1)) if m else None
+    except Exception:  # noqa: BLE001
+        return None
     return _slug(system) or "unknown-os"
 
 
 def derive_device_id():
-    return f"{_os_slug()}-{_gpu_name() or _slug(platform.machine()) or 'device'}"
+    chip = _apple_chip() if platform.system() == "Darwin" else None
+    return f"{_os_slug()}-{chip or _gpu_name() or _slug(platform.machine()) or 'device'}"
 
 
 def device_id(override=None):
@@ -142,7 +153,8 @@ def write_device_manifest(dev=None):
     _write_if_new(device_dir(dev) / "device.json", {
         "id": device_id(dev), "created_at": datetime.now().isoformat(timespec="seconds"), "os": h["os"], "cpu": h["cpu"],
         "cpu_logical_cores": h["cpu_logical_cores"], "ram_total_gb": h["ram_total_gb"], "power_plan": h["power_plan"],
-        "nvidia": h["nvidia"]})
+        "nvidia": h["nvidia"], **({"apple_gpu": h["apple_gpu"], "cpu_perf_cores": h["cpu_perf_cores"],
+                                   "cpu_efficiency_cores": h["cpu_efficiency_cores"]} if h.get("apple_gpu") else {})})
 
 
 def write_browser_manifest(browser, dev=None):

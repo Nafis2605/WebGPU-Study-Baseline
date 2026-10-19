@@ -26,7 +26,15 @@ CHROME_FLAGS = [
 # The study's browser is pinned: Chrome for Testing 157.0.8081.0 (win64), unpacked in the project.
 # It never auto-updates. There is deliberately no fallback to an installed Chrome (Chrome Dev updates
 # itself); the path and version are part of env.lock.json and verified before every launch.
-PINNED_CHROME = Path(__file__).resolve().parents[1] / "tools" / "chrome-for-testing" / "chrome-win64" / "chrome.exe"
+# macOS: the same version's mac-arm64 build, unpacked to tools/chrome-for-testing/chrome-mac-arm64/. CHROME_FLAGS stay
+# identical on both OSes (CalculateNativeWinOcclusion is a no-op on macOS) so the recorded flag set is the same.
+_CFT = Path(__file__).resolve().parents[1] / "tools" / "chrome-for-testing"
+if platform.system() == "Darwin":
+    PINNED_CHROME_APP = _CFT / "chrome-mac-arm64" / "Google Chrome for Testing.app"
+    PINNED_CHROME = PINNED_CHROME_APP / "Contents" / "MacOS" / "Google Chrome for Testing"
+else:
+    PINNED_CHROME_APP = None
+    PINNED_CHROME = _CFT / "chrome-win64" / "chrome.exe"
 
 
 def find_chrome_dev():
@@ -96,5 +104,13 @@ async def chrome_page(playwright, executable_path, url, headless, extra_flags=()
 
 
 def version():
-    """Pinned Chrome for Testing version (from the *.manifest file next to chrome.exe), or None."""
+    """Pinned Chrome for Testing version (Windows: the *.manifest file next to chrome.exe; macOS: the app's
+    Info.plist CFBundleShortVersionString), or None."""
+    if PINNED_CHROME_APP is not None:
+        import plistlib
+        plist = PINNED_CHROME_APP / "Contents" / "Info.plist"
+        if not plist.exists():
+            return None
+        with open(plist, "rb") as f:
+            return plistlib.load(f).get("CFBundleShortVersionString")
     return next((p.stem.replace(".manifest", "") for p in PINNED_CHROME.parent.glob("*.manifest")), None)

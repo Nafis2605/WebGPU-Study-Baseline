@@ -40,7 +40,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from benchkit.paths import ROOT, TFGPU, CONDA, NSYS, SPEC, DATA_DIR, WEIGHTS_DIR  # noqa: E402
+from benchkit.paths import ROOT, TFGPU, TFGPU_PY, VENV_PY, CONDA, NSYS, SPEC, DATA_DIR, WEIGHTS_DIR, tfgpu_env  # noqa: E402
 
 LOCK = ROOT / "env.lock.json"
 NGFX_DIR = Path(r"C:\Program Files\NVIDIA Corporation\Nsight Graphics 2026.3.1")
@@ -67,7 +67,16 @@ def _sha_text(s):
     return hashlib.sha256(s.encode("utf-8")).hexdigest()
 
 
+IS_MAC = sys.platform == "darwin"
+
+
 def gpu_info():
+    if IS_MAC:
+        # Apple GPU: the GPU driver ships with macOS, so the OS build (host.os) is its version.
+        from benchkit.macgpu import gpu_static
+        s = gpu_static()
+        return {"name": s["name"], "gpu_cores": s["gpu_cores"], "ioclass": s["ioclass"], "metal": s["metal"],
+                "driver": "macOS-bundled (see host.os)"}
     q = _run(["nvidia-smi", "--query-gpu=name,vbios_version,driver_version,power.default_limit", "--format=csv,noheader"])
     name, vbios, driver, plimit = [x.strip() for x in q.split(",")]
     umd = next((l.split(":", 1)[1].strip().split()[0] for l in _run(["nvidia-smi", "-q"]).splitlines()
@@ -76,6 +85,18 @@ def gpu_info():
 
 
 def host_items():
+    if IS_MAC:
+        import psutil
+        from benchkit import macgpu
+        ps = macgpu.power_state()
+        sw = {k: _run(["sw_vers", f"-{k}"]) for k in ("productVersion", "buildVersion")}
+        return {"os": f"macOS {sw['productVersion']} ({sw['buildVersion']})",
+                "cpu": _run(["sysctl", "-n", "machdep.cpu.brand_string"]), "logical_cores": psutil.cpu_count(),
+                "perf_cores": _run(["sysctl", "-n", "hw.perflevel0.logicalcpu"]),
+                "efficiency_cores": _run(["sysctl", "-n", "hw.perflevel1.logicalcpu"]),
+                "ram_gb": round(psutil.virtual_memory().total / 2**30, 1),
+                "display_refresh_hz": macgpu.display_refresh_hz(),
+                "power_plan": f"low_power_mode={ps['low_power_mode']} on_ac={ps['on_ac']}"}
     os_build = _ps("(Get-CimInstance Win32_OperatingSystem | % { $_.Caption + ' ' + $_.Version })")
     refresh = _ps("(Get-CimInstance Win32_VideoController | ? { $_.CurrentRefreshRate } | "
                   "Select-Object -First 1).CurrentRefreshRate")
@@ -87,13 +108,17 @@ def host_items():
 
 
 def browser_items(hash_files=True):
-    from benchkit.chrome import PINNED_CHROME
+    from benchkit.chrome import PINNED_CHROME, PINNED_CHROME_APP, version as chrome_version
     d = PINNED_CHROME.parent
-    version = next((p.stem.replace(".manifest", "") for p in d.glob("*.manifest")), None)
-    out = {"path": str(PINNED_CHROME.relative_to(ROOT)), "version": version, "exists": PINNED_CHROME.is_file()}
+    out = {"path": str(PINNED_CHROME.relative_to(ROOT)), "version": chrome_version(), "exists": PINNED_CHROME.is_file()}
     if hash_files and PINNED_CHROME.is_file():
         out["chrome_exe_sha256"] = _sha_file(PINNED_CHROME)
-        out["chrome_dll_sha256"] = _sha_file(d / "chrome.dll")
+        if PINNED_CHROME_APP is not None:
+            # The browser's code lives in the framework binary (counterpart of chrome.dll).
+            fw = next(PINNED_CHROME_APP.glob("Contents/Frameworks/*Framework.framework/Versions/*/*Framework"), None)
+            out["chrome_framework_sha256"] = _sha_file(fw) if fw else None
+        else:
+            out["chrome_dll_sha256"] = _sha_file(d / "chrome.dll")
     return out
 
 
@@ -124,13 +149,13 @@ def node_items():
         return json.loads(p.read_text(encoding="utf-8"))["version"] if p.exists() else None
     tf_pkgs = sorted(p.name for p in (ROOT / "node_modules" / "@tensorflow").iterdir()) \
         if (ROOT / "node_modules" / "@tensorflow").exists() else []
-    return {"node": _run(["node", "--version"]), "npm": _run(["npm.cmd", "--version"], shell=False),
+    return {"node": _run(["node", "--version"]), "npm": _run(["npm" if IS_MAC else "npm.cmd", "--version"], shell=False),
             "packages": {**{f"@tensorflow/{n}": pkg(f"@tensorflow/{n}") for n in tf_pkgs}, "vite": pkg("vite")},
             "package_lock_sha256": _sha_file(ROOT / "package-lock.json")}
 
 
 def python_items():
-    venv_py = ROOT / ".venv" / "Scripts" / "python.exe"
+    venv_py = VENV_PY
     freeze = _run([str(venv_py), "-m", "pip", "freeze", "--all"])
     lines = sorted(freeze.splitlines())
     key = {l.split("==")[0].lower(): l.split("==")[1] for l in lines if "==" in l}
@@ -140,18 +165,20 @@ def python_items():
 
 
 def native_items():
-    py = TFGPU / "python.exe"
+    py = TFGPU_PY
     if not py.exists():
         return {"present": False}
     freeze = sorted(_run([str(py), "-m", "pip", "freeze", "--all"]).splitlines())
     conda = _run([str(CONDA), "list", "-p", str(TFGPU), "--export"]) if CONDA.exists() else ""
     conda_lines = sorted(l for l in conda.splitlines() if l and not l.startswith("#"))
-    env = {**os.environ, "PATH": str(TFGPU / "Library" / "bin") + os.pathsep + os.environ.get("PATH", ""),
-           "TF_CPP_MIN_LOG_LEVEL": "3"}
-    tfinfo = _run([str(py), "-c", "import json, tensorflow as tf; b = tf.sysconfig.get_build_info(); "
-                   "print(json.dumps({'tf': tf.__version__, 'cuda': b.get('cuda_version'), "
-                   "'cudnn': b.get('cudnn_version'), 'gpus': len(tf.config.list_physical_devices('GPU'))}))"],
-                  env=env)
+    env = tfgpu_env({"TF_CPP_MIN_LOG_LEVEL": "3"})
+    probe = ("import json, tensorflow as tf; b = tf.sysconfig.get_build_info(); "
+             "d = {'tf': tf.__version__, 'cuda': b.get('cuda_version'), "
+             "'cudnn': b.get('cudnn_version'), 'gpus': len(tf.config.list_physical_devices('GPU'))}; ")
+    if IS_MAC:   # tensorflow-metal PluggableDevice (the macOS GPU path); key absent on Windows so its lock is unchanged
+        probe += ("import importlib.metadata as m; d['metal_plugin'] = next((m.version(n) for n in "
+                  "('tensorflow-metal',) if any(x.metadata['Name'] == n for x in m.distributions())), None); ")
+    tfinfo = _run([str(py), "-c", probe + "print(json.dumps(d))"], env=env)
     tfinfo = json.loads(tfinfo.splitlines()[-1]) if tfinfo else None
     cudnn = next((l for l in conda_lines if l.startswith("cudnn=")), None)
     cudatk = next((l for l in conda_lines if l.startswith("cudatoolkit=")), None)
@@ -161,6 +188,10 @@ def native_items():
 
 
 def tool_items():
+    if IS_MAC:
+        # Nsight does not exist on macOS; Xcode Instruments (xctrace) is the GPU trace tool (full Xcode required).
+        x = _run(["xcrun", "xctrace", "version"])
+        return {"xctrace": x if x.startswith("xctrace") else None, "xcode": _run(["xcodebuild", "-version"]) or None}
     v = _run([str(NSYS), "--version"]) if NSYS.exists() else None
     return {"nsight_systems": v, "nsight_graphics_dir": NGFX_DIR.name if NGFX_DIR.exists() else None}
 

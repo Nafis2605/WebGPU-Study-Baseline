@@ -1,3 +1,7 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
 # TF.js custom-model study (warmup / inference / training): working notes
 
 Branch `training-study`. Sibling of `..\TFJS\TFJS-WebGPU-Study` (TF.js pretrained-model inference study;
@@ -37,6 +41,25 @@ native TF env, Nsight version, launch discipline, counters and statistics, so re
   (this machine's id), `tools/` (pinned browsers), `ACM_Web_2027_WebGPU/` (paper; its `.bib` is read-only).
 - Only `README.md` and `CLAUDE.md` are tracked markdown; other notes go under `reports/`.
 
+## Platform
+Commands and paths below are Windows (`.venv/Scripts`, `C:\tfjsbench\tfgpu`, WMI launch, NVML/`nvidia-smi` guards, PowerShell
+host info). macOS (Apple silicon, branch `macos-port`): paths in `benchkit/paths.py` (`.venv/bin`, `~/tfjsbench/tfmac`),
+Chrome for Testing mac-arm64 in `tools/chrome-for-testing/chrome-mac-arm64/`, NVML replaced by `benchkit/macgpu.py` (ioreg
+utilisation + memory, power-state guard: AC, Low Power Mode off, no thermal warning; no clocks/temperature/power without
+root), native `tf-cuda-fp32` -> `tf-metal`, other tf-cuda configs and `gpu_trace` (Nsight) unavailable. Mac vs Windows
+differs in OS and hardware at once: report differences as platform effects. Models, stack and measurement rules: README.md.
+
+## Architecture (big picture)
+- Chain: `run_study.py` (flights, `STAGES`, `--resume`, per-stage `stage_done.json`) -> `run_benchmark.py` or
+  `native/run_native.py` (one fresh process per trial x model x config) -> page `src/main.js` -> `bench.js` `runExperiment`
+  -> mode in `infer-modes.js` / `train-modes.js`. `preflight.py` runs the whole pipeline at minimal counts for a GO / NO-GO.
+- Guards around every stage and launch: `benchkit/envlock` (`env.lock.json`, clean committed tree), GPU idle / boost (NVML),
+  re-run of low-clock launches, and a per-launch verification block in `experiments.jsonl`.
+- Output: `results/<device>/<browser>-<ver>/<run>/<stage>/<ts>/`; `experiments.jsonl` is the source of truth, `analysis/`
+  reads it. Device id comes from `device.local.json`.
+- No unit tests or linter. "Tests" are the gates (`check_spec.py`, `check_prng.py`, `analysis/check_stage.py`, `preflight.py`)
+  and one-launch runs (`--filter <model> --trials 1`). Modes and configs: `MODES` / `CONFIGS` in `run_benchmark.py`.
+
 ## Commands
 ```
 npm ci; npx vite build                       # bundle (runs use dist/, served by `npx vite preview` on :4185)
@@ -47,11 +70,16 @@ npm ci; npx vite build                       # bundle (runs use dist/, served by
 .venv/Scripts/python run_study.py --browser firefox --flight verify --resume   # -> results/<device>/firefox-<ver>/verify
 .venv/Scripts/python scripts/index_results.py                                  # refresh results/INDEX.json
 ```
+`npm run bench:serve` = build + preview on :4185 (COOP/COEP headers required; `public/` served uncached);
+`npm run build` also emits unminified `dist-diag` (:4186, `--mode diag`) for kernel names. `postinstall` copies the TF.js WASM
+binaries into `public/tfjs-wasm/`.
 Rebuild (`npx vite build`) after editing `src/`. `TRAINBENCH_ALLOW_DIRTY=1` only for development runs.
 Launch multi-hour runs outside the app's process tree (WMI `Win32_Process.Create`); a resumed run keeps its first harness
 record in `run.json` and lists later launches under `resumes`.
 
 ## Gotchas
+- `.claude/` is git-ignored, so `.claude/skills/writing-style/SKILL.md` may be absent in a checkout; ask the user for it.
+- `public/data/*.u8|u32` and `public/weights/*.bin` are git-ignored; regenerate with the scripts, hashes live in the manifests.
 - Heredoc'd Python in the Bash tool turns backslash escapes into real characters: write edit scripts
   with the Write tool (scratchpad) instead.
 - PowerShell: `mv` is an alias of `Move-Item` and wins over a function named `Mv`; name helper functions differently.

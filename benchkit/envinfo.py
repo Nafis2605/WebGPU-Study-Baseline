@@ -55,6 +55,13 @@ def _powershell(cmd):
         return None
 
 
+def _sysctl(name):
+    try:
+        return subprocess.run(["sysctl", "-n", name], capture_output=True, text=True, timeout=5).stdout.strip() or None
+    except Exception:
+        return None
+
+
 def js_packages():
     """Installed versions of the page's npm dependencies (read from node_modules)."""
     root = Path(__file__).resolve().parent.parent
@@ -74,12 +81,25 @@ def host_info():
         except metadata.PackageNotFoundError:
             packages[name] = None
     packages.update(js_packages())
+    mac = platform.system() == "Darwin"
+    if mac:
+        from benchkit import macgpu
+        mac_power = macgpu.power_state()
+    try:
+        cpu_max = psutil.cpu_freq().max if psutil.cpu_freq() else None
+    except Exception:  # noqa: BLE001  (psutil has no cpu_freq on some Apple silicon builds)
+        cpu_max = None
     return {
         "os": platform.platform(),
         "cpu": (_powershell("(Get-CimInstance Win32_Processor).Name") if platform.system() == "Windows" else None)
-               or platform.processor(),
-        "cpu_max_mhz": psutil.cpu_freq().max if psutil.cpu_freq() else None,
-        "power_plan": _powershell("powercfg /getactivescheme") if platform.system() == "Windows" else None,
+               or (_sysctl("machdep.cpu.brand_string") if mac else None) or platform.processor(),
+        "cpu_max_mhz": cpu_max,
+        "power_plan": _powershell("powercfg /getactivescheme") if platform.system() == "Windows" else
+                      ({"low_power_mode": mac_power["low_power_mode"], "on_ac": mac_power["on_ac"]} if mac else None),
+        "cpu_perf_cores": _sysctl("hw.perflevel0.logicalcpu") if mac else None,
+        "cpu_efficiency_cores": _sysctl("hw.perflevel1.logicalcpu") if mac else None,
+        "apple_gpu": macgpu.gpu_static() if mac else None,
+        "memory_pressure": macgpu.swap_counters() if mac else None,
         "on_battery": (psutil.sensors_battery().power_plugged is False) if psutil.sensors_battery() else False,
         "cpu_logical_cores": psutil.cpu_count(logical=True),
         "cpu_physical_cores": psutil.cpu_count(logical=False),

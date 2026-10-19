@@ -249,7 +249,11 @@ async def click_while_running(page, experiment, interval_s):
 
 
 async def wait_for_gpu_temp(limit_c, timeout_s=180):
-    """Hold the next launch until the GPU has cooled to limit_c (returns seconds waited)."""
+    """Hold the next launch until the GPU has cooled to limit_c (returns seconds waited). macOS has no GPU
+    temperature without root: wait for no thermal warning and an idle GPU instead (benchkit/macgpu.py)."""
+    if sys.platform == "darwin":
+        from benchkit.macgpu import wait_cool
+        return await asyncio.to_thread(wait_cool, timeout_s)
     import pynvml as nv
     nv.nvmlInit()
     h = nv.nvmlDeviceGetHandleByIndex(0)
@@ -436,8 +440,8 @@ async def main(argv=None):
                 for x in rng.sample([p for p in plan if p[0] == t], k=sum(p[0] == t for p in plan))]
     telemetry = None
     if not args.no_telemetry:
-        from benchkit.telemetry import NvmlTelemetry
-        telemetry = NvmlTelemetry(interval_s=args.telemetry_interval_s, pcie=not args.no_pcie)
+        from benchkit.telemetry import make_telemetry
+        telemetry = make_telemetry(interval_s=args.telemetry_interval_s, pcie=not args.no_pcie)
 
     print(f"Output: {out_dir}\nBrowser: {chrome}\n{len(plan)} experiments", flush=True)
     async with async_playwright() as pw:
