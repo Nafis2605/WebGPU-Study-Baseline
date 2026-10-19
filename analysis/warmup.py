@@ -1,6 +1,6 @@
 """
 Pillar 1 (warm-up / cold start) for both inference and training launches. Definitions fixed before any
-study data was collected (study_report/VERIFICATION.md):
+study data was collected (reports/methodology/VERIFICATION.md):
 
   steady median s       median of the launch's measured records (inference: phase "measure";
                         training: "train_measure")

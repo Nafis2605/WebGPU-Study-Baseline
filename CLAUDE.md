@@ -27,8 +27,15 @@ native TF env, Nsight version, launch discipline, counters and statistics, so re
   `train-modes.js`, `bench.js` (runExperiment), `profile.js` (sibling + phase join), `probes.js`.
 - `run_benchmark.py` (browser driver, CONFIGS/MODES), `native/run_native.py` + `native/worker.py`
   (tfgpu, one process per launch), `benchkit/` (sibling: chrome, envlock, clockguard, telemetry, results).
-- `probes/run_probes.py` Phase-0 probes; `study_report/FEASIBILITY.md`, `VERIFICATION.md`, `LEGACY_ISSUES.md`.
-- `legacy/` the pre-study page, untouched (see LEGACY_ISSUES.md).
+- `probes/run_probes.py` Phase-0 probes, `browser_caps.py`, `fit_device_diag.py`; `benchkit/firefox.py` (Firefox launcher over
+  WebDriver BiDi), `benchkit/layout.py` (where results and reports go), `analysis/browser_compare.py` (Firefox vs Chrome),
+  `scripts/index_results.py` (results catalogue).
+- `legacy/` the pre-study page, untouched.
+- Local, git-ignored, never pushed: `results/<device>/<browser>-<version>/<run>/` (measurements; `results/INDEX.json` lists
+  every run), `reports/` (`methodology/` feasibility, verification, metrics map, legacy notes; `<device>/<browser>/` analyses,
+  tables, figures, report scripts; `<device>/compare/` margins and the Firefox verification plan), `device.local.json`
+  (this machine's id), `tools/` (pinned browsers), `ACM_Web_2027_WebGPU/` (paper; its `.bib` is read-only).
+- Only `README.md` and `CLAUDE.md` are tracked markdown; other notes go under `reports/`.
 
 ## Commands
 ```
@@ -37,12 +44,17 @@ npm ci; npx vite build                       # bundle (runs use dist/, served by
 .venv/Scripts/python -m benchkit.envlock verify full
 .venv/Scripts/python run_benchmark.py --mode train --config webgpu --filter L1 --trials 1
 .venv/Scripts/python native/run_native.py --mode train --config tf-cuda-fp32 --filter L1 --trials 1
+.venv/Scripts/python run_study.py --browser firefox --flight verify --resume   # -> results/<device>/firefox-<ver>/verify
+.venv/Scripts/python scripts/index_results.py                                  # refresh results/INDEX.json
 ```
 Rebuild (`npx vite build`) after editing `src/`. `TRAINBENCH_ALLOW_DIRTY=1` only for development runs.
+Launch multi-hour runs outside the app's process tree (WMI `Win32_Process.Create`); a resumed run keeps its first harness
+record in `run.json` and lists later launches under `resumes`.
 
 ## Gotchas
 - Heredoc'd Python in the Bash tool turns backslash escapes into real characters: write edit scripts
   with the Write tool (scratchpad) instead.
+- PowerShell: `mv` is an alias of `Move-Item` and wins over a function named `Mv`; name helper functions differently.
 - tfjs-layers: LSTM/GRU recurrentActivation defaults to hardSigmoid (spec pins sigmoid); GRU has no
   reset_after=true (Keras GRU then can't use cuDNN: native_cudnn_rnn records it).
 - TF.js Adam creates scalar tensors per variable per step (CPU-forwarded, counted by the hooks).
@@ -50,3 +62,13 @@ Rebuild (`npx vite build`) after editing `src/`. `TRAINBENCH_ALLOW_DIRTY=1` only
 - `preflight.py` has no argparse: any invocation (even `--help`) starts a preflight. Read its docstring instead.
 - Timed warm-ups run >= W records and >= 1 s after the first record (`--warmup-min-s`, page and native):
   fast models get hundreds of warm-up records, so steps_to_steady uses a 10-record horizon (analysis/warmup.py).
+
+## Writing and bibliography (always active)
+- Before drafting or revising any paper, report, abstract, caption, slide, email or documentation text, load the
+  `writing-style` skill (`.claude/skills/writing-style/SKILL.md`, from `Desktop/Permanent Anti-AI-Slop Writing
+  Standard.md`) and apply it. It stays active unless the user overrides a specific rule for a specific task.
+- Never change, manipulate, reformat or add to any `.bib` file (e.g. `ACM_Web_2027_WebGPU/refs.bib`). Read-only. Cite
+  only keys that already exist; for a missing source write `[citation needed]` in the text and tell the user. Report
+  an apparent error in an entry instead of fixing it.
+- Every number in a report or paper comes from a measured result, a computed table or a cited source; label each
+  mechanism as measured, source-backed or hypothesis.

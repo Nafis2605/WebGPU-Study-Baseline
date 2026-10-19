@@ -17,9 +17,11 @@ vite.config.js.timestamp-*
 .venv/
 __pycache__/
 
-# Results and logs
-benchmark_results/
-probes/out/
+# Results, reports and per-device settings: kept on disk, never pushed
+/results/
+/reports/
+/ACM_Web_2027_WebGPU/
+device.local.json
 logs/
 *.log
 
@@ -32,10 +34,7 @@ plan*.md
 TODO*.md
 NOTES*.md
 
-# Nsight traces (large, machine-specific)
-nsight/out/
-
-# Pinned tools copied into the project (Chrome for Testing)
+# Pinned tools copied into the project (Chrome for Testing, Firefox, geckodriver)
 tools/
 
 # OS files

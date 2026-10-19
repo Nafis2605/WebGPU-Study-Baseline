@@ -21,7 +21,7 @@ timeline_<capture>.csv  first --timeline-ms of the window: workload intervals an
                         (for figures)
 
 Usage:
-    python analysis/nsys_summary.py nsight/out/nsys/<capture dirs or parent> [--out nsight/out]
+    python analysis/nsys_summary.py <capture dirs or parent> [--out DIR]
 """
 import argparse
 import json
@@ -241,13 +241,13 @@ def summarise(d, timeline_ms):
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("paths", nargs="+")
-    ap.add_argument("--out", default="nsight/out")
+    ap.add_argument("--out", default=None, help="default: the parent folder of the first capture path")
     ap.add_argument("--timeline-ms", type=float, default=200)
     args = ap.parse_args()
     dirs = []
     for p in map(Path, args.paths):
         dirs += [p] if (p / "report.sqlite").exists() else sorted(x for x in p.iterdir() if (x / "report.sqlite").exists())
-    out = Path(args.out)
+    out = Path(args.out) if args.out else Path(args.paths[0]).resolve().parent
     (out / "timelines").mkdir(parents=True, exist_ok=True)
     rows = []
     for d in dirs:

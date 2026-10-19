@@ -7,7 +7,7 @@ Preflight: will the full study complete on the locked environment, and are its i
    sketch PRNG agree bit for bit (scripts/check_prng.py); exactly one @tensorflow/tfjs-core is installed;
    the data manifest is the CIFAR-10 release (not a placeholder); every model has init and trained weights.
 2. The real pipeline (run_study.py: lock checks, GPU idle + boost guards, every stage, every model x config
-   pair, native stages, GPU traces, all analyses) with minimal run counts into benchmark_results/preflight/.
+   pair, native stages, GPU traces, all analyses) with minimal run counts into results/<device>/chrome-<ver>/_dev/preflight/.
    The infer_latency / infer_native / train / native_train smoke keep the full warm-up rule and measure 20
    records where they fit in 10 s, so warm-up sufficiency is checked (analysis/warmup.py).
 3. Report (preflight_report.json / .md): per stage launches, failures by category; failures that are not
@@ -30,11 +30,11 @@ import pandas as pd
 
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT))
-from benchkit import envlock  # noqa: E402
+from benchkit import envlock, layout  # noqa: E402
 from benchkit.paths import DATA_DIR, SPEC, WEIGHTS_DIR  # noqa: E402
 import run_study  # noqa: E402
 
-OUT = ROOT / "benchmark_results" / "preflight"
+OUT = layout.run_dir("chrome", "_dev/preflight")
 # Known, reproducible TF.js coverage gaps (not harness failures): (family, backend, pillar).
 from run_benchmark import KNOWN_GAPS  # noqa: E402  (family or model name, backend, pillar)
 TRAIN_MODES = {"train", "train_pipelined", "train_profile", "train_correctness", "train_batch", "train_long",

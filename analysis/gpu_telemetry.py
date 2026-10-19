@@ -22,7 +22,7 @@ Per experiment (status ok, latency mode):
 Per-inference energy for a single run isn't resolvable: runs are shorter than the counter's refresh period.
 
 Usage:
-    python analysis/gpu_telemetry.py benchmark_results/<timestamp>
+    python analysis/gpu_telemetry.py <run folder>/<stage>/<timestamp>
 """
 import argparse
 import sys

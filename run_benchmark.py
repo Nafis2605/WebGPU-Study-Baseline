@@ -2,8 +2,8 @@
 Browser driver for the custom-model study (warmup / inference / training). Port of the sibling TF.js
 inference study's driver (TFJS-WebGPU-Study/run_benchmark.py); same launch discipline and outputs.
 
-Each (trial, model, config) experiment runs in a brand-new Chrome for Testing process with an empty
-profile, so no shader, pipeline or HTTP cache carries over (except the *-diskcache warm-up configs,
+Each (trial, model, config) experiment runs in a brand-new browser process (pinned Chrome for Testing, or the
+pinned Firefox with --browser firefox; benchkit/firefox.py) with an empty profile, so no shader, pipeline or HTTP cache carries over (except the *-diskcache warm-up configs,
 which deliberately reuse one profile across a priming launch and the measured launch). The page
 (src/main.js) exposes window.__bench; results come back as structured JSON.
 
@@ -19,7 +19,7 @@ Pillars (--mode):
   warm-up    lifecycle (cross-phase transfer), plus the *-precompile / *-diskcache configs
 Cold-start metrics of each pillar come from that pillar's own cold launches.
 
-Output (benchmark_results/<timestamp>/): env.json, experiments.jsonl (source of truth), sessions.csv,
+Output (results/<device>/<browser>/adhoc/<timestamp>/, or <--output-dir>/<timestamp>/; see benchkit/layout.py): env.json, experiments.jsonl (source of truth), sessions.csv,
 runs.csv, kernels.csv (profile modes), telemetry CSVs, io/ (correctness), logs/.
 
 Usage:
@@ -30,6 +30,7 @@ Usage:
 import argparse
 import asyncio
 import json
+import os
 import random
 import shutil
 import sys
@@ -42,12 +43,13 @@ from urllib.request import urlopen
 from playwright.async_api import async_playwright
 
 from benchkit.chrome import CHROME_FLAGS, chrome_page, find_chrome_dev
+from benchkit.firefox import FIREFOX_PREFS, find_firefox, firefox_page
 from benchkit.correctness import compare_all
 from benchkit.devtools import DiagCollector
 from benchkit.envinfo import host_info
 from benchkit.results import ResultWriter
 from benchkit.paths import SPEC
-from benchkit import envlock
+from benchkit import envlock, layout
 
 # Named experiment configurations: TF.js backend + runtime options. Env flags are set before
 # tf.setBackend() (src/tfjs-setup.js applyConfig).
@@ -92,7 +94,7 @@ MODES = INFER_MODES + TRAIN_MODES
 KNOWN_GAPS = {
     ("cnn", "wasm", "train"): "Conv2DBackpropFilter is not registered for the wasm backend",
     # Training L5 / G5 on wasm fills the 4 GB WASM memory and then hangs (one core busy, no progress, no
-    # error) instead of failing: probes/out/p02_l5diag (renderer private memory 4.49 GB within 36 s, flat for 15 min).
+    # error) instead of failing: results/<device>/probes/p02_l5diag (renderer private memory 4.49 GB within 36 s, flat for 15 min).
     ("L5", "wasm", "train"): "wasm heap exhausted (4 GB limit): the step hangs without an error",
     ("G5", "wasm", "train"): "wasm heap exhausted (4 GB limit): the step hangs without an error",
 }
@@ -101,6 +103,8 @@ KNOWN_GAPS = {
 def parse_args(argv=None):
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--url", default="http://localhost:4185/", help="benchmark page; start it with: npm run bench:serve")
+    p.add_argument("--browser", default="chrome", choices=("chrome", "firefox"),
+                   help="pinned Chrome for Testing (the study's browser) or the pinned Firefox (cross-browser replication)")
     p.add_argument("--config", nargs="+", default=PRIMARY, choices=list(CONFIGS))
     p.add_argument("--exclude", nargs="+", default=[], metavar="MODEL:CONFIG",
                    help="skip these (model name, config) pairs, e.g. C1:wasm-8t")
@@ -178,9 +182,23 @@ def parse_args(argv=None):
     p.add_argument("--no-pcie", action="store_true")
     p.add_argument("--baseline-s", type=float, default=3.0)
     p.add_argument("--headless", action="store_true")
-    p.add_argument("--output-dir", default="benchmark_results")
+    p.add_argument("--output-dir", default=None, help="default: results/<device>/<browser>/adhoc")
+    p.add_argument("--device-id", default=None, help="result folder of this machine (default: device.local.json, see benchkit/layout.py)")
     p.add_argument("--exact-output-dir", action="store_true", help="write into --output-dir itself (no timestamp folder)")
-    return p.parse_args(argv)
+    args = p.parse_args(argv)
+    if args.device_id:
+        os.environ["TRAINBENCH_DEVICE"] = args.device_id
+    args.default_output_dir = args.output_dir is None
+    if args.default_output_dir:
+        args.output_dir = str(layout.run_dir(args.browser, "adhoc"))
+    if args.browser == "firefox":
+        # Chrome-only mechanisms are refused, not approximated.
+        if args.trace:
+            p.error("--trace needs CDP tracing (Chrome only)")
+        bad = [c for c in args.config if CONFIGS[c].get("diskcache")]
+        if bad:
+            p.error(f"{bad}: the *-diskcache configs depend on Chrome's GPU shader disk cache flag (Chrome only)")
+    return args
 
 
 def load_models(filters):
@@ -305,12 +323,17 @@ async def run_one(pw, args, chrome, model, config, trial, writer, telemetry=None
         await asyncio.sleep(args.baseline_s)
         telemetry.mark("baseline_end")
     try:
-        extra = ["--enable-blink-features=ForceEagerMeasureMemory"] if args.mode in ("profile", "train_profile") else []
-        flags = [f for f in CHROME_FLAGS if not (diskcache and f == "--disable-gpu-shader-disk-cache")]
-        on_launch = telemetry.watch_chrome if telemetry else None
-        async with chrome_page(pw, chrome, args.url, args.headless, extra_flags=extra, log_path=log_path,
-                               on_launch=on_launch, cdp_setup=diag.setup if diag else None,
-                               user_data_dir=shared_profile, flags=flags) as (page, version):
+        if args.browser == "firefox":
+            launch = firefox_page(chrome, args.url, args.headless, log_path=log_path,
+                                  on_launch=telemetry.watch_firefox if telemetry else None)
+        else:
+            extra = ["--enable-blink-features=ForceEagerMeasureMemory"] if args.mode in ("profile", "train_profile") else []
+            flags = [f for f in CHROME_FLAGS if not (diskcache and f == "--disable-gpu-shader-disk-cache")]
+            on_launch = telemetry.watch_chrome if telemetry else None
+            launch = chrome_page(pw, chrome, args.url, args.headless, extra_flags=extra, log_path=log_path,
+                                 on_launch=on_launch, cdp_setup=diag.setup if diag else None,
+                                 user_data_dir=shared_profile, flags=flags)
+        async with launch as (page, version):
             page_env = await page.evaluate("() => window.__bench.probeEnv()")
             if telemetry:
                 telemetry.mark("experiment_start")
@@ -333,7 +356,7 @@ async def run_one(pw, args, chrome, model, config, trial, writer, telemetry=None
     finally:
         if shared_profile:
             shutil.rmtree(shared_profile, ignore_errors=True)
-    result.update({"trial": trial, "started_at": started, "cooled_s": cooled_s, "low_clock_reruns": attempt,
+    result.update({"browser": args.browser, "trial": trial, "started_at": started, "cooled_s": cooled_s, "low_clock_reruns": attempt,
                    "env_lock_sha256": lock["sha256"], "known_gap": known_gap(model, config, args.mode)})
     if prime is not None:
         result["diskcache_prime"] = prime
@@ -380,9 +403,9 @@ TIMED_PHASES = ("measure", "shape", "batch", "load", "train_measure", "train_bat
 
 async def main(argv=None):
     args = parse_args(argv)
-    chrome = find_chrome_dev()
+    chrome = find_firefox() if args.browser == "firefox" else find_chrome_dev()
     if not chrome:
-        sys.exit("Pinned Chrome for Testing not found (tools/chrome-for-testing); see README setup.")
+        sys.exit(f"Pinned {args.browser} not found (tools/); see README setup.")
     check_server(args.url)
     models = load_models(args.filter)
     if not models:
@@ -390,8 +413,14 @@ async def main(argv=None):
     lock = envlock.verify(scope="full" if args.verify_full else "launch")
     out_dir = Path(args.output_dir) if args.exact_output_dir else Path(args.output_dir) / datetime.now().strftime("%Y%m%d_%H%M%S")
     writer = ResultWriter(out_dir)
-    env = {"created_at": datetime.now().isoformat(timespec="seconds"), "args": vars(args), "chrome_executable": chrome,
-           "chrome_flags": CHROME_FLAGS, "host": host_info(), "env_lock_sha256": lock["sha256"], "page_env": None}
+    if args.default_output_dir:   # a stand-alone command: record where it came from (flights get theirs from run_study.py)
+        layout.write_device_manifest()
+        layout.write_browser_manifest(args.browser)
+        layout.update_run_manifest(out_dir, kind="adhoc", browser=layout.browser_id(args.browser), device=layout.device_id(),
+                                   harness=layout.harness_state(), command=sys.argv)
+    env = {"created_at": datetime.now().isoformat(timespec="seconds"), "args": vars(args), "browser": args.browser,
+           "chrome_executable": chrome, "chrome_flags": CHROME_FLAGS,
+           **({"firefox_prefs": FIREFOX_PREFS} if args.browser == "firefox" else {}), "host": host_info(), "env_lock_sha256": lock["sha256"], "page_env": None}
     writer.write_json("env.json", env)
 
     def excluded(model, config):
@@ -410,7 +439,7 @@ async def main(argv=None):
         from benchkit.telemetry import NvmlTelemetry
         telemetry = NvmlTelemetry(interval_s=args.telemetry_interval_s, pcie=not args.no_pcie)
 
-    print(f"Output: {out_dir}\nChrome: {chrome}\n{len(plan)} experiments", flush=True)
+    print(f"Output: {out_dir}\nBrowser: {chrome}\n{len(plan)} experiments", flush=True)
     async with async_playwright() as pw:
         for n, (trial, model, config) in enumerate(plan, 1):
             t0 = time.time()

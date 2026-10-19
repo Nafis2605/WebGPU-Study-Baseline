@@ -141,9 +141,12 @@ def main(argv=None):
     ap.add_argument("--seed", type=int, default=1)
     ap.add_argument("--no-shuffle", action="store_true")
     ap.add_argument("--no-prime", action="store_true", help="skip the unrecorded priming launch")
-    ap.add_argument("--output-dir", default="benchmark_results/native")
+    ap.add_argument("--output-dir", default=None, help="default: results/<device>/native/adhoc")
     ap.add_argument("--exact-output-dir", action="store_true")
     args = ap.parse_args(argv)
+    if args.output_dir is None:
+        from benchkit import layout
+        args.output_dir = str(layout.native_dir("adhoc"))
 
     from benchkit import envlock
     lock = envlock.verify(scope="native")

@@ -104,7 +104,29 @@ class NvmlTelemetry:
 
     def watch_chrome(self, user_data_dir):
         """Sample memory of the Chrome processes launched with this (unique) --user-data-dir."""
+        self._browser = "chrome"
         self._chrome_udd = user_data_dir
+
+    def watch_firefox(self, profile_dir):
+        """Sample memory of the Firefox processes of this (unique) -profile: the parent, found by its command
+        line, and its child processes (content, gpu, rdd, socket, utility), which don't carry the profile path."""
+        self._browser = "firefox"
+        self._chrome_udd = profile_dir
+
+    @staticmethod
+    def _firefox_procs(profile_dir):
+        procs = []
+        for p in psutil.process_iter(["name", "cmdline"]):
+            try:
+                if (p.info["name"] or "").lower() == "firefox.exe" and any(profile_dir in a for a in p.info["cmdline"] or []):
+                    procs.append((p, "browser"))
+                    for c in p.children(recursive=True):
+                        cmd = c.cmdline()
+                        if (c.name() or "").lower() == "firefox.exe" and "-contentproc" in cmd:
+                            procs.append((c, cmd[-1]))
+            except (psutil.NoSuchProcess, psutil.AccessDenied):
+                pass
+        return procs
 
     def _chrome_loop(self, interval_s=0.1, refresh_s=2.0):
         """Per-process memory of the watched Chrome instance, summed by process type.
@@ -118,7 +140,10 @@ class NvmlTelemetry:
         procs, next_refresh = [], 0.0
         while not self._stop.is_set():
             udd = getattr(self, "_chrome_udd", None)
-            if udd and time.monotonic() >= next_refresh:
+            if udd and time.monotonic() >= next_refresh and getattr(self, "_browser", "chrome") == "firefox":
+                procs = self._firefox_procs(udd)
+                next_refresh = time.monotonic() + refresh_s
+            elif udd and time.monotonic() >= next_refresh:
                 procs = []
                 for p in psutil.process_iter(["name", "cmdline"]):
                     try:

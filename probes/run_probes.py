@@ -1,7 +1,7 @@
 """
 Phase-0 probes that need dedicated page code (src/probes.js): one fresh Chrome for Testing launch per
-(probe, model, config), results appended to probes/out/<probe>.jsonl. The remaining probes run the real
-harness (run_benchmark.py / native/run_native.py) with small counts; see study_report/FEASIBILITY.md.
+(probe, model, config), results appended to results/<device>/probes/<probe>.jsonl. The remaining probes run the real
+harness (run_benchmark.py / native/run_native.py) with small counts; see reports/methodology/FEASIBILITY.md.
 
 Usage:
     python probes/run_probes.py --probe syncSemantics --config webgl webgpu wasm-8t --filter D1 L1 T1
@@ -17,6 +17,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from playwright.async_api import async_playwright  # noqa: E402
 
+from benchkit import layout  # noqa: E402
 from benchkit.chrome import chrome_page, find_chrome_dev  # noqa: E402
 from run_benchmark import CONFIGS, load_models  # noqa: E402
 
@@ -32,7 +33,7 @@ async def main():
     ap.add_argument("--steps", type=int, default=20)
     ap.add_argument("--headless", action="store_true")
     args = ap.parse_args()
-    out = ROOT / "probes" / "out"
+    out = layout.probes_dir()
     (out / "logs").mkdir(parents=True, exist_ok=True)
     chrome = find_chrome_dev()
     async with async_playwright() as pw:

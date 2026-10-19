@@ -21,7 +21,7 @@ rate is <= --max-miss (and, with --max-frame-miss, whose frame-miss fraction is 
 bound). Only tested rates are reported: nothing is interpolated.
 
 Usage:
-    python analysis/load.py benchmark_results/<load run> --slo-ms 100 [--max-miss 0.01] [--max-frame-miss 0.05] [--out DIR]
+    python analysis/load.py <load stage result folder> --slo-ms 100 [--max-miss 0.01] [--max-frame-miss 0.05] [--out DIR]
 """
 import argparse
 from pathlib import Path

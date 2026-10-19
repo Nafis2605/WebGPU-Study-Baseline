@@ -31,7 +31,7 @@ responsiveness_summary.csv   medians over trials per (model, backend, phase)
 responsiveness_delta.csv     per (model, backend): inference - baseline for the page metrics
 
 Usage:
-    python analysis/responsiveness.py benchmark_results/<responsiveness run> [--out DIR]
+    python analysis/responsiveness.py <responsiveness stage result folder> [--out DIR]
 """
 import argparse
 from pathlib import Path

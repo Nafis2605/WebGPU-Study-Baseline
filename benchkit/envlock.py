@@ -8,6 +8,8 @@ Locked items:
   host       Windows build, CPU, logical cores, RAM, display refresh rate, active power plan GUID
   gpu        name, vBIOS, driver version, default power limit, CUDA driver (UMD) version
   browser    pinned Chrome for Testing: path, version, sha256 of chrome.exe and chrome.dll
+  firefox    pinned Firefox copy: path, version + BuildID (application.ini), sha256 of firefox.exe, xul.dll and
+             distribution/policies.json; geckodriver path, version and sha256
   node       node / npm versions, installed versions of every @tensorflow package, vite, playwright (npm)
   python     .venv interpreter version and the sha256 of its sorted `pip freeze`
   native     tfgpu env: interpreter, `pip freeze` sha256, conda package list sha256, TensorFlow version
@@ -95,6 +97,27 @@ def browser_items(hash_files=True):
     return out
 
 
+def firefox_items(hash_files=True):
+    from benchkit.firefox import PINNED_FIREFOX, PINNED_GECKODRIVER
+    d = PINNED_FIREFOX.parent
+    ini = {}
+    if (d / "application.ini").exists():
+        for line in (d / "application.ini").read_text(encoding="utf-8", errors="replace").splitlines():
+            if "=" in line:
+                k, v = line.split("=", 1)
+                ini.setdefault(k.strip(), v.strip())
+    out = {"path": str(PINNED_FIREFOX.relative_to(ROOT)), "version": ini.get("Version"), "build_id": ini.get("BuildID"),
+           "exists": PINNED_FIREFOX.is_file(), "geckodriver_path": str(PINNED_GECKODRIVER.relative_to(ROOT)),
+           "geckodriver_version": _run([str(PINNED_GECKODRIVER), "--version"]).splitlines()[0]
+           if PINNED_GECKODRIVER.is_file() else None}
+    if hash_files and PINNED_FIREFOX.is_file():
+        out["firefox_exe_sha256"] = _sha_file(PINNED_FIREFOX)
+        out["xul_dll_sha256"] = _sha_file(d / "xul.dll")
+        out["policies_sha256"] = _sha_file(d / "distribution" / "policies.json")
+        out["geckodriver_sha256"] = _sha_file(PINNED_GECKODRIVER)
+    return out
+
+
 def node_items():
     def pkg(name):
         p = ROOT / "node_modules" / name / "package.json"
@@ -113,7 +136,7 @@ def python_items():
     key = {l.split("==")[0].lower(): l.split("==")[1] for l in lines if "==" in l}
     return {"version": _run([str(venv_py), "--version"]), "pip_freeze_sha256": _sha_text("\n".join(lines)),
             "key_packages": {k: key.get(k) for k in ("playwright", "pynvml", "nvidia-ml-py", "numpy", "pandas",
-                                                     "scipy", "psutil", "matplotlib")}}
+                                                     "scipy", "psutil", "matplotlib", "selenium")}}
 
 
 def native_items():
@@ -179,9 +202,10 @@ def code_items():
 
 def collect(scope="full"):
     if scope == "launch":
-        return {"gpu": gpu_info(), "browser": browser_items(hash_files=False),
+        return {"gpu": gpu_info(), "browser": browser_items(hash_files=False), "firefox": firefox_items(hash_files=False),
                 "host": {k: v for k, v in host_items().items() if k in ("display_refresh_hz", "power_plan")}}
     return {"host": host_items(), "gpu": gpu_info(), "browser": browser_items(hash_files=(scope == "full")),
+            "firefox": firefox_items(hash_files=(scope == "full")),
             "node": node_items(), "python": python_items(), "native": native_items(), "tools": tool_items(),
             "artifacts": artifact_items()}
 
@@ -221,6 +245,7 @@ def verify(scope="full", check_files=None):
     now = collect("launch" if scope == "launch" else ("native" if scope == "native" else "full"))
     if scope == "native":
         now["browser"] = {k: v for k, v in now["browser"].items() if not k.endswith("sha256")}
+        now["firefox"] = {k: v for k, v in now["firefox"].items() if not k.endswith("sha256")}
     problems = _diff(_subset({k: locked.get(k) for k in now}, now), now)
     if scope != "launch":
         code = code_items()

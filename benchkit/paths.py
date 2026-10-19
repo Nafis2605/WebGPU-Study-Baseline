@@ -19,3 +19,16 @@ def tfgpu_env(extra=None, cpu_only=False):
         env["CUDA_VISIBLE_DEVICES"] = "-1"
     env.update(extra or {})
     return env
+
+
+def resolve_result_dir(study, stage, recorded):
+    """A stage's result folder from its stage_done.json. The recorded path is absolute; when the study folder
+    has moved since (e.g. into results/<device>/chrome-<ver>/), rebase it onto <study>/<stage>/<timestamp>."""
+    if not recorded:
+        return None
+    p = Path(recorded)
+    if p.exists():
+        return p
+    # Stages whose folder is itself the result (gpu_trace) record <study>/<stage>.
+    rebased = Path(study) / stage if p.name == stage else Path(study) / stage / p.name
+    return rebased if rebased.exists() else None

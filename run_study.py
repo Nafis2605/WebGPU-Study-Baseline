@@ -27,12 +27,20 @@ Each stage writes <study>/<stage>/ (+ <stage>.log) and, when finished, <stage>/s
 --resume skips finished stages. Cross-stage analyses write <study>/analysis/.
 
 Usage:
-    python run_study.py --output-dir benchmark_results/final --resume
-    python run_study.py --output-dir benchmark_results/final --stages train native_train
-    python run_study.py --output-dir benchmark_results/final --analyze-only
+    python run_study.py --resume                                  # -> results/<device>/chrome-<ver>/full
+    python run_study.py --browser firefox --stages train --resume  # -> results/<device>/firefox-<ver>/full
+    python run_study.py --browser firefox --flight verify --resume # -> results/<device>/firefox-<ver>/verify
+    python run_study.py --output-dir <study folder> --analyze-only
+(<device> comes from device.local.json or --device-id; folder naming is documented in benchkit/layout.py.)
+
+--browser firefox runs the browser stages in the pinned Firefox (benchkit/firefox.py). Native stages don't
+depend on the browser and are refused there: the comparison uses the Chrome flight's native results. The boost
+probe stays a Chrome WebGPU D5 run, identical to the Chrome flight's, so it doubles as a drift sentinel; each
+Firefox stage then starts with one unrecorded Firefox launch that warms Firefox's binaries in the OS file cache.
 """
 import argparse
 import json
+import os
 import subprocess
 import sys
 import time
@@ -44,6 +52,8 @@ ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT))
 from benchkit import envlock  # noqa: E402
 from benchkit.clockguard import ClockSampler, idle_check  # noqa: E402
+from benchkit.paths import resolve_result_dir  # noqa: E402
+from benchkit import layout  # noqa: E402
 
 PRIMARY = ["wasm-8t", "webgl", "webgpu"]
 SUBSET = ["D3", "C3", "R3", "L3", "G3", "T3"]
@@ -117,7 +127,7 @@ STAGES = {
     "train_profile": (RB, ["--mode", "train_profile", "--config", *PRIMARY, "--train-warmup", "10", "--profile-steps", "5",
                            "--train-max-s", "30", "--trials", "1", "--skip-known-gaps"], []),
     # Coverage record of the CNN x wasm training gap (fails in seconds with the kernel error). The L5 / G5 x wasm
-    # gap (4 GB heap exhausted, then a hang) is not re-run: evidence in probes/out/p02_l5diag (FEASIBILITY.md).
+    # gap (4 GB heap exhausted, then a hang) is not re-run: evidence in results/<device>/probes/p02_l5diag (FEASIBILITY.md).
     "train_coverage": (RB, ["--mode", "train", "--config", "wasm-8t", "--filter", "C1", "C5", "--trials", "1",
                             "--no-telemetry", "--no-infer-after-train"], []),
     "train_correctness": (RB, ["--mode", "train_correctness", "--config", *PRIMARY, "--correctness-steps", "20",
@@ -172,9 +182,7 @@ def newest_subdir(path):
 def stage_result(study, stage):
     done = study / stage / "stage_done.json"
     if done.exists():
-        d = json.loads(done.read_text(encoding="utf-8")).get("result_dir")
-        if d and Path(d).exists():
-            return Path(d)
+        return resolve_result_dir(study, stage, json.loads(done.read_text(encoding="utf-8")).get("result_dir"))
     return None
 
 
@@ -209,6 +217,45 @@ def boost_probe(study, timeout_s=900):
         if time.time() - t0 > timeout_s:
             return False, f"boost probe failed: SM max {mx} MHz after {attempt} attempts (rc {rc})"
         time.sleep(60)
+
+
+BROWSER_SCRIPTS = {RB, "run_readback_micro.py"}
+
+# --flight verify: the cross-browser verification flight (reports/<device>/compare/VERIFICATION_PLAN.md).
+# Same stage commands, caps, trial counts and discipline as the Chrome flight; only the model list of the primary
+# timing stages shrinks to the six-model SUBSET (one per family). The why-axis stages already use SUBSET, and the
+# correctness stages keep all 30 models. Appended after the stage's own arguments, so --filter replaces theirs.
+VERIFY_STAGES = ["infer_latency", "infer_correctness", "infer_instrumented", "infer_profile", "infer_why",
+                 "readback_micro", "warmup_lifecycle_if", "train", "train_correctness", "train_instrumented",
+                 "train_profile", "train_why"]
+VERIFY_SUBSET_STAGES = {"infer_latency", "infer_instrumented", "infer_profile", "train", "train_instrumented",
+                        "train_profile"}
+
+
+def browser_priming(study, browser):
+    """One unrecorded launch of the replication browser (a short WebGPU D1 latency run), so a stage's first
+    measured launch doesn't pay for loading the browser's binaries from disk (the boost probe does this for Chrome)."""
+    cmd = [PY, RB, "--browser", browser, "--mode", "latency", "--config", "webgpu", "--filter", "D1", "--trials", "1",
+           "--warmup", "2", "--measure", "5", "--min-measure-s", "0", "--no-telemetry", "--low-clock-retries", "0",
+           "--output-dir", str(study / "_guards" / "browser_priming")]
+    rc = subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True).returncode
+    return f"{browser} priming launch: exit {rc}"
+
+
+def verify_analyses(study):
+    """Verification-flight analyses: training numerics against the Chrome flight's tf-cpu reference, then the
+    pre-registered Firefox-vs-Chrome comparison (analysis/browser_compare.py)."""
+    chrome = layout.run_dir("chrome", "full")
+    out = study / "analysis"
+    out.mkdir(exist_ok=True)
+    jobs = []
+    tc, ref = stage_result(study, "train_correctness"), stage_result(chrome, "native_train_correctness_ref")
+    if tc and ref:
+        jobs.append(("train_correctness", ["analysis/train_correctness.py", str(tc), str(ref), "--reference",
+                                           "tf-cpu+tfjsadam", "--out", str(out / "train_correctness")]))
+    jobs.append(("browser_compare", ["analysis/browser_compare.py", "compare", "--chrome", str(chrome),
+                                     "--firefox", str(study), "--out", str(out / "browser_compare")]))
+    return [(name, run_logged([PY, *cmd], study / "analysis.log")) for name, cmd in jobs]
 
 
 def cross_stage_analyses(study):
@@ -295,31 +342,59 @@ def keep_awake():
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--stages", nargs="+", default=list(STAGES), choices=list(STAGES))
+    ap.add_argument("--stages", nargs="+", default=None, choices=list(STAGES))
+    ap.add_argument("--flight", default=None, choices=("verify",),
+                    help="verify: the Firefox verification flight (stage list and model subset above)")
     ap.add_argument("--resume", action="store_true", help="skip stages that already have stage_done.json")
     ap.add_argument("--analyze-only", action="store_true")
     ap.add_argument("--no-analyze", action="store_true")
     ap.add_argument("--no-boost-probe", action="store_true", help="development only")
-    ap.add_argument("--output-dir", default="benchmark_results/final")
+    ap.add_argument("--browser", default="chrome", choices=("chrome", "firefox"))
+    ap.add_argument("--run-name", default=None, help="folder name under results/<device>/<browser>/ (default: verify for "
+                    "--flight verify, else full)")
+    ap.add_argument("--device-id", default=None, help="result folder of this machine (default: device.local.json)")
+    ap.add_argument("--output-dir", default=None, help="explicit study folder (overrides --run-name and --device-id)")
     ap.add_argument("--stage-args", default="{}",
                     help="JSON {stage: [extra args]} appended to that stage's command (preflight uses this)")
     args = ap.parse_args()
 
-    study = Path(args.output_dir)
+    if args.device_id:
+        os.environ["TRAINBENCH_DEVICE"] = args.device_id
+    run_name = args.run_name or ("verify" if args.flight == "verify" else "full")
+    study = Path(args.output_dir) if args.output_dir else layout.run_dir(args.browser, run_name)
     if not study.is_absolute():
         study = ROOT / study
     study.mkdir(parents=True, exist_ok=True)
+    if not args.output_dir:
+        layout.write_device_manifest()
+        layout.write_browser_manifest(args.browser)
     keep_awake()
     lock = envlock.verify(scope="full")
     print(f"environment lock verified (sha256 {lock['sha256'][:16]})", flush=True)
     # The lock that governs this study, kept with its results (env.lock.json itself is not committed: it
     # records the commit it was frozen at).
     (study / "env.lock.json").write_text(envlock.LOCK.read_text(encoding="utf-8"), encoding="utf-8")
+    layout.update_run_manifest(study, kind="flight", run=study.name, flight=args.flight, browser=layout.browser_id(args.browser),
+                               device=layout.device_id(), harness=layout.harness_state(), command=sys.argv,
+                               env_lock_sha256=lock["sha256"])
     stage_args = json.loads(args.stage_args)
+    if args.flight == "verify":
+        if args.browser == "chrome":
+            ap.error("--flight verify is the replication flight: use --browser firefox")
+        args.stages = args.stages or VERIFY_STAGES
+        for st in VERIFY_SUBSET_STAGES:
+            stage_args[st] = [*stage_args.get(st, []), *F(*SUBSET)]
+    args.stages = args.stages or list(STAGES)
     summary = []
     if not args.analyze_only:
         for stage in args.stages:
             script, bench_args, analyses = STAGES[stage]
+            if args.browser != "chrome":
+                if script not in BROWSER_SCRIPTS:
+                    summary.append((stage, f"not run: not a browser stage ({args.browser} replication)", 0, None))
+                    print(f"\n=== {stage}: not a browser stage; skipped for --browser {args.browser}", flush=True)
+                    continue
+                bench_args = [*bench_args, "--browser", args.browser]
             stage_dir = study / stage
             if args.resume and (stage_dir / "stage_done.json").exists():
                 print(f"\n=== {stage}: already done, skipped (--resume)")
@@ -344,6 +419,8 @@ def main():
                 if not ok:
                     summary.append((stage, "not run: GPU does not boost", 0, None))
                     break
+            if args.browser != "chrome":
+                print(f"=== {stage}: {browser_priming(study, args.browser)}", flush=True)
             common = ["--cool-to-c", COOL_TO_C] if script in COOLED else []
             stage_dir.mkdir(parents=True, exist_ok=True)
             out_args = ["--out", str(stage_dir)] if script in DIR_IS_RESULT else ["--output-dir", str(stage_dir)]
@@ -368,7 +445,10 @@ def main():
                 print(f"=== {stage} failed (exit {rc}); stopping so it can be fixed and resumed.", flush=True)
                 break
 
-    if not args.no_analyze:
+    if args.flight == "verify" and not args.no_analyze:
+        for name, rc in verify_analyses(study):
+            summary.append((f"analysis:{name}", "ok" if rc == 0 else f"failed (exit {rc})", 0, study / "analysis"))
+    elif not args.no_analyze:
         print("\n=== Cross-stage analyses", flush=True)
         for name, rc in cross_stage_analyses(study):
             summary.append((f"analysis:{Path(name).stem}", "ok" if rc == 0 else f"failed (exit {rc})", 0, study / "analysis"))
@@ -376,6 +456,8 @@ def main():
     print("\n=== Study summary")
     for stage, status, secs, d in summary:
         print(f"{stage:32s} {status:45s} {secs / 60:6.1f} min  {d}")
+    layout.update_run_manifest(study, finished_at=datetime.now().isoformat(timespec="seconds"),
+                               stage_status={stage: status for stage, status, _, _ in summary})
 
 
 if __name__ == "__main__":

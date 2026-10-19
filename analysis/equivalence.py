@@ -1,6 +1,6 @@
 """
 Is the short training window representative of training deep into a run? (Decided before any study data:
-study_report/VERIFICATION.md, "shortened training".)
+reports/methodology/VERIFICATION.md, "shortened training".)
 
 For every (model, config) with train_long launches (E epochs, every step recorded):
   long        steps of epochs 2..E (epoch index >= 1) of the train_long launches, pooled

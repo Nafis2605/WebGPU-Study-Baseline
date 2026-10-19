@@ -24,16 +24,20 @@ Writes <out>/:
   memory_compare.csv          native peak GPU memory (TF allocator) vs WebGPU pool after runs
 
 Usage:
-    python analysis/native_compare.py --study benchmark_results/final --out benchmark_results/final/analysis/native
+    python analysis/native_compare.py --study results/<device>/chrome-<ver>/final --out results/<device>/chrome-<ver>/final/analysis/native
 """
 import argparse
 import json
+import sys
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 
 from stats import ratio_of_medians_ci
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from benchkit.paths import resolve_result_dir  # noqa: E402
 
 KEY = ["trial", "model", "backend"]
 COMPARISONS = [("webgpu", "tf-cuda"), ("webgpu", "tf-cuda-fp32"), ("webgl", "tf-cuda"), ("webgl", "tf-cuda-fp32"),
@@ -42,7 +46,7 @@ COMPARISONS = [("webgpu", "tf-cuda"), ("webgpu", "tf-cuda-fp32"), ("webgl", "tf-
 
 def stage_dir(study, stage):
     f = Path(study) / stage / "stage_done.json"
-    return Path(json.loads(f.read_text(encoding="utf-8"))["result_dir"]) if f.exists() else None
+    return resolve_result_dir(study, stage, json.loads(f.read_text(encoding="utf-8"))["result_dir"]) if f.exists() else None
 
 
 def measured(d, phase="measure"):

@@ -20,8 +20,11 @@ export function withTimeout(promise, ms, what) {
  * --enable-blink-features=ForceEagerMeasureMemory.
  */
 export async function pageMemory() {
-  if (!self.crossOriginIsolated || !performance.measureUserAgentSpecificMemory) {
+  if (!self.crossOriginIsolated) {
     return { bytes: null, reason: "measureUserAgentSpecificMemory unavailable (needs cross-origin isolation)" };
+  }
+  if (!performance.measureUserAgentSpecificMemory) {
+    return { bytes: null, reason: "measureUserAgentSpecificMemory not implemented by this browser" };
   }
   try {
     const m = await withTimeout(performance.measureUserAgentSpecificMemory(), 10000, "memory measurement");

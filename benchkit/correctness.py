@@ -3,7 +3,7 @@
 The reference is TF.js's own pure-JavaScript `cpu` backend (float32), run in a separate browser
 launch with the same seed. It is a matched-framework reference (same graph, same TF.js op
 semantics), not native TensorFlow: tfjs-node has no Windows prebuilt for 4.22.0 (see
-study_report/FEASIBILITY.md). Before comparing, the input bytes of the two launches are checked
+reports/methodology/FEASIBILITY.md). Before comparing, the input bytes of the two launches are checked
 to be identical (sha256); a mismatch is reported instead of a comparison.
 
 Metrics per output (formulas unchanged from the ONNX study's benchkit/correctness.py; a = config,

@@ -1,6 +1,6 @@
 // Phase-0 feasibility probes that need code the harness modes don't have (probes/run_probes.py drives
 // them through window.__bench.probes, one fresh browser per call). Their numbers decide design
-// questions (study_report/FEASIBILITY.md); none is reported as a study result.
+// questions (reports/methodology/FEASIBILITY.md); none is reported as a study result.
 //
 //   syncSemantics  P0.6  Does `await loss.data()` after applyGradients() wait for the whole step
 //                        (forward, backward, optimizer update)? After each awaited loss read, a

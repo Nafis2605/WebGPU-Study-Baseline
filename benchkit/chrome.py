@@ -93,3 +93,8 @@ async def chrome_page(playwright, executable_path, url, headless, extra_flags=()
             log_file.close()
         if own_profile:
             shutil.rmtree(user_data_dir, ignore_errors=True)
+
+
+def version():
+    """Pinned Chrome for Testing version (from the *.manifest file next to chrome.exe), or None."""
+    return next((p.stem.replace(".manifest", "") for p in PINNED_CHROME.parent.glob("*.manifest")), None)

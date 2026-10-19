@@ -20,7 +20,7 @@ trace can be segmented into inferences. NVML samples the SM/memory clock in para
 of nsys). The idle GPU clock is checked before and after (run_study.gpu_clock_check): nsys does not
 lock clocks, and a locked clock is reported.
 
-Output: nsight/out/nsys/<model>__<config>__<mode>__<phase>__<timestamp>/ with report.nsys-rep,
+Output: results/<device>/chrome-<ver>/_dev/nsight/nsys/<model>__<config>__<mode>__<phase>__<timestamp>/ with report.nsys-rep,
 report.sqlite, page_stats.json, nvml_clock.csv, command.json, nsys.log, clock_check.json.
 
 Usage (npm run bench:serve running on 4185):
@@ -47,7 +47,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from benchkit.chrome import CHROME_FLAGS, find_chrome_dev  # noqa: E402
 from run_benchmark import CONFIGS  # noqa: E402
-from benchkit import envlock  # noqa: E402
+from benchkit import envlock, layout  # noqa: E402
 from benchkit.clockguard import idle_check as gpu_clock_check  # noqa: E402
 
 from benchkit.paths import NSYS  # noqa: E402
@@ -64,7 +64,7 @@ def study_chrome_args():
     launch_persistent_context with CHROME_FLAGS adds ~35 flags of its own), read once from a real
     Playwright launch and cached. Returned without the executable, user-data-dir, the DevTools pipe
     and the start URL, in the original order."""
-    cache = ROOT / "nsight" / "out" / "study_chrome_args.json"
+    cache = layout.run_dir("chrome", "_dev/nsight") / "study_chrome_args.json"
     if cache.exists():
         return json.loads(cache.read_text(encoding="utf-8"))
     import asyncio
@@ -213,7 +213,7 @@ def main():
                     help="control: same page, flags and NVML sampling, without nsys (no trace written)")
     ap.add_argument("--load-timeout-s", type=float, default=120)
     ap.add_argument("--tag", default="", help="suffix for the output folder (e.g. r1)")
-    ap.add_argument("--out", default=str(ROOT / "nsight" / "out" / "nsys"))
+    ap.add_argument("--out", default=str(layout.run_dir("chrome", "_dev/nsight") / "nsys"))
     args = ap.parse_args()
 
     cfg = {k: v for k, v in CONFIGS[args.config].items() if k != "diskcache"}
