@@ -52,10 +52,16 @@ def main():
     ap.add_argument("--repeats", type=int, default=None, help="override every entry's repeat count (preflight: 1)")
     ap.add_argument("--models", nargs="+", default=None, help="restrict to these models (preflight)")
     ap.add_argument("--dry-run", action="store_true")
+    ap.add_argument("--browser", default="chrome", choices=("chrome", "firefox"),
+                    help="firefox: browser groups only (B1, B2) through nsight/run_nsys_firefox.py, GPU metrics only "
+                         "(Firefox's GPU process cannot be instrumented for Direct3D tracing, see that script)")
     args = ap.parse_args()
     out = Path(args.out)
-    todo = [(g, m, c, t, e, f"{g}r{i + 1}") for g, m, c, t, e, n in MATRIX
+    firefox = args.browser == "firefox"
+    metrics_only = lambda e: [*MET, *e[len(D12):]] if e[:len(D12)] == D12 else e   # noqa: E731
+    todo = [(g, m, c, t, metrics_only(e) if firefox else e, f"{g}r{i + 1}") for g, m, c, t, e, n in MATRIX
             if (not args.only or g in args.only) and (not args.models or m in args.models)
+            and not (firefox and c.startswith("tf-"))
             for i in range(args.repeats or n)]
     print(f"{len(todo)} captures", flush=True)
     failed = 0
@@ -73,7 +79,7 @@ def main():
             cmd = [sys.executable, str(ROOT / "nsight" / "run_nsys_native.py"), "--model", m, "--config", c,
                    "--task", task, "--warmup", warm, "--measure", meas, "--tag", tag, "--out", str(sub)]
         else:
-            cmd = [sys.executable, str(ROOT / "nsight" / "run_nsys.py"), "--model", m, "--config", c, "--task", task,
+            cmd = [sys.executable, str(ROOT / "nsight" / ("run_nsys_firefox.py" if firefox else "run_nsys.py")), "--model", m, "--config", c, "--task", task,
                    *e, "--tag", tag, "--out", str(sub)]
         print(f"[{k}/{len(todo)}] {tag} {m} {c} {task} {' '.join(e)}", flush=True)
         if args.dry_run:

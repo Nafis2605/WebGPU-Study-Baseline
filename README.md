@@ -55,7 +55,8 @@ GeForce RTX 3060 12 GB, driver 610.60.
 - Node 24.x and Python 3.12 with the locked packages.
 - For the full harness as written: an NVIDIA GPU with `nvidia-smi` (clock, temperature and idle/boost guards read NVML) and
   Windows (PowerShell calls for host info). Native stages additionally need the conda TensorFlow environment; GPU traces need
-  Nsight Systems. The browser stages can run without the native and Nsight parts.
+  Nsight Systems. Chrome captures trace Direct3D 12/11 plus GPU metrics; Firefox captures (`nsight/run_nsys_firefox.py`) record
+  GPU metrics only, because Nsight cannot instrument Firefox's GPU process. The browser stages can run without the native and Nsight parts.
 - Disk: about 63 GB for one complete Chrome flight (mostly telemetry CSVs), 1.6 GB for the generated weights, 163 MB for CIFAR-10.
 - Time: the complete Chrome flight (43 stages, native included) took 30.4 h of stage time and the Firefox flight (26 browser stages) 26.4 h on the tested machine; a reduced
   verification flight (`--flight verify`) took 7.2 h.
