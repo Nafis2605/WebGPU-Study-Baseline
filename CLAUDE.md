@@ -29,7 +29,8 @@ native TF env, Nsight version, launch discipline, counters and statistics, so re
   (tfgpu, one process per launch), `benchkit/` (sibling: chrome, envlock, clockguard, telemetry, results).
 - `probes/run_probes.py` Phase-0 probes, `browser_caps.py`, `fit_device_diag.py`; `benchkit/firefox.py` (Firefox launcher over
   WebDriver BiDi), `benchkit/layout.py` (where results and reports go), `analysis/browser_compare.py` (Firefox vs Chrome),
-  `scripts/index_results.py` (results catalogue).
+  `scripts/index_results.py` (results catalogue),
+  `nsight/run_nsys_firefox.py` + `capture_matrix.py --browser firefox` (GPU-metrics captures; no Direct3D trace for Firefox), `analysis/gpu_trace_compare.py`.
 - `legacy/` the pre-study page, untouched.
 - Local, git-ignored, never pushed: `results/<device>/<browser>-<version>/<run>/` (measurements; `results/INDEX.json` lists
   every run), `reports/` (`methodology/` feasibility, verification, metrics map, legacy notes; `<device>/<browser>/` analyses,
