@@ -244,6 +244,9 @@ def main(argv=None):
             writer.append_rows("gpu_pcie_samples.csv", [{**key, **s} for s in data["pcie"]])
             writer.append_rows("gpu_marks.csv", [{**key, **s} for s in data["marks"]])
             writer.append_rows("system_cpu_samples.csv", [{**key, **s} for s in data["system_cpu"]])
+            r["telemetry"] = {"samples": len(data["samples"]), "util_samples": len(data["util"]),
+                              "pcie_samples": len(data["pcie"]), "errors": data["errors"][:20],
+                              "field_errors": data["field_errors"]}
         writer.append(r)
         timed = ("measure", "batch", "train_measure", "train_batch", "train_long", "phase_step", "lc_train", "lc_train1")
         meas = sorted(x["dur_ms"] for x in r.get("runs", []) if x["phase"] in timed)

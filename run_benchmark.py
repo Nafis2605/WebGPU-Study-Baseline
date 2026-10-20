@@ -397,7 +397,7 @@ async def run_one(pw, args, chrome, model, config, trial, writer, telemetry=None
         writer.append_rows("system_cpu_samples.csv", [{**key, **s} for s in data["system_cpu"]])
         result["telemetry"] = {"samples": len(data["samples"]), "util_samples": len(data["util"]),
                                "pcie_samples": len(data["pcie"]), "chrome_samples": len(data["chrome"]),
-                               "errors": data["errors"][:20]}
+                               "errors": data["errors"][:20], "field_errors": data["field_errors"]}
     writer.append(result)
     return result
 

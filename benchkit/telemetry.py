@@ -51,27 +51,41 @@ class NvmlTelemetry:
         fn = getattr(nv, "nvmlDeviceGetCurrentClocksEventReasons", None) or nv.nvmlDeviceGetCurrentClocksThrottleReasons
         return fn(self.h)
 
+    def _field_error(self, name, err, t):
+        """Count a failed read of one sample field; the first three messages per field are kept in errors."""
+        n = self.field_errors[name] = self.field_errors.get(name, 0) + 1
+        if n <= 3:
+            self.errors.append(f"{t:.0f} sample.{name}: {err}")
+
     def _sample_loop(self):
         h = self.h
         last_util_ts = {nv.NVML_GPU_UTILIZATION_SAMPLES: 0, nv.NVML_MEMORY_UTILIZATION_SAMPLES: 0}
         next_util_poll = 0.0
+        reads = (
+            ("power_w", lambda: nv.nvmlDeviceGetPowerUsage(h) / 1000.0),
+            ("energy_mj", lambda: nv.nvmlDeviceGetTotalEnergyConsumption(h)),
+            ("sm_clock_mhz", lambda: nv.nvmlDeviceGetClockInfo(h, nv.NVML_CLOCK_SM)),
+            ("mem_clock_mhz", lambda: nv.nvmlDeviceGetClockInfo(h, nv.NVML_CLOCK_MEM)),
+            ("gr_clock_mhz", lambda: nv.nvmlDeviceGetClockInfo(h, nv.NVML_CLOCK_GRAPHICS)),
+            ("mem_used_mb", lambda: nv.nvmlDeviceGetMemoryInfo(h).used / 2**20),
+            ("temp_c", lambda: nv.nvmlDeviceGetTemperature(h, nv.NVML_TEMPERATURE_GPU)),
+            ("pstate", lambda: nv.nvmlDeviceGetPerformanceState(h)),
+            ("clock_reasons", self._read_clock_reasons),
+        )
         while not self._stop.is_set():
             t = time.time() * 1000.0
-            try:
-                self.samples.append({
-                    "t_epoch_ms": t,
-                    "power_w": nv.nvmlDeviceGetPowerUsage(h) / 1000.0,
-                    "energy_mj": nv.nvmlDeviceGetTotalEnergyConsumption(h),
-                    "sm_clock_mhz": nv.nvmlDeviceGetClockInfo(h, nv.NVML_CLOCK_SM),
-                    "mem_clock_mhz": nv.nvmlDeviceGetClockInfo(h, nv.NVML_CLOCK_MEM),
-                    "gr_clock_mhz": nv.nvmlDeviceGetClockInfo(h, nv.NVML_CLOCK_GRAPHICS),
-                    "mem_used_mb": nv.nvmlDeviceGetMemoryInfo(h).used / 2**20,
-                    "temp_c": nv.nvmlDeviceGetTemperature(h, nv.NVML_TEMPERATURE_GPU),
-                    "pstate": nv.nvmlDeviceGetPerformanceState(h),
-                    "clock_reasons": self._read_clock_reasons(),
-                })
-            except nv.NVMLError as e:
-                self.errors.append(f"{t:.0f} sample: {e}")
+            # Each field is read on its own: a driver that returns an NVML error for one query (seen on the RTX 4090
+            # laptop, driver 581.95: "Unknown Error" for whole stages) must not discard the fields that did read.
+            # A field that failed stays empty in the CSV; the failures are counted per field (field_errors).
+            row = {"t_epoch_ms": t}
+            for name, read in reads:
+                try:
+                    row[name] = read()
+                except nv.NVMLError as e:
+                    row[name] = None
+                    self._field_error(name, e, t)
+            if any(v is not None for k, v in row.items() if k != "t_epoch_ms"):
+                self.samples.append(row)
             if time.monotonic() >= next_util_poll:
                 self._poll_util(last_util_ts)
                 next_util_poll = time.monotonic() + 1.0
@@ -178,6 +192,7 @@ class NvmlTelemetry:
     def start(self):
         self.samples, self.util, self.pcie, self.errors, self.marks, self.chrome = [], [], [], [], [], []
         self.system_cpu = []
+        self.field_errors = {}
         psutil.cpu_percent(interval=None)  # prime the counter
         self._chrome_udd = None
         self._stop.clear()
@@ -197,4 +212,5 @@ class NvmlTelemetry:
         for th in self._threads:
             th.join(timeout=5)
         return {"samples": self.samples, "util": self.util, "pcie": self.pcie,
-                "chrome": self.chrome, "system_cpu": self.system_cpu, "marks": self.marks, "errors": self.errors}
+                "chrome": self.chrome, "system_cpu": self.system_cpu, "marks": self.marks, "errors": self.errors,
+                "field_errors": self.field_errors}

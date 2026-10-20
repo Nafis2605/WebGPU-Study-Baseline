@@ -137,6 +137,40 @@ To add another device, check out the repository there, install the pinned browse
 its folder `results/<device>/` can be copied next to the others without collisions. A new browser needs a launcher in
 `benchkit/` that yields a page with `evaluate`, plus an entry in `benchkit/layout.py:browser_id`.
 
+## Another Windows device
+
+Steps that the Setup section does not cover, found on an RTX 4090 laptop with an Intel iGPU (device `win11-rtx4090`):
+
+1. Tools: Git, Node 24.18.0 (`winget install OpenJS.NodeJS.LTS --version 24.18.0`), Python 3.12.10, and Chrome for Testing
+   157.0.8081.0 unpacked into `tools/chrome-for-testing/`. For the native stages install Miniconda and create the
+   environment from conda-forge only (this avoids the Anaconda channel terms prompt):
+   `conda create -p C:\tfjsbench\tfgpu --file native\conda-tfgpu-explicit.txt --override-channels -c conda-forge`, then
+   `pip install --no-deps -r` a copy of `native\requirements-tfgpu.lock` without its `pip @ file:///...` line.
+2. Weights and data: copy `public/weights/*.bin` and `public/data/*.u8|*.u32` from the first machine. They are checked against
+   the tracked manifests; regenerating them on another GPU gives different bytes.
+3. Hybrid GPU: set the Windows graphics preference of `tools\chrome-for-testing\chrome-win64\chrome.exe` to High performance
+   (Settings, System, Display, Graphics). `benchkit/gpucheck.py` fails any WebGL or WebGPU launch whose adapter is not
+   NVIDIA (`TRAINBENCH_REQUIRE_GPU_VENDOR=any` turns it off).
+4. Nsight Systems: install the version in `benchkit/paths.py` (found automatically) and, in NVIDIA Control Panel,
+   Developer, Manage GPU Performance Counters, allow access for all users; otherwise every capture fails with
+   `ERR_NVGPUCTRPERM`.
+5. Guards: measure the new GPU's idle clock, boost peak and temperatures, then copy `trainbench.env.example` to
+   `trainbench.env` and set `TRAINBENCH_IDLE_MAX_MHZ`, `_BOOST_MHZ`, `_COOL_TO_C`, `_COOL_TIMEOUT_S`. The first machine's values
+   (1000 MHz, 1700 MHz, 60 C, 180 s) cannot be met on a laptop that idles at 1455 MHz and 70 C.
+6. Long runs on a hybrid-GPU laptop: start `run_study.py` from a one-shot interactive Scheduled Task, not from WMI.
+
+   ```
+   Register-ScheduledTask -TaskName StudyRun -Action (New-ScheduledTaskAction -Execute cmd.exe -Argument '/c C:\path\run.cmd') `
+     -Principal (New-ScheduledTaskPrincipal -UserId "$env:USERDOMAIN\$env:USERNAME" -LogonType Interactive -RunLevel Limited)
+   Start-ScheduledTask StudyRun      # delete it afterwards: Unregister-ScheduledTask StudyRun -Confirm:$false
+   ```
+
+   `run.cmd` starts `npx vite preview` and then `run_study.py`, with Node and Git on `PATH`. Check first that Chrome, started the
+   same way, reports the NVIDIA adapter.
+7. Telemetry: NVML may fail single queries. The sampler keeps the other fields and records the failures in
+   `telemetry.field_errors`. If the energy counter and the sampled power disagree, `analysis/gpu_telemetry.py` sets
+   `energy_counter_ok` to False; quote the sampled-power columns then and name the source.
+
 ## Analysing results
 
 `results/INDEX.csv` gives one row per run (device, browser, run, launches, failures, harness commit, dirty flag, path).

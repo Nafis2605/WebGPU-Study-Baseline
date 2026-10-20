@@ -48,8 +48,13 @@ npm ci; npx vite build                       # bundle (runs use dist/, served by
 .venv/Scripts/python scripts/index_results.py                                  # refresh results/INDEX.json
 ```
 Rebuild (`npx vite build`) after editing `src/`. `TRAINBENCH_ALLOW_DIRTY=1` only for development runs.
-Launch multi-hour runs outside the app's process tree (WMI `Win32_Process.Create`); a resumed run keeps its first harness
-record in `run.json` and lists later launches under `resumes`.
+Launch multi-hour runs outside the app's process tree. On a machine with one GPU, WMI `Win32_Process.Create` works. On a
+hybrid-GPU laptop use a one-shot interactive Scheduled Task (README, "Another Windows device"): a WMI-started Chrome ran
+on the Intel iGPU there, and the NVIDIA check (`benchkit/gpucheck.py`) failed every launch as `wrong_gpu`. A resumed run
+keeps its first harness record in `run.json` and lists later launches under `resumes`.
+Per-device guard settings (idle / boost clock, cooldown) and tool paths come from environment variables or the
+git-ignored `trainbench.env` (`trainbench.env.example` lists them; defaults are the first machine's). `run_study.py` loads
+them once at start, so edit the file only between runs.
 
 ## Gotchas
 - Heredoc'd Python in the Bash tool turns backslash escapes into real characters: write edit scripts
@@ -59,6 +64,12 @@ record in `run.json` and lists later launches under `resumes`.
   reset_after=true (Keras GRU then can't use cuDNN: native_cudnn_rnn records it).
 - TF.js Adam creates scalar tensors per variable per step (CPU-forwarded, counted by the hooks).
 - WebGPU dataSync goes through a canvas path (sibling finding): runners use data().
+- Registry writes made from the Claude app's PowerShell tool are not seen by other processes (checked on win11-rtx4090):
+  write real settings, such as the per-app GPU preference, from a Scheduled Task or by hand in Windows Settings.
+- NVML on the RTX 4090 laptop (driver 581.95) sometimes fails a query with "Unknown Error", for whole stages at a time.
+  The telemetry sampler reads each field alone and leaves failed fields empty (`telemetry.field_errors` in
+  `experiments.jsonl`). Its energy counter also disagreed with the sampled power (about 4x at idle):
+  `analysis/gpu_telemetry.py` reports `energy_counter_ok` and the sampled-power columns next to it.
 - `preflight.py` has no argparse: any invocation (even `--help`) starts a preflight. Read its docstring instead.
 - Timed warm-ups run >= W records and >= 1 s after the first record (`--warmup-min-s`, page and native):
   fast models get hundreds of warm-up records, so steps_to_steady uses a 10-record horizon (analysis/warmup.py).
