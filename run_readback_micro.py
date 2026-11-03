@@ -21,7 +21,7 @@ from playwright.async_api import async_playwright
 
 from benchkit.chrome import CHROME_FLAGS, chrome_page, find_chrome_dev
 from benchkit.firefox import FIREFOX_PREFS, find_firefox, firefox_page
-from benchkit import layout
+from benchkit import android, layout
 from benchkit.envinfo import host_info
 from benchkit import envlock  # noqa: E402
 from benchkit.results import ResultWriter
@@ -48,12 +48,16 @@ def parse_args():
 
 async def main():
     args = parse_args()
-    pinned = find_firefox() if args.browser == "firefox" else find_chrome_dev()
-    chrome = args.executable_path or pinned
-    if not chrome:
-        sys.exit(f"Pinned {args.browser} not found (tools/; see README).")
-    if Path(chrome).resolve() != Path(pinned).resolve():
-        sys.exit(f"Only the pinned {args.browser} may be used (got {chrome})")
+    on_phone = android.is_android()
+    if on_phone:   # Chrome on the phone (benchkit/android.py); the APK is pinned by the environment lock
+        chrome = f"android:{android.CHROME_PKG}@{android.chrome_version()}"
+    else:
+        pinned = find_firefox() if args.browser == "firefox" else find_chrome_dev()
+        chrome = args.executable_path or pinned
+        if not chrome:
+            sys.exit(f"Pinned {args.browser} not found (tools/; see README).")
+        if Path(chrome).resolve() != Path(pinned).resolve():
+            sys.exit(f"Only the pinned {args.browser} may be used (got {chrome})")
     lock = envlock.verify(scope="launch")
     out = Path(args.output_dir) / datetime.now().strftime("%Y%m%d_%H%M%S")
     writer = ResultWriter(out)
@@ -68,8 +72,13 @@ async def main():
             for k, backend in enumerate(args.backends):
                 envlock.verify(scope="launch")
                 log = out / "logs" / f"t{trial}_{backend}.log"
-                launch = (firefox_page(chrome, args.url, args.headless, log_path=log) if args.browser == "firefox"
-                          else chrome_page(pw, chrome, args.url, args.headless, log_path=log))
+                if on_phone:
+                    android.wait_cool()
+                    launch = android.chrome_page_android(pw, args.url, CHROME_FLAGS, log_path=log)
+                elif args.browser == "firefox":
+                    launch = firefox_page(chrome, args.url, args.headless, log_path=log)
+                else:
+                    launch = chrome_page(pw, chrome, args.url, args.headless, log_path=log)
                 async with launch as (page, version):
                     res = await page.evaluate("cfg => window.__bench.readbackMicro(cfg)",
                                               {"sizesMiB": args.sizes_mib, "reps": args.reps, "warmup": args.warmup,

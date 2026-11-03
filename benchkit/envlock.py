@@ -43,6 +43,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from benchkit.paths import ROOT, TFGPU, CONDA, NSYS, NGFX_DIR, SPEC, DATA_DIR, WEIGHTS_DIR  # noqa: E402
 
 LOCK = ROOT / "env.lock.json"
+ANDROID = os.environ.get("TRAINBENCH_TARGET", "").lower() == "android"
+if ANDROID:   # the phone is a separate configuration with its own lock (benchkit/android.py)
+    LOCK = ROOT / "env.lock.android.json"
 
 
 def _run(cmd, **kw):
@@ -203,6 +206,12 @@ def code_items():
 
 
 def collect(scope="full"):
+    if ANDROID:
+        from benchkit import android
+        if scope == "launch":
+            return {"android": android.lock_items("launch")}
+        return {"android": android.lock_items("full"), "node": node_items(), "python": python_items(),
+                "artifacts": artifact_items()}
     if scope == "launch":
         return {"gpu": gpu_info(), "browser": browser_items(hash_files=False), "firefox": firefox_items(hash_files=False),
                 "host": {k: v for k, v in host_items().items() if k in ("display_refresh_hz", "power_plan")}}
@@ -242,7 +251,7 @@ def verify(scope="full", check_files=None):
     """Compare the current environment with env.lock.json; SystemExit on mismatch.
     Returns {"sha256": lock hash, "scope": scope}."""
     if not LOCK.exists():
-        raise SystemExit("env.lock.json missing: run `python -m benchkit.envlock freeze` after setup")
+        raise SystemExit(f"{LOCK.name} missing: run `python -m benchkit.envlock freeze` after setup")
     locked = json.loads(LOCK.read_text(encoding="utf-8"))
     now = collect("launch" if scope == "launch" else ("native" if scope == "native" else "full"))
     if scope == "native":
@@ -268,7 +277,8 @@ def main():
     if cmd == "freeze":
         lock = freeze()
         print(f"wrote {LOCK} (sha256 {lock['lock_sha256'][:16]})")
-        print(json.dumps({k: lock[k] for k in ("gpu", "browser", "native", "tools", "code")}, indent=1))
+        keys = ("android",) if ANDROID else ("gpu", "browser", "native", "tools", "code")
+        print(json.dumps({k: lock[k] for k in keys if k in lock}, indent=1))
     elif cmd == "verify":
         scope = sys.argv[2] if len(sys.argv) > 2 else "full"
         r = verify(scope)

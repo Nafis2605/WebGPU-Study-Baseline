@@ -40,6 +40,6 @@ def require_gpu(page_env, backend, vendor=None):
         r = (page_env.get("webgl") or {}).get("renderer")
         seen = str(r or "").lower()
         what = f"WebGL renderer {r!r}"
-    if vendor not in seen:
+    if not any(v in seen for v in vendor.split("|")):   # "a|b": any of several names (Android: "arm|mali")
         raise WrongGpuError(f"{what} is not {vendor!r}. Set the Windows graphics preference of the browser executable "
                             f"to High performance (Settings > System > Display > Graphics).")

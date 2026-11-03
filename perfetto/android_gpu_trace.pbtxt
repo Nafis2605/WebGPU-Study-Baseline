@@ -1,0 +1,62 @@
+# Perfetto trace config for the Android GPU-trace stage (Pixel 8a, Mali-G715): the phone's counterpart of the laptop's
+# Nsight Systems captures. Recorded by `perfetto --txt -c - -o <file>` on the phone (no root).
+# Duration is set by the capture script (duration_ms is replaced per capture).
+buffers { size_kb: 262144 fill_policy: RING_BUFFER }
+buffers { size_kb: 65536 fill_policy: RING_BUFFER }
+
+# Mali hardware counters through the vendor producer (/system/bin/gpu_counter_producer, started by the script).
+# The producer needs explicit ids; 1-300 covers its descriptor (226 counters on Mali-G715, checked 2026-11-02).
+data_sources { config { name: "gpu.counters" target_buffer: 0
+  gpu_counter_config { counter_period_ns: 1000000
+    counter_ids: 1 counter_ids: 2 counter_ids: 3 counter_ids: 4 counter_ids: 5 counter_ids: 6 counter_ids: 7 counter_ids: 8 counter_ids: 9 counter_ids: 10 counter_ids: 11 counter_ids: 12 counter_ids: 13 counter_ids: 14 counter_ids: 15 counter_ids: 16 counter_ids: 17 counter_ids: 18 counter_ids: 19 counter_ids: 20 counter_ids: 21 counter_ids: 22 counter_ids: 23 counter_ids: 24 counter_ids: 25 counter_ids: 26 counter_ids: 27 counter_ids: 28 counter_ids: 29 counter_ids: 30 counter_ids: 31 counter_ids: 32 counter_ids: 33 counter_ids: 34 counter_ids: 35 counter_ids: 36 counter_ids: 37 counter_ids: 38 counter_ids: 39 counter_ids: 40 counter_ids: 41 counter_ids: 42 counter_ids: 43 counter_ids: 44 counter_ids: 45 counter_ids: 46 counter_ids: 47 counter_ids: 48 counter_ids: 49 counter_ids: 50 counter_ids: 51 counter_ids: 52 counter_ids: 53 counter_ids: 54 counter_ids: 55 counter_ids: 56 counter_ids: 57 counter_ids: 58 counter_ids: 59 counter_ids: 60 counter_ids: 61 counter_ids: 62 counter_ids: 63 counter_ids: 64 counter_ids: 65 counter_ids: 66 counter_ids: 67 counter_ids: 68 counter_ids: 69 counter_ids: 70 counter_ids: 71 counter_ids: 72 counter_ids: 73 counter_ids: 74 counter_ids: 75 counter_ids: 76 counter_ids: 77 counter_ids: 78 counter_ids: 79 counter_ids: 80 counter_ids: 81 counter_ids: 82 counter_ids: 83 counter_ids: 84 counter_ids: 85 counter_ids: 86 counter_ids: 87 counter_ids: 88 counter_ids: 89 counter_ids: 90 counter_ids: 91 counter_ids: 92 counter_ids: 93 counter_ids: 94 counter_ids: 95 counter_ids: 96 counter_ids: 97 counter_ids: 98 counter_ids: 99 counter_ids: 100 counter_ids: 101 counter_ids: 102 counter_ids: 103 counter_ids: 104 counter_ids: 105 counter_ids: 106 counter_ids: 107 counter_ids: 108 counter_ids: 109 counter_ids: 110 counter_ids: 111 counter_ids: 112 counter_ids: 113 counter_ids: 114 counter_ids: 115 counter_ids: 116 counter_ids: 117 counter_ids: 118 counter_ids: 119 counter_ids: 120 counter_ids: 121 counter_ids: 122 counter_ids: 123 counter_ids: 124 counter_ids: 125 counter_ids: 126 counter_ids: 127 counter_ids: 128 counter_ids: 129 counter_ids: 130 counter_ids: 131 counter_ids: 132 counter_ids: 133 counter_ids: 134 counter_ids: 135 counter_ids: 136 counter_ids: 137 counter_ids: 138 counter_ids: 139 counter_ids: 140 counter_ids: 141 counter_ids: 142 counter_ids: 143 counter_ids: 144 counter_ids: 145 counter_ids: 146 counter_ids: 147 counter_ids: 148 counter_ids: 149 counter_ids: 150 counter_ids: 151 counter_ids: 152 counter_ids: 153 counter_ids: 154 counter_ids: 155 counter_ids: 156 counter_ids: 157 counter_ids: 158 counter_ids: 159 counter_ids: 160 counter_ids: 161 counter_ids: 162 counter_ids: 163 counter_ids: 164 counter_ids: 165 counter_ids: 166 counter_ids: 167 counter_ids: 168 counter_ids: 169 counter_ids: 170 counter_ids: 171 counter_ids: 172 counter_ids: 173 counter_ids: 174 counter_ids: 175 counter_ids: 176 counter_ids: 177 counter_ids: 178 counter_ids: 179 counter_ids: 180 counter_ids: 181 counter_ids: 182 counter_ids: 183 counter_ids: 184 counter_ids: 185 counter_ids: 186 counter_ids: 187 counter_ids: 188 counter_ids: 189 counter_ids: 190 counter_ids: 191 counter_ids: 192 counter_ids: 193 counter_ids: 194 counter_ids: 195 counter_ids: 196 counter_ids: 197 counter_ids: 198 counter_ids: 199 counter_ids: 200 counter_ids: 201 counter_ids: 202 counter_ids: 203 counter_ids: 204 counter_ids: 205 counter_ids: 206 counter_ids: 207 counter_ids: 208 counter_ids: 209 counter_ids: 210 counter_ids: 211 counter_ids: 212 counter_ids: 213 counter_ids: 214 counter_ids: 215 counter_ids: 216 counter_ids: 217 counter_ids: 218 counter_ids: 219 counter_ids: 220 counter_ids: 221 counter_ids: 222 counter_ids: 223 counter_ids: 224 counter_ids: 225 counter_ids: 226 counter_ids: 227 counter_ids: 228 counter_ids: 229 counter_ids: 230 counter_ids: 231 counter_ids: 232 counter_ids: 233 counter_ids: 234 counter_ids: 235 counter_ids: 236 counter_ids: 237 counter_ids: 238 counter_ids: 239 counter_ids: 240 counter_ids: 241 counter_ids: 242 counter_ids: 243 counter_ids: 244 counter_ids: 245 counter_ids: 246 counter_ids: 247 counter_ids: 248 counter_ids: 249 counter_ids: 250 counter_ids: 251 counter_ids: 252 counter_ids: 253 counter_ids: 254 counter_ids: 255 counter_ids: 256 counter_ids: 257 counter_ids: 258 counter_ids: 259 counter_ids: 260 counter_ids: 261 counter_ids: 262 counter_ids: 263 counter_ids: 264 counter_ids: 265 counter_ids: 266 counter_ids: 267 counter_ids: 268 counter_ids: 269 counter_ids: 270 counter_ids: 271 counter_ids: 272 counter_ids: 273 counter_ids: 274 counter_ids: 275 counter_ids: 276 counter_ids: 277 counter_ids: 278 counter_ids: 279 counter_ids: 280 counter_ids: 281 counter_ids: 282 counter_ids: 283 counter_ids: 284 counter_ids: 285 counter_ids: 286 counter_ids: 287 counter_ids: 288 counter_ids: 289 counter_ids: 290 counter_ids: 291 counter_ids: 292 counter_ids: 293 counter_ids: 294 counter_ids: 295 counter_ids: 296 counter_ids: 297 counter_ids: 298 counter_ids: 299 counter_ids: 300 } } }
+
+# Per-submission GPU activity (queue / render stages), when the driver offers it for the traced process.
+data_sources { config { name: "gpu.renderstages" target_buffer: 0 } }
+
+# GPU and CPU frequency, thermal, scheduling.
+data_sources { config { name: "linux.ftrace" target_buffer: 0
+  ftrace_config {
+    ftrace_events: "power/gpu_frequency"
+    ftrace_events: "power/cpu_frequency"
+    ftrace_events: "power/cpu_idle"
+    ftrace_events: "thermal/thermal_temperature"
+    ftrace_events: "thermal/cdev_update"
+    ftrace_events: "sched/sched_switch"
+    ftrace_events: "sched/sched_waking"
+    ftrace_events: "task/task_newtask"
+    ftrace_events: "task/task_rename"
+    atrace_categories: "gfx"
+    atrace_categories: "view"
+    atrace_apps: "com.android.chrome"
+    compact_sched { enabled: true }
+  } } }
+
+# On-device power rails (ODPM, incl. the GPU rail) and battery counters.
+data_sources { config { name: "android.power" target_buffer: 1
+  android_power_config {
+    battery_poll_ms: 250
+    battery_counters: BATTERY_COUNTER_CURRENT
+    battery_counters: BATTERY_COUNTER_VOLTAGE
+    battery_counters: BATTERY_COUNTER_CHARGE
+    collect_power_rails: true
+  } } }
+
+data_sources { config { name: "linux.process_stats" target_buffer: 1
+  process_stats_config { scan_all_processes_on_start: true proc_stats_poll_ms: 1000 } } }
+data_sources { config { name: "linux.sys_stats" target_buffer: 1
+  sys_stats_config { meminfo_period_ms: 500 vmstat_period_ms: 500 } } }
+
+# Chrome's own trace events (the laptop's Dawn / GPU categories) through the system tracing backend.
+data_sources { config { name: "track_event" target_buffer: 0
+  track_event_config {
+    disabled_categories: "*"
+    enabled_categories: "gpu"
+    enabled_categories: "gpu.dawn"
+    enabled_categories: "disabled-by-default-gpu.dawn"
+    enabled_categories: "toplevel"
+    enabled_categories: "blink"
+    enabled_categories: "v8"
+    enabled_categories: "__metadata"
+  } } }
+
+duration_ms: 10000

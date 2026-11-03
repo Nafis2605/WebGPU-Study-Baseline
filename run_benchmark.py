@@ -50,6 +50,7 @@ from benchkit.envinfo import host_info
 from benchkit.results import ResultWriter
 from benchkit.paths import SPEC, path_settings
 from benchkit import envlock, layout
+from benchkit import android
 
 # Named experiment configurations: TF.js backend + runtime options. Env flags are set before
 # tf.setBackend() (src/tfjs-setup.js applyConfig).
@@ -85,6 +86,15 @@ CONFIGS = {
     "cpu": {"backend": "cpu"},
 }
 PRIMARY = ["wasm-8t", "webgl", "webgpu"]
+# Capacity change on the Pixel 8a (hardwareConcurrency 9): TF.js granted 4 WASM threads when 8 were requested (measured,
+# 2026-11-02), so wasm-8t cannot run there and wasm-4t is the phone's widest WASM config.
+ANDROID_PRIMARY = ["wasm-4t", "webgl", "webgpu"]
+ANDROID_CAPACITY_CHANGES = {
+    "wasm-8t": "not run: TF.js grants 4 WASM threads on this 9-core phone (requested 8, got 4); wasm-4t is the primary WASM config",
+    "launch_guard": "the laptop's GPU low-clock threshold is replaced by a thermal-throttle check (Mali DVFS keeps light "
+                    "loads at low clocks); WASM launches are also checked (CPU cooling devices), the laptop had no CPU guard",
+    "webgl_gpu_timer": "EXT_disjoint_timer_query is not exposed by WebGL on this phone: WebGL GPU times are not measured",
+}
 INFER_MODES = ("latency", "shapes", "batch", "profile", "correctness", "load", "responsiveness")
 TRAIN_MODES = ("train", "train_pipelined", "train_profile", "train_correctness", "train_batch", "train_long",
                "train_fit", "train_phases", "train_responsiveness", "lifecycle")
@@ -186,6 +196,8 @@ def parse_args(argv=None):
     p.add_argument("--device-id", default=None, help="result folder of this machine (default: device.local.json, see benchkit/layout.py)")
     p.add_argument("--exact-output-dir", action="store_true", help="write into --output-dir itself (no timestamp folder)")
     args = p.parse_args(argv)
+    if android.is_android() and args.config == PRIMARY:
+        args.config = ANDROID_PRIMARY
     if args.device_id:
         os.environ["TRAINBENCH_DEVICE"] = args.device_id
     args.default_output_dir = args.output_dir is None
@@ -318,8 +330,15 @@ async def run_one(pw, args, chrome, model, config, trial, writer, telemetry=None
             prime = await prime_disk_cache(pw, args, chrome, cfg, shared_profile, writer.out_dir / "logs" / f"{tag}.prime.log")
         except Exception as e:
             prime = {"status": "failed", "error": f"{type(e).__name__}: {e}"}
-    clock = ClockSampler().start() if backend in ("webgl", "webgpu") else None
-    cooled_s = await wait_for_gpu_temp(args.cool_to_c) if args.cool_to_c is not None else None
+    on_phone = android.is_android()
+    if on_phone:   # Mali clock from the phone-side telemetry; cooling to the phone's skin / G3D thresholds
+        clock = android.AndroidLowClock(telemetry, cpu=backend not in ("webgl", "webgpu")) if telemetry else None
+        cool = await asyncio.to_thread(android.wait_cool)
+        cooled_s = cool["waited_s"]
+    else:
+        clock = ClockSampler().start() if backend in ("webgl", "webgpu") else None
+        cooled_s = await wait_for_gpu_temp(args.cool_to_c) if args.cool_to_c is not None else None
+    low_clock_mhz = android.LOW_CLOCK_MHZ if on_phone else LOW_CLOCK_MHZ
     if telemetry:
         telemetry.start()
         telemetry.mark("baseline_start")
@@ -333,9 +352,13 @@ async def run_one(pw, args, chrome, model, config, trial, writer, telemetry=None
             extra = ["--enable-blink-features=ForceEagerMeasureMemory"] if args.mode in ("profile", "train_profile") else []
             flags = [f for f in CHROME_FLAGS if not (diskcache and f == "--disable-gpu-shader-disk-cache")]
             on_launch = telemetry.watch_chrome if telemetry else None
-            launch = chrome_page(pw, chrome, args.url, args.headless, extra_flags=extra, log_path=log_path,
-                                 on_launch=on_launch, cdp_setup=diag.setup if diag else None,
-                                 user_data_dir=shared_profile, flags=flags)
+            if on_phone:
+                launch = android.chrome_page_android(pw, args.url, flags + extra, log_path=log_path,
+                                                     cdp_setup=diag.setup if diag else None)
+            else:
+                launch = chrome_page(pw, chrome, args.url, args.headless, extra_flags=extra, log_path=log_path,
+                                     on_launch=on_launch, cdp_setup=diag.setup if diag else None,
+                                     user_data_dir=shared_profile, flags=flags)
         async with launch as (page, version):
             page_env = await page.evaluate("() => window.__bench.probeEnv()")
             gpucheck.require_gpu(page_env, backend)
@@ -361,6 +384,8 @@ async def run_one(pw, args, chrome, model, config, trial, writer, telemetry=None
     finally:
         if shared_profile:
             shutil.rmtree(shared_profile, ignore_errors=True)
+    if on_phone:
+        result["android_cool"] = cool
     result.update({"browser": args.browser, "trial": trial, "started_at": started, "cooled_s": cooled_s, "low_clock_reruns": attempt,
                    "env_lock_sha256": lock["sha256"], "known_gap": known_gap(model, config, args.mode)})
     if prime is not None:
@@ -374,17 +399,29 @@ async def run_one(pw, args, chrome, model, config, trial, writer, telemetry=None
         result["devtools"] = diag.status
     # Low-clock guard (sibling): a GPU launch whose SM clock never exceeded 1000 MHz ran in a stuck
     # low-power state; it is re-run instead of recorded; a final failure is recorded as gpu_low_clock.
+    # On the phone the guard is thermal throttling of the GPU (android.AndroidLowClock), not a clock threshold.
     if clock is not None:
         sm_max = clock.stop()
         result["gpu_sm_clock_max_mhz"] = sm_max
-        if result.get("status") == "ok" and sm_max is not None and sm_max <= LOW_CLOCK_MHZ:
+        if on_phone:
+            result["android_throttle"] = clock.throttle
+        bad = (clock.throttle["throttled"] if on_phone else sm_max is not None and sm_max <= low_clock_mhz)
+        if result.get("status") == "ok" and bad and on_phone:
+            if attempt < args.low_clock_retries:
+                if telemetry:
+                    telemetry.stop()
+                return {"retry_low_clock": True, "sm_max": sm_max, "throttle": clock.throttle}
+            result["status"] = "failed"
+            result["failure"] = {"stage": "guard", "category": "gpu_thermal_throttle",
+                                 "message": f"GPU thermally throttled during the experiment: {clock.throttle}"}
+        elif result.get("status") == "ok" and bad:
             if attempt < args.low_clock_retries:
                 if telemetry:
                     telemetry.stop()
                 return {"retry_low_clock": True, "sm_max": sm_max}
             result["status"] = "failed"
             result["failure"] = {"stage": "guard", "category": "gpu_low_clock",
-                                 "message": f"SM clock never exceeded {LOW_CLOCK_MHZ} MHz (max {sm_max})"}
+                                 "message": f"GPU clock never exceeded {low_clock_mhz} MHz (max {sm_max})"}
     if telemetry:
         telemetry.mark("experiment_end")
         data = telemetry.stop()
@@ -408,7 +445,19 @@ TIMED_PHASES = ("measure", "shape", "batch", "load", "train_measure", "train_bat
 
 async def main(argv=None):
     args = parse_args(argv)
-    chrome = find_firefox() if args.browser == "firefox" else find_chrome_dev()
+    if android.is_android():
+        # Chrome on the phone; the page server runs on the phone (Termux). The laptop reaches it only to check the
+        # headers, through an adb forward of the same port (no laptop server may hold the port).
+        chrome = f"android:{android.CHROME_PKG}@{android.chrome_version()}"
+        from urllib.parse import urlparse
+        port = urlparse(args.url).port or 80
+        android.adb("forward", f"tcp:{port}", f"tcp:{port}")
+        ok, head = android.server_ok(port)
+        if not ok:
+            sys.exit(f"phone page server not cross-origin isolated or not running on the phone:\n{head}")
+        android.apply_study_settings()
+    else:
+        chrome = find_firefox() if args.browser == "firefox" else find_chrome_dev()
     if not chrome:
         sys.exit(f"Pinned {args.browser} not found (tools/); see README setup.")
     check_server(args.url)
@@ -428,6 +477,16 @@ async def main(argv=None):
     env = {"created_at": datetime.now().isoformat(timespec="seconds"), "args": vars(args), "browser": args.browser,
            "chrome_executable": chrome, "chrome_flags": CHROME_FLAGS,
            **({"firefox_prefs": FIREFOX_PREFS} if args.browser == "firefox" else {}), "host": host_info(), "env_lock_sha256": lock["sha256"], "page_env": None}
+    if android.is_android():
+        env.update({"target": "android", "android_device": android.device_info(), "android_settings": android.settings_snapshot(),
+                    "android_chrome_apk_sha256": android.chrome_apk_sha256(),
+                    "android_guards": {"cool_skin_c": android.COOL_SKIN_C, "cool_gpu_c": android.COOL_GPU_C,
+                                       "cool_timeout_s": android.COOL_TIMEOUT_S,
+                                       "launch_guard": "re-run when thermal status > 0 or the cooling device of the used "
+                                                       "unit (thermal-gpufreq-0; thermal-cpufreq-0/1/2 for wasm) > 0 "
+                                                       "during the experiment"},
+                    "capacity_changes": ANDROID_CAPACITY_CHANGES,
+                    "laptop_role": "orchestration only: adb + CDP commands and result collection; page served and run on the phone"})
     writer.write_json("env.json", env)
 
     def excluded(model, config):
@@ -442,7 +501,9 @@ async def main(argv=None):
         plan = [x for t in range(1, args.trials + 1)
                 for x in rng.sample([p for p in plan if p[0] == t], k=sum(p[0] == t for p in plan))]
     telemetry = None
-    if not args.no_telemetry:
+    if not args.no_telemetry and android.is_android():
+        telemetry = android.AndroidRunTelemetry(interval_s=max(args.telemetry_interval_s, 0.1), out_dir=out_dir)
+    elif not args.no_telemetry:
         from benchkit.telemetry import NvmlTelemetry
         telemetry = NvmlTelemetry(interval_s=args.telemetry_interval_s, pcie=not args.no_pcie)
 
@@ -457,7 +518,8 @@ async def main(argv=None):
                 if not r.get("retry_low_clock"):
                     break
                 attempt += 1
-                print(f"    low-clock launch (SM max {r['sm_max']} MHz): re-run {attempt}", flush=True)
+                why = f"thermal throttle {r['throttle']}" if r.get("throttle") else f"SM max {r['sm_max']} MHz"
+                print(f"    low-clock launch ({why}): re-run {attempt}", flush=True)
                 await asyncio.sleep(args.cooldown_s)
             measured = [x["dur_ms"] for x in r.get("runs", []) if x["phase"] in TIMED_PHASES]
             detail = (r.get("verification") or {}).get("detail") or (r.get("failure") or {}).get("message", "")

@@ -1,0 +1,2076 @@
+{
+ "C1.b1": {
+  "batch": 1,
+  "bytes": 2405568,
+  "file": "C1.b1.trained.tflite",
+  "input_name": "serving_default_x:0",
+  "input_shape": [
+   1,
+   32,
+   32,
+   3
+  ],
+  "model": "C1",
+  "ops": [
+   "CONV_2D",
+   "FULLY_CONNECTED",
+   "MAX_POOL_2D",
+   "RESHAPE",
+   "SOFTMAX"
+  ],
+  "output_name": "StatefulPartitionedCall:0",
+  "output_shape": [
+   1,
+   10
+  ],
+  "seconds": 0.7,
+  "sha256": "38dccf71e73a0621bdf2b24ec0d366e39cf551c1dea20aac4416fc33c4183bdb",
+  "status": "ok",
+  "weights_sha256": "ad842c918c1228f53911e467e1fa4e324fe525b50bb034205aa37ade9db558a8"
+ },
+ "C1.b32": {
+  "batch": 32,
+  "bytes": 2405568,
+  "file": "C1.b32.trained.tflite",
+  "input_name": "serving_default_x:0",
+  "input_shape": [
+   32,
+   32,
+   32,
+   3
+  ],
+  "model": "C1",
+  "ops": [
+   "CONV_2D",
+   "FULLY_CONNECTED",
+   "MAX_POOL_2D",
+   "RESHAPE",
+   "SOFTMAX"
+  ],
+  "output_name": "StatefulPartitionedCall:0",
+  "output_shape": [
+   32,
+   10
+  ],
+  "reference": {
+   "input": "val32.in.f32",
+   "input_sha256": "c88e82eca8079593ab4233d34389f030e896f0e1eb4ffbd86ca7fc15926c18a0",
+   "output": "C1.val32.keras.f32",
+   "output_shape": [
+    32,
+    10
+   ]
+  },
+  "seconds": 0.7,
+  "sha256": "01d32e4d86a2e2287c251a8cb713683c671a00d5de63b923f2930e03b1dee2df",
+  "status": "ok",
+  "weights_sha256": "ad842c918c1228f53911e467e1fa4e324fe525b50bb034205aa37ade9db558a8"
+ },
+ "C2.b1": {
+  "batch": 1,
+  "bytes": 4571936,
+  "file": "C2.b1.trained.tflite",
+  "input_name": "serving_default_x:0",
+  "input_shape": [
+   1,
+   32,
+   32,
+   3
+  ],
+  "model": "C2",
+  "ops": [
+   "CONV_2D",
+   "FULLY_CONNECTED",
+   "MAX_POOL_2D",
+   "RESHAPE",
+   "SOFTMAX"
+  ],
+  "output_name": "StatefulPartitionedCall:0",
+  "output_shape": [
+   1,
+   10
+  ],
+  "seconds": 0.9,
+  "sha256": "ee0315b29dcaf1f99d3e2c571a7627f7f4f26fca68881163946b5d06131fcfea",
+  "status": "ok",
+  "weights_sha256": "fb40b7bf801acfc5722fb6ebb22c9cf67f244864dcfe338d5d1f76a39e667e7a"
+ },
+ "C2.b32": {
+  "batch": 32,
+  "bytes": 4571936,
+  "file": "C2.b32.trained.tflite",
+  "input_name": "serving_default_x:0",
+  "input_shape": [
+   32,
+   32,
+   32,
+   3
+  ],
+  "model": "C2",
+  "ops": [
+   "CONV_2D",
+   "FULLY_CONNECTED",
+   "MAX_POOL_2D",
+   "RESHAPE",
+   "SOFTMAX"
+  ],
+  "output_name": "StatefulPartitionedCall:0",
+  "output_shape": [
+   32,
+   10
+  ],
+  "reference": {
+   "input": "val32.in.f32",
+   "input_sha256": "c88e82eca8079593ab4233d34389f030e896f0e1eb4ffbd86ca7fc15926c18a0",
+   "output": "C2.val32.keras.f32",
+   "output_shape": [
+    32,
+    10
+   ]
+  },
+  "seconds": 0.8,
+  "sha256": "bd19f4b0044c0dc9875c90a6a6e0b2cf0571793967b96b72ca671eceed4f54ed",
+  "status": "ok",
+  "weights_sha256": "fb40b7bf801acfc5722fb6ebb22c9cf67f244864dcfe338d5d1f76a39e667e7a"
+ },
+ "C3.b1": {
+  "batch": 1,
+  "bytes": 9232512,
+  "file": "C3.b1.trained.tflite",
+  "input_name": "serving_default_x:0",
+  "input_shape": [
+   1,
+   32,
+   32,
+   3
+  ],
+  "model": "C3",
+  "ops": [
+   "CONV_2D",
+   "FULLY_CONNECTED",
+   "MAX_POOL_2D",
+   "RESHAPE",
+   "SOFTMAX"
+  ],
+  "output_name": "StatefulPartitionedCall:0",
+  "output_shape": [
+   1,
+   10
+  ],
+  "seconds": 1.0,
+  "sha256": "f08a2e49a0d9da836aecbdf5ae2ff984fab180ee1daf4181d2b53b4e7f455bb8",
+  "status": "ok",
+  "weights_sha256": "dec77579dddc0df7f0c05b446df589373f0ef6e9925a116870fe72b7b7963f6f"
+ },
+ "C3.b32": {
+  "batch": 32,
+  "bytes": 9232512,
+  "file": "C3.b32.trained.tflite",
+  "input_name": "serving_default_x:0",
+  "input_shape": [
+   32,
+   32,
+   32,
+   3
+  ],
+  "model": "C3",
+  "ops": [
+   "CONV_2D",
+   "FULLY_CONNECTED",
+   "MAX_POOL_2D",
+   "RESHAPE",
+   "SOFTMAX"
+  ],
+  "output_name": "StatefulPartitionedCall:0",
+  "output_shape": [
+   32,
+   10
+  ],
+  "reference": {
+   "input": "val32.in.f32",
+   "input_sha256": "c88e82eca8079593ab4233d34389f030e896f0e1eb4ffbd86ca7fc15926c18a0",
+   "output": "C3.val32.keras.f32",
+   "output_shape": [
+    32,
+    10
+   ]
+  },
+  "seconds": 0.9,
+  "sha256": "6beb9783be2c85dc7609426f37e18c5a4a819204981371b2a2ef4b62d9059bb3",
+  "status": "ok",
+  "weights_sha256": "dec77579dddc0df7f0c05b446df589373f0ef6e9925a116870fe72b7b7963f6f"
+ },
+ "C4.b1": {
+  "batch": 1,
+  "bytes": 20258272,
+  "file": "C4.b1.trained.tflite",
+  "input_name": "serving_default_x:0",
+  "input_shape": [
+   1,
+   32,
+   32,
+   3
+  ],
+  "model": "C4",
+  "ops": [
+   "CONV_2D",
+   "FULLY_CONNECTED",
+   "MAX_POOL_2D",
+   "RESHAPE",
+   "SOFTMAX"
+  ],
+  "output_name": "StatefulPartitionedCall:0",
+  "output_shape": [
+   1,
+   10
+  ],
+  "seconds": 1.2,
+  "sha256": "c0088b9b78b208b037a83329c98ee0ec1b1dcfb976ebc77b0bd2e73e277a9ba2",
+  "status": "ok",
+  "weights_sha256": "4c614c5c7239c79862fc2a8abb088ea9b9493545d727f7bbf53dbd1beaa7b883"
+ },
+ "C4.b32": {
+  "batch": 32,
+  "bytes": 20258272,
+  "file": "C4.b32.trained.tflite",
+  "input_name": "serving_default_x:0",
+  "input_shape": [
+   32,
+   32,
+   32,
+   3
+  ],
+  "model": "C4",
+  "ops": [
+   "CONV_2D",
+   "FULLY_CONNECTED",
+   "MAX_POOL_2D",
+   "RESHAPE",
+   "SOFTMAX"
+  ],
+  "output_name": "StatefulPartitionedCall:0",
+  "output_shape": [
+   32,
+   10
+  ],
+  "reference": {
+   "input": "val32.in.f32",
+   "input_sha256": "c88e82eca8079593ab4233d34389f030e896f0e1eb4ffbd86ca7fc15926c18a0",
+   "output": "C4.val32.keras.f32",
+   "output_shape": [
+    32,
+    10
+   ]
+  },
+  "seconds": 1.1,
+  "sha256": "9c830d700439bb681ca9008af5fa590c1cbf108294b1a1a653a98249c77c7c22",
+  "status": "ok",
+  "weights_sha256": "4c614c5c7239c79862fc2a8abb088ea9b9493545d727f7bbf53dbd1beaa7b883"
+ },
+ "C5.b1": {
+  "batch": 1,
+  "bytes": 50700096,
+  "file": "C5.b1.trained.tflite",
+  "input_name": "serving_default_x:0",
+  "input_shape": [
+   1,
+   32,
+   32,
+   3
+  ],
+  "model": "C5",
+  "ops": [
+   "CONV_2D",
+   "FULLY_CONNECTED",
+   "MAX_POOL_2D",
+   "RESHAPE",
+   "SOFTMAX"
+  ],
+  "output_name": "StatefulPartitionedCall:0",
+  "output_shape": [
+   1,
+   10
+  ],
+  "seconds": 1.6,
+  "sha256": "22eaa6fb5d0eeff24259302cc27fa85d0c106753966228dfc0f3baf9194b44d8",
+  "status": "ok",
+  "weights_sha256": "4554dece20e92004c5f473071a11e2f99324d19b63c078daf2678b94b4c13933"
+ },
+ "C5.b32": {
+  "batch": 32,
+  "bytes": 50700096,
+  "file": "C5.b32.trained.tflite",
+  "input_name": "serving_default_x:0",
+  "input_shape": [
+   32,
+   32,
+   32,
+   3
+  ],
+  "model": "C5",
+  "ops": [
+   "CONV_2D",
+   "FULLY_CONNECTED",
+   "MAX_POOL_2D",
+   "RESHAPE",
+   "SOFTMAX"
+  ],
+  "output_name": "StatefulPartitionedCall:0",
+  "output_shape": [
+   32,
+   10
+  ],
+  "reference": {
+   "input": "val32.in.f32",
+   "input_sha256": "c88e82eca8079593ab4233d34389f030e896f0e1eb4ffbd86ca7fc15926c18a0",
+   "output": "C5.val32.keras.f32",
+   "output_shape": [
+    32,
+    10
+   ]
+  },
+  "seconds": 1.6,
+  "sha256": "03d9ca9da0231c8e1e51b642de762c9d88b7beac8590efaaa04eacc4637ff177",
+  "status": "ok",
+  "weights_sha256": "4554dece20e92004c5f473071a11e2f99324d19b63c078daf2678b94b4c13933"
+ },
+ "D1.b1": {
+  "batch": 1,
+  "bytes": 791084,
+  "file": "D1.b1.trained.tflite",
+  "input_name": "serving_default_x:0",
+  "input_shape": [
+   1,
+   32,
+   32,
+   3
+  ],
+  "model": "D1",
+  "ops": [
+   "FULLY_CONNECTED",
+   "RESHAPE",
+   "SOFTMAX"
+  ],
+  "output_name": "StatefulPartitionedCall:0",
+  "output_shape": [
+   1,
+   10
+  ],
+  "seconds": 1.1,
+  "sha256": "d2ba775ad882ed1a887f4e02830541ddfa2806de625aaf678b5878851db3606e",
+  "status": "ok",
+  "weights_sha256": "b371f1a233f1e414af225dbd5ddf2bc1bd3a1d8ffdd2234e1f7ed6dfdffbc177"
+ },
+ "D1.b32": {
+  "batch": 32,
+  "bytes": 791084,
+  "file": "D1.b32.trained.tflite",
+  "input_name": "serving_default_x:0",
+  "input_shape": [
+   32,
+   32,
+   32,
+   3
+  ],
+  "model": "D1",
+  "ops": [
+   "FULLY_CONNECTED",
+   "RESHAPE",
+   "SOFTMAX"
+  ],
+  "output_name": "StatefulPartitionedCall:0",
+  "output_shape": [
+   32,
+   10
+  ],
+  "reference": {
+   "input": "val32.in.f32",
+   "input_sha256": "c88e82eca8079593ab4233d34389f030e896f0e1eb4ffbd86ca7fc15926c18a0",
+   "output": "D1.val32.keras.f32",
+   "output_shape": [
+    32,
+    10
+   ]
+  },
+  "seconds": 0.4,
+  "sha256": "701a4d6a37e6e0dfbb9ab19ebd72b5d7cde9bf86bc03287f07346f32e6b6ac31",
+  "status": "ok",
+  "weights_sha256": "b371f1a233f1e414af225dbd5ddf2bc1bd3a1d8ffdd2234e1f7ed6dfdffbc177"
+ },
+ "D2.b1": {
+  "batch": 1,
+  "bytes": 1646732,
+  "file": "D2.b1.trained.tflite",
+  "input_name": "serving_default_x:0",
+  "input_shape": [
+   1,
+   32,
+   32,
+   3
+  ],
+  "model": "D2",
+  "ops": [
+   "FULLY_CONNECTED",
+   "RESHAPE",
+   "SOFTMAX"
+  ],
+  "output_name": "StatefulPartitionedCall:0",
+  "output_shape": [
+   1,
+   10
+  ],
+  "seconds": 0.5,
+  "sha256": "d3ad6bf1ff8dcb717eea7b037040c37c023635d38854b7cd43ec6e98743dbdf5",
+  "status": "ok",
+  "weights_sha256": "69c33a226b67aaf8c672929f50ac5293693bd6a58eb17ac0ea776089551d140a"
+ },
+ "D2.b32": {
+  "batch": 32,
+  "bytes": 1646732,
+  "file": "D2.b32.trained.tflite",
+  "input_name": "serving_default_x:0",
+  "input_shape": [
+   32,
+   32,
+   32,
+   3
+  ],
+  "model": "D2",
+  "ops": [
+   "FULLY_CONNECTED",
+   "RESHAPE",
+   "SOFTMAX"
+  ],
+  "output_name": "StatefulPartitionedCall:0",
+  "output_shape": [
+   32,
+   10
+  ],
+  "reference": {
+   "input": "val32.in.f32",
+   "input_sha256": "c88e82eca8079593ab4233d34389f030e896f0e1eb4ffbd86ca7fc15926c18a0",
+   "output": "D2.val32.keras.f32",
+   "output_shape": [
+    32,
+    10
+   ]
+  },
+  "seconds": 0.5,
+  "sha256": "2bbe672ba85a432747b653ade30e415eaa6c5a0dd7bd44c0932e5ee509d9480d",
+  "status": "ok",
+  "weights_sha256": "69c33a226b67aaf8c672929f50ac5293693bd6a58eb17ac0ea776089551d140a"
+ },
+ "D3.b1": {
+  "batch": 1,
+  "bytes": 3685868,
+  "file": "D3.b1.trained.tflite",
+  "input_name": "serving_default_x:0",
+  "input_shape": [
+   1,
+   32,
+   32,
+   3
+  ],
+  "model": "D3",
+  "ops": [
+   "FULLY_CONNECTED",
+   "RESHAPE",
+   "SOFTMAX"
+  ],
+  "output_name": "StatefulPartitionedCall:0",
+  "output_shape": [
+   1,
+   10
+  ],
+  "seconds": 0.7,
+  "sha256": "b06bf8f65e69c8b7aff168f99cac3d3f618ade7f4a7ff9b6c047288059b6c449",
+  "status": "ok",
+  "weights_sha256": "d241c1c53c0406585d850b0274b9bc27d6abdfbea92c8a9eae73e1d628deec92"
+ },
+ "D3.b32": {
+  "batch": 32,
+  "bytes": 3685868,
+  "file": "D3.b32.trained.tflite",
+  "input_name": "serving_default_x:0",
+  "input_shape": [
+   32,
+   32,
+   32,
+   3
+  ],
+  "model": "D3",
+  "ops": [
+   "FULLY_CONNECTED",
+   "RESHAPE",
+   "SOFTMAX"
+  ],
+  "output_name": "StatefulPartitionedCall:0",
+  "output_shape": [
+   32,
+   10
+  ],
+  "reference": {
+   "input": "val32.in.f32",
+   "input_sha256": "c88e82eca8079593ab4233d34389f030e896f0e1eb4ffbd86ca7fc15926c18a0",
+   "output": "D3.val32.keras.f32",
+   "output_shape": [
+    32,
+    10
+   ]
+  },
+  "seconds": 0.6,
+  "sha256": "5bf51b1a509f60dad8e4701eb6b1e8f95b939a71f00147fa22687f8ea0d83492",
+  "status": "ok",
+  "weights_sha256": "d241c1c53c0406585d850b0274b9bc27d6abdfbea92c8a9eae73e1d628deec92"
+ },
+ "D4.b1": {
+  "batch": 1,
+  "bytes": 9468748,
+  "file": "D4.b1.trained.tflite",
+  "input_name": "serving_default_x:0",
+  "input_shape": [
+   1,
+   32,
+   32,
+   3
+  ],
+  "model": "D4",
+  "ops": [
+   "FULLY_CONNECTED",
+   "RESHAPE",
+   "SOFTMAX"
+  ],
+  "output_name": "StatefulPartitionedCall:0",
+  "output_shape": [
+   1,
+   10
+  ],
+  "seconds": 0.8,
+  "sha256": "41362934ec1db2b42b112122507ffd56d702766427a483c6e8a3083e9a1d45e4",
+  "status": "ok",
+  "weights_sha256": "326ce81d5b6e22e4cbf34e6b721db6b1db324bea5d6169189f63119961bc1de9"
+ },
+ "D4.b32": {
+  "batch": 32,
+  "bytes": 9468748,
+  "file": "D4.b32.trained.tflite",
+  "input_name": "serving_default_x:0",
+  "input_shape": [
+   32,
+   32,
+   32,
+   3
+  ],
+  "model": "D4",
+  "ops": [
+   "FULLY_CONNECTED",
+   "RESHAPE",
+   "SOFTMAX"
+  ],
+  "output_name": "StatefulPartitionedCall:0",
+  "output_shape": [
+   32,
+   10
+  ],
+  "reference": {
+   "input": "val32.in.f32",
+   "input_sha256": "c88e82eca8079593ab4233d34389f030e896f0e1eb4ffbd86ca7fc15926c18a0",
+   "output": "D4.val32.keras.f32",
+   "output_shape": [
+    32,
+    10
+   ]
+  },
+  "seconds": 0.9,
+  "sha256": "6566b915b019aaa716373988c0ce015a9244b5d969e0eda5e091457c1454ac94",
+  "status": "ok",
+  "weights_sha256": "326ce81d5b6e22e4cbf34e6b721db6b1db324bea5d6169189f63119961bc1de9"
+ },
+ "D5.b1": {
+  "batch": 1,
+  "bytes": 29424812,
+  "file": "D5.b1.trained.tflite",
+  "input_name": "serving_default_x:0",
+  "input_shape": [
+   1,
+   32,
+   32,
+   3
+  ],
+  "model": "D5",
+  "ops": [
+   "FULLY_CONNECTED",
+   "RESHAPE",
+   "SOFTMAX"
+  ],
+  "output_name": "StatefulPartitionedCall:0",
+  "output_shape": [
+   1,
+   10
+  ],
+  "seconds": 1.1,
+  "sha256": "059216f284d8bf5b2efb5c8789dc93be289c19319b89201b04e4c1d91f85230d",
+  "status": "ok",
+  "weights_sha256": "9c05f1a35dd4e195264b7185e68410407422e5619506fc4a0eb60025849275f9"
+ },
+ "D5.b32": {
+  "batch": 32,
+  "bytes": 29424812,
+  "file": "D5.b32.trained.tflite",
+  "input_name": "serving_default_x:0",
+  "input_shape": [
+   32,
+   32,
+   32,
+   3
+  ],
+  "model": "D5",
+  "ops": [
+   "FULLY_CONNECTED",
+   "RESHAPE",
+   "SOFTMAX"
+  ],
+  "output_name": "StatefulPartitionedCall:0",
+  "output_shape": [
+   32,
+   10
+  ],
+  "reference": {
+   "input": "val32.in.f32",
+   "input_sha256": "c88e82eca8079593ab4233d34389f030e896f0e1eb4ffbd86ca7fc15926c18a0",
+   "output": "D5.val32.keras.f32",
+   "output_shape": [
+    32,
+    10
+   ]
+  },
+  "seconds": 1.1,
+  "sha256": "1c1c648672ca38940f2689696541d38b525ca1d6524a5a379c970de989ad55ce",
+  "status": "ok",
+  "weights_sha256": "9c05f1a35dd4e195264b7185e68410407422e5619506fc4a0eb60025849275f9"
+ },
+ "G1.b1": {
+  "batch": 1,
+  "bytes": 134920,
+  "file": "G1.b1.trained.tflite",
+  "input_name": "serving_default_x:0",
+  "input_shape": [
+   1,
+   32,
+   32,
+   3
+  ],
+  "model": "G1",
+  "ops": [
+   "FULLY_CONNECTED",
+   "RESHAPE",
+   "SOFTMAX",
+   "STRIDED_SLICE",
+   "WHILE"
+  ],
+  "output_name": "StatefulPartitionedCall:0",
+  "output_shape": [
+   1,
+   10
+  ],
+  "seconds": 1.8,
+  "sha256": "4a514de8fa5133377d5680bdaef952fa6336f10ae5e065fc3b29a0211286fa02",
+  "status": "ok",
+  "weights_sha256": "5a64b306ae397cff3fd6452dfd116bb3bf799a53bc88f2bd8edb25c74f77534b"
+ },
+ "G1.b32": {
+  "batch": 32,
+  "bytes": 151060,
+  "file": "G1.b32.trained.tflite",
+  "input_name": "serving_default_x:0",
+  "input_shape": [
+   32,
+   32,
+   32,
+   3
+  ],
+  "model": "G1",
+  "ops": [
+   "FULLY_CONNECTED",
+   "RESHAPE",
+   "SOFTMAX",
+   "STRIDED_SLICE",
+   "TRANSPOSE",
+   "WHILE"
+  ],
+  "output_name": "StatefulPartitionedCall:0",
+  "output_shape": [
+   32,
+   10
+  ],
+  "reference": {
+   "input": "val32.in.f32",
+   "input_sha256": "c88e82eca8079593ab4233d34389f030e896f0e1eb4ffbd86ca7fc15926c18a0",
+   "output": "G1.val32.keras.f32",
+   "output_shape": [
+    32,
+    10
+   ]
+  },
+  "seconds": 2.6,
+  "sha256": "e6990d74ae228187dfd549efacfc029171fb576e6f863c8759da13202adb7b37",
+  "status": "ok",
+  "weights_sha256": "5a64b306ae397cff3fd6452dfd116bb3bf799a53bc88f2bd8edb25c74f77534b"
+ },
+ "G2.b1": {
+  "batch": 1,
+  "bytes": 778796,
+  "file": "G2.b1.trained.tflite",
+  "input_name": "serving_default_x:0",
+  "input_shape": [
+   1,
+   32,
+   32,
+   3
+  ],
+  "model": "G2",
+  "ops": [
+   "FULLY_CONNECTED",
+   "RESHAPE",
+   "SOFTMAX",
+   "STRIDED_SLICE",
+   "WHILE"
+  ],
+  "output_name": "StatefulPartitionedCall:0",
+  "output_shape": [
+   1,
+   10
+  ],
+  "seconds": 3.4,
+  "sha256": "167c20d82952818dd7fcc409aebfdb2d2adade849def48596274484406a2c4b7",
+  "status": "ok",
+  "weights_sha256": "92959ac2ae261de8209c999780a0fec7dd566544eca7fc26b508acd24027f48e"
+ },
+ "G2.b32": {
+  "batch": 32,
+  "bytes": 1318668,
+  "file": "G2.b32.trained.tflite",
+  "input_name": "serving_default_x:0",
+  "input_shape": [
+   32,
+   32,
+   32,
+   3
+  ],
+  "model": "G2",
+  "ops": [
+   "FULLY_CONNECTED",
+   "RESHAPE",
+   "SOFTMAX",
+   "STRIDED_SLICE",
+   "TRANSPOSE",
+   "WHILE"
+  ],
+  "output_name": "StatefulPartitionedCall:0",
+  "output_shape": [
+   32,
+   10
+  ],
+  "reference": {
+   "input": "val32.in.f32",
+   "input_sha256": "c88e82eca8079593ab4233d34389f030e896f0e1eb4ffbd86ca7fc15926c18a0",
+   "output": "G2.val32.keras.f32",
+   "output_shape": [
+    32,
+    10
+   ]
+  },
+  "seconds": 3.5,
+  "sha256": "75272c7aebc7a4a26629b84cdd9067c6ff90d4e9c26dad78f4e5bfc3cd38046e",
+  "status": "ok",
+  "weights_sha256": "92959ac2ae261de8209c999780a0fec7dd566544eca7fc26b508acd24027f48e"
+ },
+ "G3.b1": {
+  "batch": 1,
+  "bytes": 4304784,
+  "file": "G3.b1.trained.tflite",
+  "input_name": "serving_default_x:0",
+  "input_shape": [
+   1,
+   32,
+   32,
+   3
+  ],
+  "model": "G3",
+  "ops": [
+   "FULLY_CONNECTED",
+   "RESHAPE",
+   "SOFTMAX",
+   "STRIDED_SLICE",
+   "WHILE"
+  ],
+  "output_name": "StatefulPartitionedCall:0",
+  "output_shape": [
+   1,
+   10
+  ],
+  "seconds": 5.0,
+  "sha256": "bced747dbeec2676b16f3e4507365c51929f67662cf44855f5891304e1effe13",
+  "status": "ok",
+  "weights_sha256": "c50e1b2f8d322cd8f0766164119aff186ac0e6c0286d014153b723183710b90b"
+ },
+ "G3.b32": {
+  "batch": 32,
+  "bytes": 5384404,
+  "file": "G3.b32.trained.tflite",
+  "input_name": "serving_default_x:0",
+  "input_shape": [
+   32,
+   32,
+   32,
+   3
+  ],
+  "model": "G3",
+  "ops": [
+   "FULLY_CONNECTED",
+   "RESHAPE",
+   "SOFTMAX",
+   "STRIDED_SLICE",
+   "TRANSPOSE",
+   "WHILE"
+  ],
+  "output_name": "StatefulPartitionedCall:0",
+  "output_shape": [
+   32,
+   10
+  ],
+  "reference": {
+   "input": "val32.in.f32",
+   "input_sha256": "c88e82eca8079593ab4233d34389f030e896f0e1eb4ffbd86ca7fc15926c18a0",
+   "output": "G3.val32.keras.f32",
+   "output_shape": [
+    32,
+    10
+   ]
+  },
+  "seconds": 5.0,
+  "sha256": "68602d23ad5a5cacb0bc8b1e81dd42e3606f2098ec222116a95087b44668fa81",
+  "status": "ok",
+  "weights_sha256": "c50e1b2f8d322cd8f0766164119aff186ac0e6c0286d014153b723183710b90b"
+ },
+ "G4.b1": {
+  "batch": 1,
+  "bytes": 22755780,
+  "file": "G4.b1.trained.tflite",
+  "input_name": "serving_default_x:0",
+  "input_shape": [
+   1,
+   32,
+   32,
+   3
+  ],
+  "model": "G4",
+  "ops": [
+   "FULLY_CONNECTED",
+   "RESHAPE",
+   "SOFTMAX",
+   "STRIDED_SLICE",
+   "WHILE"
+  ],
+  "output_name": "StatefulPartitionedCall:0",
+  "output_shape": [
+   1,
+   10
+  ],
+  "seconds": 6.8,
+  "sha256": "c66c5192ea552654980ebe3305aa8854a2e6b0cd4b18b369a082bc57a51c596a",
+  "status": "ok",
+  "weights_sha256": "b40046e0303751f56c6f6356840f9d0ab4df40e8d87a580d84ea15541003e312"
+ },
+ "G4.b32": {
+  "batch": 32,
+  "bytes": 24914588,
+  "file": "G4.b32.trained.tflite",
+  "input_name": "serving_default_x:0",
+  "input_shape": [
+   32,
+   32,
+   32,
+   3
+  ],
+  "model": "G4",
+  "ops": [
+   "FULLY_CONNECTED",
+   "RESHAPE",
+   "SOFTMAX",
+   "STRIDED_SLICE",
+   "TRANSPOSE",
+   "WHILE"
+  ],
+  "output_name": "StatefulPartitionedCall:0",
+  "output_shape": [
+   32,
+   10
+  ],
+  "reference": {
+   "input": "val32.in.f32",
+   "input_sha256": "c88e82eca8079593ab4233d34389f030e896f0e1eb4ffbd86ca7fc15926c18a0",
+   "output": "G4.val32.keras.f32",
+   "output_shape": [
+    32,
+    10
+   ]
+  },
+  "seconds": 6.8,
+  "sha256": "edd46daf3a9b2e6481f38712e3a3e5d4962d00d7a2de0d7cf73a58f02f8daec9",
+  "status": "ok",
+  "weights_sha256": "b40046e0303751f56c6f6356840f9d0ab4df40e8d87a580d84ea15541003e312"
+ },
+ "G5.b1": {
+  "batch": 1,
+  "bytes": 114706268,
+  "file": "G5.b1.trained.tflite",
+  "input_name": "serving_default_x:0",
+  "input_shape": [
+   1,
+   32,
+   32,
+   3
+  ],
+  "model": "G5",
+  "ops": [
+   "FULLY_CONNECTED",
+   "RESHAPE",
+   "SOFTMAX",
+   "STRIDED_SLICE",
+   "WHILE"
+  ],
+  "output_name": "StatefulPartitionedCall:0",
+  "output_shape": [
+   1,
+   10
+  ],
+  "seconds": 9.6,
+  "sha256": "82b0115f67c462b258446ec430d2f3a02e2fbddd04b148025c5ae8fc42e84fb9",
+  "status": "ok",
+  "weights_sha256": "c34900ed45eb7b66990f391fff47e365feaeafa0c274de02d4b0abac657265a2"
+ },
+ "G5.b32": {
+  "batch": 32,
+  "bytes": 119023664,
+  "file": "G5.b32.trained.tflite",
+  "input_name": "serving_default_x:0",
+  "input_shape": [
+   32,
+   32,
+   32,
+   3
+  ],
+  "model": "G5",
+  "ops": [
+   "FULLY_CONNECTED",
+   "RESHAPE",
+   "SOFTMAX",
+   "STRIDED_SLICE",
+   "TRANSPOSE",
+   "WHILE"
+  ],
+  "output_name": "StatefulPartitionedCall:0",
+  "output_shape": [
+   32,
+   10
+  ],
+  "reference": {
+   "input": "val32.in.f32",
+   "input_sha256": "c88e82eca8079593ab4233d34389f030e896f0e1eb4ffbd86ca7fc15926c18a0",
+   "output": "G5.val32.keras.f32",
+   "output_shape": [
+    32,
+    10
+   ]
+  },
+  "seconds": 9.6,
+  "sha256": "96aa1df86358d6f7a77f7783b4eaec9b16a7e473828810cb534bc58bc744c835",
+  "status": "ok",
+  "weights_sha256": "c34900ed45eb7b66990f391fff47e365feaeafa0c274de02d4b0abac657265a2"
+ },
+ "L1.b1": {
+  "batch": 1,
+  "bytes": 171320,
+  "file": "L1.b1.trained.tflite",
+  "input_name": "serving_default_x:0",
+  "input_shape": [
+   1,
+   32,
+   32,
+   3
+  ],
+  "model": "L1",
+  "ops": [
+   "FULLY_CONNECTED",
+   "RESHAPE",
+   "SOFTMAX",
+   "STRIDED_SLICE",
+   "UNIDIRECTIONAL_SEQUENCE_LSTM"
+  ],
+  "output_name": "StatefulPartitionedCall:0",
+  "output_shape": [
+   1,
+   10
+  ],
+  "seconds": 4.3,
+  "sha256": "db76b458cf309214791982e40af226ce9fb37e576793c58abb1b17ff32d6bf62",
+  "status": "ok",
+  "weights_sha256": "4fa15537c2c82f70bc78bdcd2588683ac40f074131aa61dd595e2bad48150990"
+ },
+ "L1.b32": {
+  "batch": 32,
+  "bytes": 187192,
+  "file": "L1.b32.trained.tflite",
+  "input_name": "serving_default_x:0",
+  "input_shape": [
+   32,
+   32,
+   32,
+   3
+  ],
+  "model": "L1",
+  "ops": [
+   "FULLY_CONNECTED",
+   "RESHAPE",
+   "SOFTMAX",
+   "STRIDED_SLICE",
+   "UNIDIRECTIONAL_SEQUENCE_LSTM"
+  ],
+  "output_name": "StatefulPartitionedCall:0",
+  "output_shape": [
+   32,
+   10
+  ],
+  "reference": {
+   "input": "val32.in.f32",
+   "input_sha256": "c88e82eca8079593ab4233d34389f030e896f0e1eb4ffbd86ca7fc15926c18a0",
+   "output": "L1.val32.keras.f32",
+   "output_shape": [
+    32,
+    10
+   ]
+  },
+  "seconds": 4.2,
+  "sha256": "f7eb993d60ca7f2104739e56df30da8f37b37bc4efad3929d0e351ef9cfc3822",
+  "status": "ok",
+  "weights_sha256": "4fa15537c2c82f70bc78bdcd2588683ac40f074131aa61dd595e2bad48150990"
+ },
+ "L2.b1": {
+  "batch": 1,
+  "bytes": 999092,
+  "file": "L2.b1.trained.tflite",
+  "input_name": "serving_default_x:0",
+  "input_shape": [
+   1,
+   32,
+   32,
+   3
+  ],
+  "model": "L2",
+  "ops": [
+   "FULLY_CONNECTED",
+   "RESHAPE",
+   "SOFTMAX",
+   "STRIDED_SLICE",
+   "UNIDIRECTIONAL_SEQUENCE_LSTM"
+  ],
+  "output_name": "StatefulPartitionedCall:0",
+  "output_shape": [
+   1,
+   10
+  ],
+  "seconds": 8.2,
+  "sha256": "fbca96f135267128090e4c2ea47897f305be38e5dcea8de369b7f103fa384780",
+  "status": "ok",
+  "weights_sha256": "f6cd0c3dc444b0a8f82c6df89606e7e7efa80f8dfe64e1dc485f550fc3020123"
+ },
+ "L2.b32": {
+  "batch": 32,
+  "bytes": 1062580,
+  "file": "L2.b32.trained.tflite",
+  "input_name": "serving_default_x:0",
+  "input_shape": [
+   32,
+   32,
+   32,
+   3
+  ],
+  "model": "L2",
+  "ops": [
+   "FULLY_CONNECTED",
+   "RESHAPE",
+   "SOFTMAX",
+   "STRIDED_SLICE",
+   "UNIDIRECTIONAL_SEQUENCE_LSTM"
+  ],
+  "output_name": "StatefulPartitionedCall:0",
+  "output_shape": [
+   32,
+   10
+  ],
+  "reference": {
+   "input": "val32.in.f32",
+   "input_sha256": "c88e82eca8079593ab4233d34389f030e896f0e1eb4ffbd86ca7fc15926c18a0",
+   "output": "L2.val32.keras.f32",
+   "output_shape": [
+    32,
+    10
+   ]
+  },
+  "seconds": 8.1,
+  "sha256": "1f9ad7184608aa39b69deb0df700c9902cf35962a2cda239eae6ecc764af407a",
+  "status": "ok",
+  "weights_sha256": "f6cd0c3dc444b0a8f82c6df89606e7e7efa80f8dfe64e1dc485f550fc3020123"
+ },
+ "L3.b1": {
+  "batch": 1,
+  "bytes": 5670960,
+  "file": "L3.b1.trained.tflite",
+  "input_name": "serving_default_x:0",
+  "input_shape": [
+   1,
+   32,
+   32,
+   3
+  ],
+  "model": "L3",
+  "ops": [
+   "FULLY_CONNECTED",
+   "RESHAPE",
+   "SOFTMAX",
+   "STRIDED_SLICE",
+   "UNIDIRECTIONAL_SEQUENCE_LSTM"
+  ],
+  "output_name": "StatefulPartitionedCall:0",
+  "output_shape": [
+   1,
+   10
+  ],
+  "seconds": 12.3,
+  "sha256": "4449301db1ea7ee1ec55d4b052332e221d59665ee2b4e7dca02214629763827a",
+  "status": "ok",
+  "weights_sha256": "928fd0bd5b7c9db1dd299ad7f907d198859f54397bdf5f79132fc961915fc606"
+ },
+ "L3.b32": {
+  "batch": 32,
+  "bytes": 5861424,
+  "file": "L3.b32.trained.tflite",
+  "input_name": "serving_default_x:0",
+  "input_shape": [
+   32,
+   32,
+   32,
+   3
+  ],
+  "model": "L3",
+  "ops": [
+   "FULLY_CONNECTED",
+   "RESHAPE",
+   "SOFTMAX",
+   "STRIDED_SLICE",
+   "UNIDIRECTIONAL_SEQUENCE_LSTM"
+  ],
+  "output_name": "StatefulPartitionedCall:0",
+  "output_shape": [
+   32,
+   10
+  ],
+  "reference": {
+   "input": "val32.in.f32",
+   "input_sha256": "c88e82eca8079593ab4233d34389f030e896f0e1eb4ffbd86ca7fc15926c18a0",
+   "output": "L3.val32.keras.f32",
+   "output_shape": [
+    32,
+    10
+   ]
+  },
+  "seconds": 12.4,
+  "sha256": "47cfa79018348decedc1775ae7d99bb6316fc4690ab6e3be4060c54796f746a1",
+  "status": "ok",
+  "weights_sha256": "928fd0bd5b7c9db1dd299ad7f907d198859f54397bdf5f79132fc961915fc606"
+ },
+ "L4.b1": {
+  "batch": 1,
+  "bytes": 30223788,
+  "file": "L4.b1.trained.tflite",
+  "input_name": "serving_default_x:0",
+  "input_shape": [
+   1,
+   32,
+   32,
+   3
+  ],
+  "model": "L4",
+  "ops": [
+   "FULLY_CONNECTED",
+   "RESHAPE",
+   "SOFTMAX",
+   "STRIDED_SLICE",
+   "UNIDIRECTIONAL_SEQUENCE_LSTM"
+  ],
+  "output_name": "StatefulPartitionedCall:0",
+  "output_shape": [
+   1,
+   10
+  ],
+  "seconds": 16.7,
+  "sha256": "c2929764b2aa25df77e2c78b88da2b18f2e1012b1c119380d021e3b10bd30467",
+  "status": "ok",
+  "weights_sha256": "b293adfde84cc4fa9029a9acc8333c18691f5c54b90e9c4dd366e51eb6255089"
+ },
+ "L4.b32": {
+  "batch": 32,
+  "bytes": 30731692,
+  "file": "L4.b32.trained.tflite",
+  "input_name": "serving_default_x:0",
+  "input_shape": [
+   32,
+   32,
+   32,
+   3
+  ],
+  "model": "L4",
+  "ops": [
+   "FULLY_CONNECTED",
+   "RESHAPE",
+   "SOFTMAX",
+   "STRIDED_SLICE",
+   "UNIDIRECTIONAL_SEQUENCE_LSTM"
+  ],
+  "output_name": "StatefulPartitionedCall:0",
+  "output_shape": [
+   32,
+   10
+  ],
+  "reference": {
+   "input": "val32.in.f32",
+   "input_sha256": "c88e82eca8079593ab4233d34389f030e896f0e1eb4ffbd86ca7fc15926c18a0",
+   "output": "L4.val32.keras.f32",
+   "output_shape": [
+    32,
+    10
+   ]
+  },
+  "seconds": 16.8,
+  "sha256": "31b57c9accc09594878a670a98238ba337bc88c6ee5fcac926dfd7f685f8bd65",
+  "status": "ok",
+  "weights_sha256": "b293adfde84cc4fa9029a9acc8333c18691f5c54b90e9c4dd366e51eb6255089"
+ },
+ "L5.b1": {
+  "batch": 1,
+  "bytes": 152740648,
+  "file": "L5.b1.trained.tflite",
+  "input_name": "serving_default_x:0",
+  "input_shape": [
+   1,
+   32,
+   32,
+   3
+  ],
+  "model": "L5",
+  "ops": [
+   "FULLY_CONNECTED",
+   "RESHAPE",
+   "SOFTMAX",
+   "STRIDED_SLICE",
+   "UNIDIRECTIONAL_SEQUENCE_LSTM"
+  ],
+  "output_name": "StatefulPartitionedCall:0",
+  "output_shape": [
+   1,
+   10
+  ],
+  "seconds": 22.7,
+  "sha256": "cd4aac5d24bf58306753c1d29a07281a9641f30a6ccdff3c93f7e4446d7cfc60",
+  "status": "ok",
+  "weights_sha256": "885eea293be05a8d2d17f79d57fe48b28a08c1752d26d00aea96c01e4c97e135"
+ },
+ "L5.b32": {
+  "batch": 32,
+  "bytes": 154010408,
+  "file": "L5.b32.trained.tflite",
+  "input_name": "serving_default_x:0",
+  "input_shape": [
+   32,
+   32,
+   32,
+   3
+  ],
+  "model": "L5",
+  "ops": [
+   "FULLY_CONNECTED",
+   "RESHAPE",
+   "SOFTMAX",
+   "STRIDED_SLICE",
+   "UNIDIRECTIONAL_SEQUENCE_LSTM"
+  ],
+  "output_name": "StatefulPartitionedCall:0",
+  "output_shape": [
+   32,
+   10
+  ],
+  "reference": {
+   "input": "val32.in.f32",
+   "input_sha256": "c88e82eca8079593ab4233d34389f030e896f0e1eb4ffbd86ca7fc15926c18a0",
+   "output": "L5.val32.keras.f32",
+   "output_shape": [
+    32,
+    10
+   ]
+  },
+  "seconds": 22.7,
+  "sha256": "9a0424a1020c0950ea2af9aec724c6fee697b342533dc6b63a61a72c90661c09",
+  "status": "ok",
+  "weights_sha256": "885eea293be05a8d2d17f79d57fe48b28a08c1752d26d00aea96c01e4c97e135"
+ },
+ "R1.b1": {
+  "batch": 1,
+  "bytes": 50064,
+  "file": "R1.b1.trained.tflite",
+  "input_name": "serving_default_x:0",
+  "input_shape": [
+   1,
+   32,
+   32,
+   3
+  ],
+  "model": "R1",
+  "ops": [
+   "FULLY_CONNECTED",
+   "RESHAPE",
+   "SOFTMAX",
+   "STRIDED_SLICE",
+   "WHILE"
+  ],
+  "output_name": "StatefulPartitionedCall:0",
+  "output_shape": [
+   1,
+   10
+  ],
+  "seconds": 1.4,
+  "sha256": "99448b1186c83ac054e8b19119370ff506768ed593cc215cd5dea419504a58dc",
+  "status": "ok",
+  "weights_sha256": "581dedc74ba960d0eb3b97141ee80563999668c0c2650ee58db60624c9b33c13"
+ },
+ "R1.b32": {
+  "batch": 32,
+  "bytes": 66184,
+  "file": "R1.b32.trained.tflite",
+  "input_name": "serving_default_x:0",
+  "input_shape": [
+   32,
+   32,
+   32,
+   3
+  ],
+  "model": "R1",
+  "ops": [
+   "FULLY_CONNECTED",
+   "RESHAPE",
+   "SOFTMAX",
+   "STRIDED_SLICE",
+   "TRANSPOSE",
+   "WHILE"
+  ],
+  "output_name": "StatefulPartitionedCall:0",
+  "output_shape": [
+   32,
+   10
+  ],
+  "reference": {
+   "input": "val32.in.f32",
+   "input_sha256": "c88e82eca8079593ab4233d34389f030e896f0e1eb4ffbd86ca7fc15926c18a0",
+   "output": "R1.val32.keras.f32",
+   "output_shape": [
+    32,
+    10
+   ]
+  },
+  "seconds": 1.5,
+  "sha256": "f2e3e0a72988bef490cb5ddae495e449e0c7673e3934bdd8e2be206b2099d17c",
+  "status": "ok",
+  "weights_sha256": "581dedc74ba960d0eb3b97141ee80563999668c0c2650ee58db60624c9b33c13"
+ },
+ "R2.b1": {
+  "batch": 1,
+  "bytes": 280528,
+  "file": "R2.b1.trained.tflite",
+  "input_name": "serving_default_x:0",
+  "input_shape": [
+   1,
+   32,
+   32,
+   3
+  ],
+  "model": "R2",
+  "ops": [
+   "FULLY_CONNECTED",
+   "RESHAPE",
+   "SOFTMAX",
+   "STRIDED_SLICE",
+   "WHILE"
+  ],
+  "output_name": "StatefulPartitionedCall:0",
+  "output_shape": [
+   1,
+   10
+  ],
+  "seconds": 2.5,
+  "sha256": "6b49cbe7df394478316727e5879f2c0f5b415cd41b60ebef893199a4020229ca",
+  "status": "ok",
+  "weights_sha256": "a5b43dafb024dd1a6daf7af453cf5af4878a0ddfde013a9a90964be90c165a5d"
+ },
+ "R2.b32": {
+  "batch": 32,
+  "bytes": 820404,
+  "file": "R2.b32.trained.tflite",
+  "input_name": "serving_default_x:0",
+  "input_shape": [
+   32,
+   32,
+   32,
+   3
+  ],
+  "model": "R2",
+  "ops": [
+   "FULLY_CONNECTED",
+   "RESHAPE",
+   "SOFTMAX",
+   "STRIDED_SLICE",
+   "TRANSPOSE",
+   "WHILE"
+  ],
+  "output_name": "StatefulPartitionedCall:0",
+  "output_shape": [
+   32,
+   10
+  ],
+  "reference": {
+   "input": "val32.in.f32",
+   "input_sha256": "c88e82eca8079593ab4233d34389f030e896f0e1eb4ffbd86ca7fc15926c18a0",
+   "output": "R2.val32.keras.f32",
+   "output_shape": [
+    32,
+    10
+   ]
+  },
+  "seconds": 2.5,
+  "sha256": "f6699cd3c73339eae153945af7f49d8a6dba425863c2effde466c852d9d14bb1",
+  "status": "ok",
+  "weights_sha256": "a5b43dafb024dd1a6daf7af453cf5af4878a0ddfde013a9a90964be90c165a5d"
+ },
+ "R3.b1": {
+  "batch": 1,
+  "bytes": 1473636,
+  "file": "R3.b1.trained.tflite",
+  "input_name": "serving_default_x:0",
+  "input_shape": [
+   1,
+   32,
+   32,
+   3
+  ],
+  "model": "R3",
+  "ops": [
+   "FULLY_CONNECTED",
+   "RESHAPE",
+   "SOFTMAX",
+   "STRIDED_SLICE",
+   "WHILE"
+  ],
+  "output_name": "StatefulPartitionedCall:0",
+  "output_shape": [
+   1,
+   10
+  ],
+  "seconds": 3.6,
+  "sha256": "67aa7535d1b3f870617bfd3f2b14e3179e1df44db6451f23447299fcc5073cb1",
+  "status": "ok",
+  "weights_sha256": "077760baaa59628fe1978e22a4e5a3a34c37fe83cca1daa1730fdecd7892b776"
+ },
+ "R3.b32": {
+  "batch": 32,
+  "bytes": 2553164,
+  "file": "R3.b32.trained.tflite",
+  "input_name": "serving_default_x:0",
+  "input_shape": [
+   32,
+   32,
+   32,
+   3
+  ],
+  "model": "R3",
+  "ops": [
+   "FULLY_CONNECTED",
+   "RESHAPE",
+   "SOFTMAX",
+   "STRIDED_SLICE",
+   "TRANSPOSE",
+   "WHILE"
+  ],
+  "output_name": "StatefulPartitionedCall:0",
+  "output_shape": [
+   32,
+   10
+  ],
+  "reference": {
+   "input": "val32.in.f32",
+   "input_sha256": "c88e82eca8079593ab4233d34389f030e896f0e1eb4ffbd86ca7fc15926c18a0",
+   "output": "R3.val32.keras.f32",
+   "output_shape": [
+    32,
+    10
+   ]
+  },
+  "seconds": 3.6,
+  "sha256": "2a0f2c066b0ef34360cf3e42c47e785884f29f03ee6b48f02e7d6cd230562382",
+  "status": "ok",
+  "weights_sha256": "077760baaa59628fe1978e22a4e5a3a34c37fe83cca1daa1730fdecd7892b776"
+ },
+ "R4.b1": {
+  "batch": 1,
+  "bytes": 7656712,
+  "file": "R4.b1.trained.tflite",
+  "input_name": "serving_default_x:0",
+  "input_shape": [
+   1,
+   32,
+   32,
+   3
+  ],
+  "model": "R4",
+  "ops": [
+   "FULLY_CONNECTED",
+   "RESHAPE",
+   "SOFTMAX",
+   "STRIDED_SLICE",
+   "WHILE"
+  ],
+  "output_name": "StatefulPartitionedCall:0",
+  "output_shape": [
+   1,
+   10
+  ],
+  "seconds": 4.7,
+  "sha256": "51dc9369f304090a5481923cbf31679399f19f9eee6306d351247f8b7ed28758",
+  "status": "ok",
+  "weights_sha256": "adffe0fa51352dbfe598b69b31fcc91650ed6008be6fd2963a2b9f270d0f9073"
+ },
+ "R4.b32": {
+  "batch": 32,
+  "bytes": 9815524,
+  "file": "R4.b32.trained.tflite",
+  "input_name": "serving_default_x:0",
+  "input_shape": [
+   32,
+   32,
+   32,
+   3
+  ],
+  "model": "R4",
+  "ops": [
+   "FULLY_CONNECTED",
+   "RESHAPE",
+   "SOFTMAX",
+   "STRIDED_SLICE",
+   "TRANSPOSE",
+   "WHILE"
+  ],
+  "output_name": "StatefulPartitionedCall:0",
+  "output_shape": [
+   32,
+   10
+  ],
+  "reference": {
+   "input": "val32.in.f32",
+   "input_sha256": "c88e82eca8079593ab4233d34389f030e896f0e1eb4ffbd86ca7fc15926c18a0",
+   "output": "R4.val32.keras.f32",
+   "output_shape": [
+    32,
+    10
+   ]
+  },
+  "seconds": 4.6,
+  "sha256": "daac7a0d574b28e86febb036d698b0219b0a57ab837c5c929261ab0c4137e728",
+  "status": "ok",
+  "weights_sha256": "adffe0fa51352dbfe598b69b31fcc91650ed6008be6fd2963a2b9f270d0f9073"
+ },
+ "R5.b1": {
+  "batch": 1,
+  "bytes": 38369696,
+  "file": "R5.b1.trained.tflite",
+  "input_name": "serving_default_x:0",
+  "input_shape": [
+   1,
+   32,
+   32,
+   3
+  ],
+  "model": "R5",
+  "ops": [
+   "FULLY_CONNECTED",
+   "RESHAPE",
+   "SOFTMAX",
+   "STRIDED_SLICE",
+   "WHILE"
+  ],
+  "output_name": "StatefulPartitionedCall:0",
+  "output_shape": [
+   1,
+   10
+  ],
+  "seconds": 6.3,
+  "sha256": "430b18d756e1893a5aca629e47ccc340cb7db95aab5328d67311a1ebc4fcff1b",
+  "status": "ok",
+  "weights_sha256": "10dc298f66dc31bd43dc7ef67d1fe160a698d18843e953bba7f871116e7515bd"
+ },
+ "R5.b32": {
+  "batch": 32,
+  "bytes": 42687096,
+  "file": "R5.b32.trained.tflite",
+  "input_name": "serving_default_x:0",
+  "input_shape": [
+   32,
+   32,
+   32,
+   3
+  ],
+  "model": "R5",
+  "ops": [
+   "FULLY_CONNECTED",
+   "RESHAPE",
+   "SOFTMAX",
+   "STRIDED_SLICE",
+   "TRANSPOSE",
+   "WHILE"
+  ],
+  "output_name": "StatefulPartitionedCall:0",
+  "output_shape": [
+   32,
+   10
+  ],
+  "reference": {
+   "input": "val32.in.f32",
+   "input_sha256": "c88e82eca8079593ab4233d34389f030e896f0e1eb4ffbd86ca7fc15926c18a0",
+   "output": "R5.val32.keras.f32",
+   "output_shape": [
+    32,
+    10
+   ]
+  },
+  "seconds": 6.2,
+  "sha256": "60fab57620bbe085d6bb882948cbc23673e8d0007b24d19b5083a8d3bc10f534",
+  "status": "ok",
+  "weights_sha256": "10dc298f66dc31bd43dc7ef67d1fe160a698d18843e953bba7f871116e7515bd"
+ },
+ "T1.b1": {
+  "batch": 1,
+  "bytes": 245868,
+  "file": "T1.b1.trained.tflite",
+  "input_name": "serving_default_x:0",
+  "input_shape": [
+   1,
+   32,
+   32,
+   3
+  ],
+  "model": "T1",
+  "ops": [
+   "ADD",
+   "FULLY_CONNECTED",
+   "MEAN",
+   "MUL",
+   "RESHAPE",
+   "RSQRT",
+   "SOFTMAX",
+   "SQUARED_DIFFERENCE",
+   "SUB",
+   "TRANSPOSE"
+  ],
+  "output_name": "StatefulPartitionedCall:0",
+  "output_shape": [
+   1,
+   10
+  ],
+  "seconds": 2.2,
+  "sha256": "df22303b1c9caa4ef30813281120acedc0c9bc03ad9902142716cdfc1af9297b",
+  "status": "ok",
+  "weights_sha256": "432ec0fad9dd974d587a6069cbf01cd0f6c396130d520fb9cb15cb506531974d"
+ },
+ "T1.b32": {
+  "batch": 32,
+  "bytes": 276580,
+  "file": "T1.b32.trained.tflite",
+  "input_name": "serving_default_x:0",
+  "input_shape": [
+   32,
+   32,
+   32,
+   3
+  ],
+  "model": "T1",
+  "ops": [
+   "ADD",
+   "FULLY_CONNECTED",
+   "MEAN",
+   "MUL",
+   "PACK",
+   "RESHAPE",
+   "RSQRT",
+   "SOFTMAX",
+   "SPLIT",
+   "SQUARED_DIFFERENCE",
+   "SUB",
+   "TRANSPOSE"
+  ],
+  "output_name": "StatefulPartitionedCall:0",
+  "output_shape": [
+   32,
+   10
+  ],
+  "reference": {
+   "input": "val32.in.f32",
+   "input_sha256": "c88e82eca8079593ab4233d34389f030e896f0e1eb4ffbd86ca7fc15926c18a0",
+   "output": "T1.val32.keras.f32",
+   "output_shape": [
+    32,
+    10
+   ]
+  },
+  "seconds": 2.0,
+  "sha256": "9e34f6f757d6c3bd281d6baa3006c5308be84397eea95be14210f768daf7cdb9",
+  "status": "ok",
+  "weights_sha256": "432ec0fad9dd974d587a6069cbf01cd0f6c396130d520fb9cb15cb506531974d"
+ },
+ "T2.b1": {
+  "batch": 1,
+  "bytes": 1679964,
+  "file": "T2.b1.trained.tflite",
+  "input_name": "serving_default_x:0",
+  "input_shape": [
+   1,
+   32,
+   32,
+   3
+  ],
+  "model": "T2",
+  "ops": [
+   "ADD",
+   "FULLY_CONNECTED",
+   "MEAN",
+   "MUL",
+   "PACK",
+   "RESHAPE",
+   "RSQRT",
+   "SOFTMAX",
+   "SPLIT",
+   "SQUARED_DIFFERENCE",
+   "SUB",
+   "TRANSPOSE"
+  ],
+  "output_name": "StatefulPartitionedCall:0",
+  "output_shape": [
+   1,
+   10
+  ],
+  "seconds": 2.9,
+  "sha256": "617bf6d467f2f535a34299dc5a39cde78f4ec3f5e9a4b7a8daa1bbdf2fbae108",
+  "status": "ok",
+  "weights_sha256": "6212e35f04cba633334287534463d85b8727a0ab45387f34009a40b510e86e67"
+ },
+ "T2.b32": {
+  "batch": 32,
+  "bytes": 1799668,
+  "file": "T2.b32.trained.tflite",
+  "input_name": "serving_default_x:0",
+  "input_shape": [
+   32,
+   32,
+   32,
+   3
+  ],
+  "model": "T2",
+  "ops": [
+   "ADD",
+   "FULLY_CONNECTED",
+   "MEAN",
+   "MUL",
+   "PACK",
+   "RESHAPE",
+   "RSQRT",
+   "SOFTMAX",
+   "SPLIT",
+   "SQUARED_DIFFERENCE",
+   "SUB",
+   "TRANSPOSE"
+  ],
+  "output_name": "StatefulPartitionedCall:0",
+  "output_shape": [
+   32,
+   10
+  ],
+  "reference": {
+   "input": "val32.in.f32",
+   "input_sha256": "c88e82eca8079593ab4233d34389f030e896f0e1eb4ffbd86ca7fc15926c18a0",
+   "output": "T2.val32.keras.f32",
+   "output_shape": [
+    32,
+    10
+   ]
+  },
+  "seconds": 3.3,
+  "sha256": "45dfd715693aabc1230361a21caee79cf31380b33cd816aa739c6c875a1a712e",
+  "status": "ok",
+  "weights_sha256": "6212e35f04cba633334287534463d85b8727a0ab45387f34009a40b510e86e67"
+ },
+ "T3.b1": {
+  "batch": 1,
+  "bytes": 9651116,
+  "file": "T3.b1.trained.tflite",
+  "input_name": "serving_default_x:0",
+  "input_shape": [
+   1,
+   32,
+   32,
+   3
+  ],
+  "model": "T3",
+  "ops": [
+   "ADD",
+   "FULLY_CONNECTED",
+   "MEAN",
+   "MUL",
+   "PACK",
+   "RESHAPE",
+   "RSQRT",
+   "SOFTMAX",
+   "SPLIT",
+   "SQUARED_DIFFERENCE",
+   "SUB",
+   "TRANSPOSE"
+  ],
+  "output_name": "StatefulPartitionedCall:0",
+  "output_shape": [
+   1,
+   10
+  ],
+  "seconds": 4.2,
+  "sha256": "d38967ec22531dc10b929a1bd10b69cbcc609bac84dd80b170c1da6bc7b9664e",
+  "status": "ok",
+  "weights_sha256": "a49d48a1b385c86f0cb862ab84d7e5849500d05f2c51deeb941308a716c0bfc2"
+ },
+ "T3.b32": {
+  "batch": 32,
+  "bytes": 10013288,
+  "file": "T3.b32.trained.tflite",
+  "input_name": "serving_default_x:0",
+  "input_shape": [
+   32,
+   32,
+   32,
+   3
+  ],
+  "model": "T3",
+  "ops": [
+   "ADD",
+   "FULLY_CONNECTED",
+   "MEAN",
+   "MUL",
+   "PACK",
+   "RESHAPE",
+   "RSQRT",
+   "SOFTMAX",
+   "SPLIT",
+   "SQUARED_DIFFERENCE",
+   "SUB",
+   "TRANSPOSE"
+  ],
+  "output_name": "StatefulPartitionedCall:0",
+  "output_shape": [
+   32,
+   10
+  ],
+  "reference": {
+   "input": "val32.in.f32",
+   "input_sha256": "c88e82eca8079593ab4233d34389f030e896f0e1eb4ffbd86ca7fc15926c18a0",
+   "output": "T3.val32.keras.f32",
+   "output_shape": [
+    32,
+    10
+   ]
+  },
+  "seconds": 5.3,
+  "sha256": "ab1213e11f8ccde50c2fa31aacf0ee8e128a06ae6ef94ee22dd8fba3ad18d7f2",
+  "status": "ok",
+  "weights_sha256": "a49d48a1b385c86f0cb862ab84d7e5849500d05f2c51deeb941308a716c0bfc2"
+ },
+ "T4.b1": {
+  "batch": 1,
+  "bytes": 50763860,
+  "file": "T4.b1.trained.tflite",
+  "input_name": "serving_default_x:0",
+  "input_shape": [
+   1,
+   32,
+   32,
+   3
+  ],
+  "model": "T4",
+  "ops": [
+   "ADD",
+   "FULLY_CONNECTED",
+   "MEAN",
+   "MUL",
+   "PACK",
+   "RESHAPE",
+   "RSQRT",
+   "SOFTMAX",
+   "SPLIT",
+   "SQUARED_DIFFERENCE",
+   "SUB",
+   "TRANSPOSE"
+  ],
+  "output_name": "StatefulPartitionedCall:0",
+  "output_shape": [
+   1,
+   10
+  ],
+  "seconds": 5.8,
+  "sha256": "4100070d5849b21c92d280bc3f31f34d1363c8abd948f4781161822dfa9296ea",
+  "status": "ok",
+  "weights_sha256": "752c901e0b735573024be0967a8bd60d263e6cc39618cbc793cd1aeb1a3aab49"
+ },
+ "T4.b32": {
+  "batch": 32,
+  "bytes": 51734236,
+  "file": "T4.b32.trained.tflite",
+  "input_name": "serving_default_x:0",
+  "input_shape": [
+   32,
+   32,
+   32,
+   3
+  ],
+  "model": "T4",
+  "ops": [
+   "ADD",
+   "FULLY_CONNECTED",
+   "MEAN",
+   "MUL",
+   "PACK",
+   "RESHAPE",
+   "RSQRT",
+   "SOFTMAX",
+   "SPLIT",
+   "SQUARED_DIFFERENCE",
+   "SUB",
+   "TRANSPOSE"
+  ],
+  "output_name": "StatefulPartitionedCall:0",
+  "output_shape": [
+   32,
+   10
+  ],
+  "reference": {
+   "input": "val32.in.f32",
+   "input_sha256": "c88e82eca8079593ab4233d34389f030e896f0e1eb4ffbd86ca7fc15926c18a0",
+   "output": "T4.val32.keras.f32",
+   "output_shape": [
+    32,
+    10
+   ]
+  },
+  "seconds": 8.9,
+  "sha256": "b2b2c8b1f2afb940cd97baf288b28b5c1de253ad4f346e037ad641b550d7008e",
+  "status": "ok",
+  "weights_sha256": "752c901e0b735573024be0967a8bd60d263e6cc39618cbc793cd1aeb1a3aab49"
+ },
+ "T5.b1": {
+  "batch": 1,
+  "bytes": 252544476,
+  "file": "T5.b1.trained.tflite",
+  "input_name": "serving_default_x:0",
+  "input_shape": [
+   1,
+   32,
+   32,
+   3
+  ],
+  "model": "T5",
+  "ops": [
+   "ADD",
+   "FULLY_CONNECTED",
+   "MEAN",
+   "MUL",
+   "PACK",
+   "RESHAPE",
+   "RSQRT",
+   "SOFTMAX",
+   "SPLIT",
+   "SQUARED_DIFFERENCE",
+   "SUB",
+   "TRANSPOSE"
+  ],
+  "output_name": "StatefulPartitionedCall:0",
+  "output_shape": [
+   1,
+   10
+  ],
+  "seconds": 9.6,
+  "sha256": "6bd6c88ff575881f7872e1a149fbf2886a25558347f64d2710719647550838df",
+  "status": "ok",
+  "weights_sha256": "ce71c3b06fe6012d19ac1cb7f71ddeeefe32689890d8c40a1261bfd30ed76bf5"
+ },
+ "T5.b32": {
+  "batch": 32,
+  "bytes": 254976848,
+  "file": "T5.b32.trained.tflite",
+  "input_name": "serving_default_x:0",
+  "input_shape": [
+   32,
+   32,
+   32,
+   3
+  ],
+  "model": "T5",
+  "ops": [
+   "ADD",
+   "FULLY_CONNECTED",
+   "MEAN",
+   "MUL",
+   "PACK",
+   "RESHAPE",
+   "RSQRT",
+   "SOFTMAX",
+   "SPLIT",
+   "SQUARED_DIFFERENCE",
+   "SUB",
+   "TRANSPOSE"
+  ],
+  "output_name": "StatefulPartitionedCall:0",
+  "output_shape": [
+   32,
+   10
+  ],
+  "reference": {
+   "input": "val32.in.f32",
+   "input_sha256": "c88e82eca8079593ab4233d34389f030e896f0e1eb4ffbd86ca7fc15926c18a0",
+   "output": "T5.val32.keras.f32",
+   "output_shape": [
+    32,
+    10
+   ]
+  },
+  "seconds": 17.3,
+  "sha256": "0353b046d252d31b36062739e56b4331166ca8c2b62383fdfc734bfd173ad75f",
+  "status": "ok",
+  "weights_sha256": "ce71c3b06fe6012d19ac1cb7f71ddeeefe32689890d8c40a1261bfd30ed76bf5"
+ },
+ "_meta": {
+  "dtype": "float32",
+  "ops": "TFLITE_BUILTINS",
+  "tensorflow": "2.10.1",
+  "weights": "trained"
+ }
+}

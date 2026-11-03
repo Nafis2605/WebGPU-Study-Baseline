@@ -65,6 +65,9 @@ def device_id(override=None):
     """The id of this machine's result folder. Order: argument, TRAINBENCH_DEVICE, device.local.json, derived (and saved)."""
     if override:
         return override
+    if os.environ.get("TRAINBENCH_TARGET", "").lower() == "android":
+        from benchkit import android
+        return android.device_id()
     if os.environ.get("TRAINBENCH_DEVICE"):
         return os.environ["TRAINBENCH_DEVICE"]
     if DEVICE_FILE.exists():
@@ -77,6 +80,9 @@ def device_id(override=None):
 
 def browser_id(browser):
     """<name>-<pinned version>, e.g. chrome-157.0.8081.0 or firefox-158.0."""
+    if browser == "chrome" and os.environ.get("TRAINBENCH_TARGET", "").lower() == "android":
+        from benchkit import android
+        return android.browser_id()
     if browser == "chrome":
         from benchkit.chrome import version
     elif browser == "firefox":

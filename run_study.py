@@ -175,7 +175,80 @@ STAGES = {
 }
 NEEDS_IO = {"infer_native_correctness"}
 COOLED = {RB, RN}
-DIR_IS_RESULT = {"nsight/capture_matrix.py"}
+DIR_IS_RESULT = {"nsight/capture_matrix.py", "perfetto/capture_matrix_android.py"}
+
+# ---------------- Android target (TRAINBENCH_TARGET=android; Pixel 8a, benchkit/android.py) ----------------
+# Same browser stages, arguments, caps and trial counts; capacity changes (recorded in run.json): wasm-4t replaces wasm-8t
+# (TF.js grants 4 WASM threads there) and leaves the why-axes; the native CUDA stages are replaced by TFLite stages on the
+# phone; the Nsight matrix by the Perfetto matrix; the NVIDIA idle / boost guards by Mali ones (benchkit/android.py).
+ANDROID = os.environ.get("TRAINBENCH_TARGET", "").lower() == "android"
+RT = "native/tflite/run_tflite_android.py"
+ANDROID_PRIMARY = ["wasm-4t", "webgl", "webgpu"]
+ANDROID_NATIVE = {   # laptop native stage -> replacement on the phone (None: not run, with the reason)
+    "infer_native": [("infer_tflite", (RT, ["--mode", "latency", "--warmup", "10", "--measure", "200",
+                                            "--min-measure-s", "2", "--trials", "3"], []))],
+    "infer_native_correctness": [
+        ("infer_tflite_correctness", (RT, ["--mode", "correctness", "--correctness-batch", "32", "--trials", "1",
+                                           "--no-telemetry"], [])),
+        ("infer_tflite_correctness_b1", (RT, ["--mode", "correctness", "--correctness-batch", "1", "--trials", "1",
+                                              "--no-telemetry"], []))],
+}
+ANDROID_NOT_RUN = {
+    "infer_native_why": "CUDA execution variants; no TFLite counterpart",
+    "infer_native_batch": "TFLite GPU delegate output is wrong at batch 32 (measured on D1 / C1), so a GPU batch sweep "
+                          "would time wrong computations; per-batch conversions not made",
+    **{s: "TFLite has no GPU training path" for s in STAGES if STAGES[s][0] == RN and "train" in s},
+}
+ANDROID_CAPACITY = {
+    "wasm-8t": "replaced by wasm-4t (requested 8 WASM threads, TF.js granted 4 on the 9-core phone)",
+    "native": "TFLite (GPU delegate OpenCL fp32, XNNPACK 1/4/8 threads) instead of TensorFlow CUDA / CPU",
+    "gpu_trace": "Perfetto (Mali counters, GPU frequency, power rails, Chrome track events) instead of Nsight Systems; "
+                 "no render stages for Chrome",
+    "guards": "Mali idle frequency, boost probe and thermal-throttle re-runs instead of the NVIDIA SM-clock guards",
+    "webgl_gpu_timer": "not exposed by WebGL on the phone",
+}
+
+
+def android_stages():
+    from collections import OrderedDict
+    out = OrderedDict()
+    for name, (script, a, an) in STAGES.items():
+        if name in ANDROID_NATIVE:
+            out.update(ANDROID_NATIVE[name])
+            continue
+        if script == RN:
+            continue
+        if name == "gpu_trace":
+            out[name] = ("perfetto/capture_matrix_android.py", [], [])
+            continue
+        if name.endswith("_why"):
+            a = [x for x in a if x != "wasm-4t"]       # the phone's primary WASM config already
+        out[name] = (script, ["wasm-4t" if x == "wasm-8t" else x for x in a], an)
+    return out
+
+
+def android_boost_probe(study, timeout_s=900):
+    """The Mali GPU must boost: the laptop's probe workload (WebGPU D5 training, ~10 s of steps) must reach
+    >= android.BOOST_MHZ in the phone-side telemetry (the run's gpu_sm_clock_max_mhz)."""
+    from benchkit import android
+    t0, attempt = time.time(), 0
+    while True:
+        attempt += 1
+        outd = study / "_guards" / "boost_probe"
+        cmd = [PY, RB, "--mode", "train", "--config", "webgpu", "--filter", "D5", "--trials", "1", "--train-warmup", "10",
+               "--train-measure", "300", "--train-max-s", "10", "--no-infer-after-train", "--low-clock-retries", "0",
+               "--output-dir", str(outd)]
+        rc = subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True).returncode
+        mx = None
+        last = newest_subdir(outd) if outd.exists() else None
+        if last and (last / "experiments.jsonl").exists():
+            recs = [json.loads(x) for x in (last / "experiments.jsonl").read_text(encoding="utf-8").splitlines() if x.strip()]
+            mx = recs[-1].get("gpu_sm_clock_max_mhz") if recs else None
+        if rc == 0 and mx is not None and mx >= android.BOOST_MHZ:
+            return True, f"boost probe: Mali max {mx} MHz (attempt {attempt})"
+        if time.time() - t0 > timeout_s:
+            return False, f"boost probe failed: Mali max {mx} MHz after {attempt} attempts (rc {rc})"
+        time.sleep(60)
 
 
 def newest_subdir(path):
@@ -262,9 +335,9 @@ def verify_analyses(study):
     return [(name, run_logged([PY, *cmd], study / "analysis.log")) for name, cmd in jobs]
 
 
-def cross_stage_analyses(study):
+def cross_stage_analyses(study, stages=STAGES):
     """Analyses that combine stages; each writes into <study>/analysis/<name>/."""
-    have = {s: str(p) for s in STAGES if (p := stage_result(study, s))}
+    have = {s: str(p) for s in stages if (p := stage_result(study, s))}
     out = study / "analysis"
     out.mkdir(exist_ok=True)
 
@@ -314,7 +387,8 @@ def cross_stage_analyses(study):
         jobs.append(["analysis/data_movement.py", *dm, "--out", str(out / "data_movement")])
     if dirs("infer_latency", "infer_why"):
         jobs.append(["analysis/cost.py", *dirs("infer_latency", "infer_why"), "--out", str(out / "cost")])
-    mem = [have[s] for s in STAGES if s in have and s not in ("readback_micro", "gpu_trace")]
+    mem = [have[s] for s in stages if s in have and s not in ("readback_micro", "gpu_trace")
+           and stages[s][0] != RT]
     if mem:
         jobs.append(["analysis/memory.py", *mem, "--out", str(out / "memory")])
     for s in ("infer_responsiveness", "train_responsiveness"):
@@ -325,7 +399,7 @@ def cross_stage_analyses(study):
                      "--out", str(out / "load")])
     if "infer_native" in have and "infer_latency" in have:
         jobs.append(["analysis/native_compare.py", "--study", str(study), "--out", str(out / "native")])
-    if "gpu_trace" in have:
+    if "gpu_trace" in have and not ANDROID:   # Android: Perfetto traces, summarised by perfetto/trace_check.py per capture
         jobs.append(["analysis/nsys_summary.py", str(Path(have["gpu_trace"]) / "nsys"),
                      str(Path(have["gpu_trace"]) / "nsys_native"), "--out", str(out / "gpu_trace")])
     results = []
@@ -346,7 +420,7 @@ def keep_awake():
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--stages", nargs="+", default=None, choices=list(STAGES))
+    ap.add_argument("--stages", nargs="+", default=None, choices=list(android_stages() if ANDROID else STAGES))
     ap.add_argument("--flight", default=None, choices=("verify",),
                     help="verify: the Firefox verification flight (stage list and model subset above)")
     ap.add_argument("--resume", action="store_true", help="skip stages that already have stage_done.json")
@@ -378,22 +452,51 @@ def main():
     # The lock that governs this study, kept with its results (env.lock.json itself is not committed: it
     # records the commit it was frozen at).
     (study / "env.lock.json").write_text(envlock.LOCK.read_text(encoding="utf-8"), encoding="utf-8")
-    layout.update_run_manifest(study, kind="flight", run=study.name, flight=args.flight, browser=layout.browser_id(args.browser),
-                               device=layout.device_id(), harness=layout.harness_state(), command=sys.argv,
-                               env_lock_sha256=lock["sha256"], guard_settings=clockguard.guard_settings(),
-                               tool_paths=path_settings(), require_gpu_vendor=gpucheck.required_vendor())
+    stages = android_stages() if ANDROID else STAGES
+    if ANDROID:
+        from benchkit import android
+        if args.browser != "chrome":
+            ap.error("the Android target runs Chrome on the phone")
+        layout.update_run_manifest(study, kind="flight", run=study.name, flight=args.flight, target="android",
+                                   browser=layout.browser_id(args.browser), device=layout.device_id(),
+                                   harness=layout.harness_state(), command=sys.argv, env_lock_sha256=lock["sha256"],
+                                   android_device=android.device_info(), android_settings=android.settings_snapshot(),
+                                   android_guards={"cool_skin_c": android.COOL_SKIN_C, "cool_gpu_c": android.COOL_GPU_C,
+                                                   "cool_timeout_s": android.COOL_TIMEOUT_S,
+                                                   "idle_max_mhz": android.IDLE_MAX_MHZ, "boost_mhz": android.BOOST_MHZ},
+                                   capacity_changes=ANDROID_CAPACITY, stages_not_run=ANDROID_NOT_RUN,
+                                   require_gpu_vendor=gpucheck.required_vendor(),
+                                   laptop_role="orchestration only (adb, CDP, result collection); page served by Termux "
+                                               "and all workloads run on the phone")
+    else:
+        layout.update_run_manifest(study, kind="flight", run=study.name, flight=args.flight,
+                                   browser=layout.browser_id(args.browser), device=layout.device_id(),
+                                   harness=layout.harness_state(), command=sys.argv, env_lock_sha256=lock["sha256"],
+                                   guard_settings=clockguard.guard_settings(), tool_paths=path_settings(),
+                                   require_gpu_vendor=gpucheck.required_vendor())
     stage_args = json.loads(args.stage_args)
-    if args.flight == "verify":
+    if args.flight == "verify" and ANDROID:
+        # Android verify flight: every stage once, on the six-model SUBSET (one model per family), GPU traces with one
+        # repeat; it checks every stage end to end and gives the duration projection for the full flight.
+        args.stages = args.stages or list(stages)
+        for st in args.stages:
+            if st not in ("train_coverage", "readback_micro"):    # their own model lists / no models
+                stage_args[st] = [*stage_args.get(st, []), *F(*SUBSET)]
+        stage_args["gpu_trace"] = [*stage_args.get("gpu_trace", []), "--repeats", "1"]
+    elif args.flight == "verify":
         if args.browser == "chrome":
             ap.error("--flight verify is the replication flight: use --browser firefox")
         args.stages = args.stages or VERIFY_STAGES
         for st in VERIFY_SUBSET_STAGES:
             stage_args[st] = [*stage_args.get(st, []), *F(*SUBSET)]
-    args.stages = args.stages or list(STAGES)
+    args.stages = args.stages or list(stages)
+    bad = [s for s in args.stages if s not in stages]
+    if bad:
+        ap.error(f"not stages of this target: {bad}" + (f" ({ {s: ANDROID_NOT_RUN.get(s) for s in bad} })" if ANDROID else ""))
     summary = []
     if not args.analyze_only:
         for stage in args.stages:
-            script, bench_args, analyses = STAGES[stage]
+            script, bench_args, analyses = stages[stage]
             if args.browser != "chrome":
                 if script not in BROWSER_SCRIPTS:
                     summary.append((stage, f"not run: not a browser stage ({args.browser} replication)", 0, None))
@@ -412,21 +515,31 @@ def main():
                     continue
                 bench_args = [a.replace("{io}", str(corr / "io")) for a in bench_args]
             envlock.verify(scope="full")
-            ok, msg = idle_check()
+            if ANDROID:
+                android.apply_study_settings()
+                ok, info = android.server_ok()
+                if not ok:
+                    summary.append((stage, "not run: page server on the phone not answering", 0, None))
+                    print(f"\n=== {stage}: the Termux page server is not answering ({info[:120]}). Stopping.", flush=True)
+                    break
+                android.wait_cool()
+                ok, msg = android.idle_check()
+            else:
+                ok, msg = idle_check()
             print(f"\n=== {stage}: GPU idle check: {msg}", flush=True)
             if not ok:
                 summary.append((stage, "not run: GPU clocks locked", 0, None))
                 print("GPU clocks look locked (idle SM clock stays high). Stopping.", flush=True)
                 break
             if not args.no_boost_probe:
-                ok, msg = boost_probe(study)
+                ok, msg = android_boost_probe(study) if ANDROID else boost_probe(study)
                 print(f"=== {stage}: {msg}", flush=True)
                 if not ok:
                     summary.append((stage, "not run: GPU does not boost", 0, None))
                     break
             if args.browser != "chrome":
                 print(f"=== {stage}: {browser_priming(study, args.browser)}", flush=True)
-            common = ["--cool-to-c", COOL_TO_C] if script in COOLED else []
+            common = ["--cool-to-c", COOL_TO_C] if script in COOLED and not ANDROID else []   # phone: android.wait_cool
             stage_dir.mkdir(parents=True, exist_ok=True)
             out_args = ["--out", str(stage_dir)] if script in DIR_IS_RESULT else ["--output-dir", str(stage_dir)]
             cmd = [PY, script, *bench_args, *common, *out_args, *stage_args.get(stage, [])]
@@ -450,7 +563,14 @@ def main():
                 print(f"=== {stage} failed (exit {rc}); stopping so it can be fixed and resumed.", flush=True)
                 break
 
-    if args.flight == "verify" and not args.no_analyze:
+    if ANDROID:
+        for stage, why in ANDROID_NOT_RUN.items():
+            summary.append((stage, f"not run on Android: {why}"[:45], 0, None))
+    if ANDROID and not args.no_analyze:
+        print("\n=== Cross-stage analyses", flush=True)
+        for name, rc in cross_stage_analyses(study, stages):
+            summary.append((f"analysis:{Path(name).stem}", "ok" if rc == 0 else f"failed (exit {rc})", 0, study / "analysis"))
+    elif args.flight == "verify" and not args.no_analyze:
         for name, rc in verify_analyses(study):
             summary.append((f"analysis:{name}", "ok" if rc == 0 else f"failed (exit {rc})", 0, study / "analysis"))
     elif not args.no_analyze:

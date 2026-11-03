@@ -44,3 +44,7 @@ Thumbs.db
 
 # Environment lock: records the commit it was frozen at (a copy is written into every study folder)
 env.lock.json
+
+# Android target lock (benchkit/android.py)
+env.lock.android.json
+/public/tflite/*.tflite
